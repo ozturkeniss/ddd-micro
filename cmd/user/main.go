@@ -10,57 +10,19 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/ddd-micro/internal/user/application"
-	"github.com/ddd-micro/internal/user/domain"
-	"github.com/ddd-micro/internal/user/infrastructure/config"
-	"github.com/ddd-micro/internal/user/infrastructure/database"
-	"github.com/ddd-micro/internal/user/infrastructure/persistence"
-	userhttp "github.com/ddd-micro/internal/user/interfaces/http"
 	"github.com/gin-gonic/gin"
 )
 
 func main() {
-	// Load configuration
-	cfg := config.LoadConfig()
-
-	// Initialize database connection
-	db, err := database.NewPostgresConnection(database.Config{
-		Host:     cfg.Database.Host,
-		Port:     cfg.Database.Port,
-		User:     cfg.Database.User,
-		Password: cfg.Database.Password,
-		DBName:   cfg.Database.DBName,
-		SSLMode:  cfg.Database.SSLMode,
-	})
+	// Initialize application with Wire dependency injection
+	app, err := InitializeApp()
 	if err != nil {
-		log.Fatalf("Failed to connect to database: %v", err)
+		log.Fatalf("Failed to initialize application: %v", err)
 	}
-	defer db.Close()
-
-	// Auto migrate database schema
-	if err := db.GetDB().AutoMigrate(&domain.User{}); err != nil {
-		log.Fatalf("Failed to migrate database: %v", err)
-	}
-	log.Println("Database migration completed successfully")
-
-	// Initialize repository
-	userRepo := persistence.NewUserRepository(db.GetDB())
-
-	// Initialize service with CQRS
-	jwtSecret := getEnv("JWT_SECRET", "your-secret-key-change-in-production")
-	tokenDuration := 24 * time.Hour
-	userService := application.NewUserServiceCQRS(userRepo, jwtSecret, tokenDuration)
-
-	// Initialize Gin router
-	ginMode := getEnv("GIN_MODE", "debug")
-	gin.SetMode(ginMode)
-	router := gin.Default()
-
-	// Add CORS middleware
-	router.Use(userhttp.CORSMiddleware())
+	defer app.Database.Close()
 
 	// Health check endpoint
-	router.GET("/health", func(c *gin.Context) {
+	app.Router.GET("/health", func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{
 			"status":  "healthy",
 			"service": "user-service",
@@ -68,16 +30,22 @@ func main() {
 		})
 	})
 
-	// Setup routes
-	userhttp.SetupRoutes(router, userService)
-
 	// Server configuration
 	port := getEnv("PORT", "8080")
+	ginMode := getEnv("GIN_MODE", "debug")
+	
+	// Set Gin mode
+	if ginMode == "release" {
+		gin.SetMode(gin.ReleaseMode)
+	} else {
+		gin.SetMode(gin.DebugMode)
+	}
+
 	serverAddr := fmt.Sprintf(":%s", port)
 
 	srv := &http.Server{
 		Addr:         serverAddr,
-		Handler:      router,
+		Handler:      app.Router,
 		ReadTimeout:  15 * time.Second,
 		WriteTimeout: 15 * time.Second,
 		IdleTimeout:  60 * time.Second,
@@ -85,7 +53,7 @@ func main() {
 
 	// Start server in a goroutine
 	go func() {
-		log.Printf("Starting User Service on port %s...", port)
+		log.Printf("Starting User Service with CQRS + DI on port %s...", port)
 		if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
 			log.Fatalf("Failed to start server: %v", err)
 		}
