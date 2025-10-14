@@ -12,8 +12,10 @@ import (
 	"github.com/ddd-micro/internal/user/application/query"
 	"github.com/ddd-micro/internal/user/infrastructure"
 	"github.com/ddd-micro/internal/user/infrastructure/database"
+	"github.com/ddd-micro/internal/user/interfaces/grpc"
 	"github.com/ddd-micro/internal/user/interfaces/http"
 	"github.com/gin-gonic/gin"
+	grpc2 "google.golang.org/grpc"
 )
 
 // Injectors from wire.go:
@@ -42,7 +44,10 @@ func InitializeApp() (*App, error) {
 	jwtHelper := application.ProvideJWTHelper(string2, duration)
 	userServiceCQRS := application.ProvideUserServiceCQRS(createUserHandler, updateUserHandler, updateUserByAdminHandler, deleteUserHandler, changePasswordHandler, assignRoleHandler, loginHandler, getUserByIDHandler, getUserByEmailHandler, listUsersHandler, jwtHelper)
 	engine := http.ProvideRouter(userServiceCQRS)
-	app := NewApp(engine, userServiceCQRS, database)
+	userServer := grpc.NewUserServer(userServiceCQRS)
+	authInterceptor := grpc.NewAuthInterceptor(userServiceCQRS)
+	server := grpc.ProvideGRPCServer(userServer, authInterceptor)
+	app := NewApp(engine, server, userServiceCQRS, database)
 	return app, nil
 }
 
@@ -50,19 +55,22 @@ func InitializeApp() (*App, error) {
 
 // App holds all application dependencies
 type App struct {
-	Router      *gin.Engine
+	HTTPRouter  *gin.Engine
+	GRPCServer  *grpc2.Server
 	UserService *application.UserServiceCQRS
 	Database    *database.Database
 }
 
 // NewApp creates a new App instance
 func NewApp(
-	router *gin.Engine,
+	httpRouter *gin.Engine,
+	grpcServer *grpc2.Server,
 	userService *application.UserServiceCQRS,
 	db *database.Database,
 ) *App {
 	return &App{
-		Router:      router,
+		HTTPRouter:  httpRouter,
+		GRPCServer:  grpcServer,
 		UserService: userService,
 		Database:    db,
 	}
