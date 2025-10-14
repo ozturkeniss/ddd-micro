@@ -1,8 +1,7 @@
 package grpc
 
 import (
-	"github.com/ddd-micro/api/proto/user"
-	"github.com/ddd-micro/internal/user/application"
+	userpb "github.com/ddd-micro/api/proto/user"
 	"github.com/google/wire"
 	"google.golang.org/grpc"
 )
@@ -21,7 +20,7 @@ func ProvideGRPCServer(userServer *UserServer, authInterceptor *AuthInterceptor)
 	)
 
 	// Register user service
-	user.RegisterUserServiceServer(grpcServer, userServer)
+	userpb.RegisterUserServiceServer(grpcServer, userServer)
 
 	return grpcServer
 }
