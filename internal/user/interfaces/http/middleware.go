@@ -17,7 +17,7 @@ const (
 )
 
 // AuthMiddleware creates a middleware for JWT authentication
-func AuthMiddleware(userService *application.UserService) gin.HandlerFunc {
+func AuthMiddleware(userService *application.UserServiceCQRS) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		// Get authorization header
 		authHeader := c.GetHeader(AuthorizationHeader)

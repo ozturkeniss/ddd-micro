@@ -4,8 +4,8 @@ import (
 	"context"
 	"errors"
 
-	"github.com/ddd-micro/internal/user/application"
 	"github.com/ddd-micro/internal/user/domain"
+	"github.com/ddd-micro/pkg/security"
 )
 
 var (
@@ -22,14 +22,14 @@ type ChangePasswordCommand struct {
 // ChangePasswordHandler handles the ChangePasswordCommand
 type ChangePasswordHandler struct {
 	repo           domain.UserRepository
-	passwordHasher *application.PasswordHasher
+	passwordHasher *security.PasswordHasher
 }
 
 // NewChangePasswordHandler creates a new ChangePasswordHandler
 func NewChangePasswordHandler(repo domain.UserRepository) *ChangePasswordHandler {
 	return &ChangePasswordHandler{
 		repo:           repo,
-		passwordHasher: application.NewPasswordHasher(),
+		passwordHasher: security.NewPasswordHasher(),
 	}
 }
 

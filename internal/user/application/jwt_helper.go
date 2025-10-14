@@ -1,95 +1,57 @@
 package application
 
 import (
-	"errors"
 	"time"
 
 	"github.com/ddd-micro/internal/user/domain"
-	"github.com/golang-jwt/jwt/v5"
+	"github.com/ddd-micro/pkg/security"
 )
 
 var (
-	ErrInvalidToken = errors.New("invalid token")
-	ErrExpiredToken = errors.New("token has expired")
+	ErrInvalidToken = security.ErrInvalidToken
+	ErrExpiredToken = security.ErrExpiredToken
 )
 
-// JWTClaims represents the JWT claims
+// JWTClaims wraps security.JWTClaims with domain.Role
 type JWTClaims struct {
 	UserID uint        `json:"user_id"`
 	Email  string      `json:"email"`
 	Role   domain.Role `json:"role"`
-	jwt.RegisteredClaims
 }
 
-// JWTHelper handles JWT token operations
+// JWTHelper wraps security.JWTHelper for application use
 type JWTHelper struct {
-	secretKey     []byte
-	tokenDuration time.Duration
+	helper *security.JWTHelper
 }
 
 // NewJWTHelper creates a new JWT helper
 func NewJWTHelper(secretKey string, tokenDuration time.Duration) *JWTHelper {
 	return &JWTHelper{
-		secretKey:     []byte(secretKey),
-		tokenDuration: tokenDuration,
+		helper: security.NewJWTHelper(secretKey, tokenDuration),
 	}
 }
 
 // GenerateToken generates a new JWT token for a user
 func (j *JWTHelper) GenerateToken(userID uint, email string, role domain.Role) (string, error) {
-	claims := JWTClaims{
-		UserID: userID,
-		Email:  email,
-		Role:   role,
-		RegisteredClaims: jwt.RegisteredClaims{
-			ExpiresAt: jwt.NewNumericDate(time.Now().Add(j.tokenDuration)),
-			IssuedAt:  jwt.NewNumericDate(time.Now()),
-			NotBefore: jwt.NewNumericDate(time.Now()),
-		},
-	}
-
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	tokenString, err := token.SignedString(j.secretKey)
-	if err != nil {
-		return "", err
-	}
-
-	return tokenString, nil
+	return j.helper.GenerateToken(userID, email, role.String())
 }
 
 // ValidateToken validates a JWT token and returns the claims
 func (j *JWTHelper) ValidateToken(tokenString string) (*JWTClaims, error) {
-	token, err := jwt.ParseWithClaims(tokenString, &JWTClaims{}, func(token *jwt.Token) (interface{}, error) {
-		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
-			return nil, ErrInvalidToken
-		}
-		return j.secretKey, nil
-	})
-
+	claims, err := j.helper.ValidateToken(tokenString)
 	if err != nil {
 		return nil, err
 	}
 
-	claims, ok := token.Claims.(*JWTClaims)
-	if !ok || !token.Valid {
-		return nil, ErrInvalidToken
-	}
-
-	// Check if token is expired
-	if claims.ExpiresAt.Before(time.Now()) {
-		return nil, ErrExpiredToken
-	}
-
-	return claims, nil
+	return &JWTClaims{
+		UserID: claims.UserID,
+		Email:  claims.Email,
+		Role:   domain.Role(claims.Role),
+	}, nil
 }
 
 // RefreshToken generates a new token with extended expiration
 func (j *JWTHelper) RefreshToken(tokenString string) (string, error) {
-	claims, err := j.ValidateToken(tokenString)
-	if err != nil {
-		return "", err
-	}
-
-	return j.GenerateToken(claims.UserID, claims.Email, claims.Role)
+	return j.helper.RefreshToken(tokenString)
 }
 

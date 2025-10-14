@@ -3,8 +3,8 @@ package command
 import (
 	"context"
 
-	"github.com/ddd-micro/internal/user/application"
 	"github.com/ddd-micro/internal/user/domain"
+	"github.com/ddd-micro/pkg/security"
 )
 
 // CreateUserCommand represents a command to create a new user
@@ -18,14 +18,14 @@ type CreateUserCommand struct {
 // CreateUserHandler handles the CreateUserCommand
 type CreateUserHandler struct {
 	repo           domain.UserRepository
-	passwordHasher *application.PasswordHasher
+	passwordHasher *security.PasswordHasher
 }
 
 // NewCreateUserHandler creates a new CreateUserHandler
 func NewCreateUserHandler(repo domain.UserRepository) *CreateUserHandler {
 	return &CreateUserHandler{
 		repo:           repo,
-		passwordHasher: application.NewPasswordHasher(),
+		passwordHasher: security.NewPasswordHasher(),
 	}
 }
 

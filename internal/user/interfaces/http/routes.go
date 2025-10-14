@@ -7,7 +7,7 @@ import (
 )
 
 // SetupRoutes configures all user-related routes
-func SetupRoutes(router *gin.Engine, userService *application.UserService) {
+func SetupRoutes(router *gin.Engine, userService *application.UserServiceCQRS) {
 	// Create handler
 	userHandler := NewUserHandler(userService)
 

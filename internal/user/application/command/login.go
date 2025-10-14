@@ -5,8 +5,8 @@ import (
 	"errors"
 	"time"
 
-	"github.com/ddd-micro/internal/user/application"
 	"github.com/ddd-micro/internal/user/domain"
+	"github.com/ddd-micro/pkg/security"
 )
 
 var (
@@ -29,16 +29,16 @@ type LoginResult struct {
 // LoginHandler handles the LoginCommand
 type LoginHandler struct {
 	repo           domain.UserRepository
-	passwordHasher *application.PasswordHasher
-	jwtHelper      *application.JWTHelper
+	passwordHasher *security.PasswordHasher
+	jwtHelper      *security.JWTHelper
 }
 
 // NewLoginHandler creates a new LoginHandler
 func NewLoginHandler(repo domain.UserRepository, jwtSecret string, tokenDuration time.Duration) *LoginHandler {
 	return &LoginHandler{
 		repo:           repo,
-		passwordHasher: application.NewPasswordHasher(),
-		jwtHelper:      application.NewJWTHelper(jwtSecret, tokenDuration),
+		passwordHasher: security.NewPasswordHasher(),
+		jwtHelper:      security.NewJWTHelper(jwtSecret, tokenDuration),
 	}
 }
 
@@ -61,7 +61,7 @@ func (h *LoginHandler) Handle(ctx context.Context, cmd LoginCommand) (*LoginResu
 	}
 
 	// Generate JWT token
-	token, err := h.jwtHelper.GenerateToken(user.ID, user.Email, user.Role)
+	token, err := h.jwtHelper.GenerateToken(user.ID, user.Email, user.Role.String())
 	if err != nil {
 		return nil, err
 	}
