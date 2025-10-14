@@ -3,6 +3,7 @@ package command
 import (
 	"context"
 	"errors"
+	"time"
 
 	"github.com/ddd-micro/internal/user/application"
 	"github.com/ddd-micro/internal/user/domain"
@@ -33,7 +34,7 @@ type LoginHandler struct {
 }
 
 // NewLoginHandler creates a new LoginHandler
-func NewLoginHandler(repo domain.UserRepository, jwtSecret string, tokenDuration int64) *LoginHandler {
+func NewLoginHandler(repo domain.UserRepository, jwtSecret string, tokenDuration time.Duration) *LoginHandler {
 	return &LoginHandler{
 		repo:           repo,
 		passwordHasher: application.NewPasswordHasher(),
