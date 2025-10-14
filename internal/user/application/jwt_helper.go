@@ -4,6 +4,7 @@ import (
 	"errors"
 	"time"
 
+	"github.com/ddd-micro/internal/user/domain"
 	"github.com/golang-jwt/jwt/v5"
 )
 
@@ -14,8 +15,9 @@ var (
 
 // JWTClaims represents the JWT claims
 type JWTClaims struct {
-	UserID uint   `json:"user_id"`
-	Email  string `json:"email"`
+	UserID uint        `json:"user_id"`
+	Email  string      `json:"email"`
+	Role   domain.Role `json:"role"`
 	jwt.RegisteredClaims
 }
 
@@ -34,10 +36,11 @@ func NewJWTHelper(secretKey string, tokenDuration time.Duration) *JWTHelper {
 }
 
 // GenerateToken generates a new JWT token for a user
-func (j *JWTHelper) GenerateToken(userID uint, email string) (string, error) {
+func (j *JWTHelper) GenerateToken(userID uint, email string, role domain.Role) (string, error) {
 	claims := JWTClaims{
 		UserID: userID,
 		Email:  email,
+		Role:   role,
 		RegisteredClaims: jwt.RegisteredClaims{
 			ExpiresAt: jwt.NewNumericDate(time.Now().Add(j.tokenDuration)),
 			IssuedAt:  jwt.NewNumericDate(time.Now()),
@@ -87,6 +90,6 @@ func (j *JWTHelper) RefreshToken(tokenString string) (string, error) {
 		return "", err
 	}
 
-	return j.GenerateToken(claims.UserID, claims.Email)
+	return j.GenerateToken(claims.UserID, claims.Email, claims.Role)
 }
 

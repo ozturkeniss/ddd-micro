@@ -43,6 +43,7 @@ func (s *UserService) CreateUser(ctx context.Context, req CreateUserRequest) (*U
 		Password:  hashedPassword,
 		FirstName: req.FirstName,
 		LastName:  req.LastName,
+		Role:      domain.RoleUser, // Default role is user
 		IsActive:  true,
 	}
 
@@ -73,7 +74,7 @@ func (s *UserService) Login(ctx context.Context, req LoginRequest) (*LoginRespon
 	}
 
 	// Generate JWT token
-	token, err := s.jwtHelper.GenerateToken(user.ID, user.Email)
+	token, err := s.jwtHelper.GenerateToken(user.ID, user.Email, user.Role)
 	if err != nil {
 		return nil, err
 	}
@@ -197,6 +198,7 @@ func (s *UserService) toUserResponse(user *domain.User) *UserResponse {
 		Email:     user.Email,
 		FirstName: user.FirstName,
 		LastName:  user.LastName,
+		Role:      user.Role,
 		IsActive:  user.IsActive,
 		CreatedAt: user.CreatedAt,
 		UpdatedAt: user.UpdatedAt,

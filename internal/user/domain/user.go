@@ -13,6 +13,7 @@ type User struct {
 	Password  string         `gorm:"not null;size:255" json:"-"`
 	FirstName string         `gorm:"size:100" json:"first_name"`
 	LastName  string         `gorm:"size:100" json:"last_name"`
+	Role      Role           `gorm:"type:varchar(20);default:'user'" json:"role"`
 	IsActive  bool           `gorm:"default:true" json:"is_active"`
 	CreatedAt time.Time      `gorm:"autoCreateTime" json:"created_at"`
 	UpdatedAt time.Time      `gorm:"autoUpdateTime" json:"updated_at"`
@@ -47,5 +48,22 @@ func (u *User) Deactivate() {
 // GetFullName returns the full name of the user
 func (u *User) GetFullName() string {
 	return u.FirstName + " " + u.LastName
+}
+
+// IsAdmin checks if the user has admin role
+func (u *User) IsAdmin() bool {
+	return u.Role.IsAdmin()
+}
+
+// HasRole checks if the user has the specified role
+func (u *User) HasRole(role Role) bool {
+	return u.Role == role
+}
+
+// AssignRole assigns a new role to the user
+func (u *User) AssignRole(role Role) {
+	if role.IsValid() {
+		u.Role = role
+	}
 }
 

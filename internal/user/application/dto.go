@@ -1,6 +1,10 @@
 package application
 
-import "time"
+import (
+	"time"
+
+	"github.com/ddd-micro/internal/user/domain"
+)
 
 // CreateUserRequest represents the request to create a new user
 type CreateUserRequest struct {
@@ -25,13 +29,14 @@ type LoginRequest struct {
 
 // UserResponse represents the user response
 type UserResponse struct {
-	ID        uint      `json:"id"`
-	Email     string    `json:"email"`
-	FirstName string    `json:"first_name"`
-	LastName  string    `json:"last_name"`
-	IsActive  bool      `json:"is_active"`
-	CreatedAt time.Time `json:"created_at"`
-	UpdatedAt time.Time `json:"updated_at"`
+	ID        uint        `json:"id"`
+	Email     string      `json:"email"`
+	FirstName string      `json:"first_name"`
+	LastName  string      `json:"last_name"`
+	Role      domain.Role `json:"role"`
+	IsActive  bool        `json:"is_active"`
+	CreatedAt time.Time   `json:"created_at"`
+	UpdatedAt time.Time   `json:"updated_at"`
 }
 
 // LoginResponse represents the login response with token
