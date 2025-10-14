@@ -7,9 +7,11 @@ import (
 	"github.com/ddd-micro/internal/user/application"
 	"github.com/ddd-micro/internal/user/infrastructure"
 	"github.com/ddd-micro/internal/user/infrastructure/database"
+	usergrpc "github.com/ddd-micro/internal/user/interfaces/grpc"
 	userhttp "github.com/ddd-micro/internal/user/interfaces/http"
 	"github.com/gin-gonic/gin"
 	"github.com/google/wire"
+	"google.golang.org/grpc"
 )
 
 // InitializeApp initializes the entire application with all dependencies
@@ -25,6 +27,9 @@ func InitializeApp() (*App, error) {
 		// HTTP interface providers
 		userhttp.ProviderSet,
 
+		// gRPC interface providers
+		usergrpc.ProviderSet,
+
 		// App constructor
 		NewApp,
 	)
@@ -33,19 +38,22 @@ func InitializeApp() (*App, error) {
 
 // App holds all application dependencies
 type App struct {
-	Router      *gin.Engine
+	HTTPRouter  *gin.Engine
+	GRPCServer  *grpc.Server
 	UserService *application.UserServiceCQRS
 	Database    *database.Database
 }
 
 // NewApp creates a new App instance
 func NewApp(
-	router *gin.Engine,
+	httpRouter *gin.Engine,
+	grpcServer *grpc.Server,
 	userService *application.UserServiceCQRS,
 	db *database.Database,
 ) *App {
 	return &App{
-		Router:      router,
+		HTTPRouter:  httpRouter,
+		GRPCServer:  grpcServer,
 		UserService: userService,
 		Database:    db,
 	}
