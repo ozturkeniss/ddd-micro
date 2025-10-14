@@ -285,3 +285,77 @@ func (h *UserHandler) RefreshToken(c *gin.Context) {
 	})
 }
 
+// ========== ADMIN HANDLERS ==========
+
+// UpdateUserByAdmin updates any user's information (admin only)
+// @Summary Update user by admin
+// @Tags admin
+// @Security BearerAuth
+// @Accept json
+// @Produce json
+// @Param id path int true "User ID"
+// @Param request body application.UpdateUserByAdminRequest true "Update data"
+// @Success 200 {object} Response{data=application.UserResponse}
+// @Failure 400 {object} Response
+// @Failure 401 {object} Response
+// @Failure 403 {object} Response
+// @Router /admin/users/{id} [put]
+func (h *UserHandler) UpdateUserByAdmin(c *gin.Context) {
+	idParam := c.Param("id")
+	id, err := strconv.ParseUint(idParam, 10, 32)
+	if err != nil {
+		ErrorResponse(c, http.StatusBadRequest, "Invalid user ID", err)
+		return
+	}
+
+	var req application.UpdateUserByAdminRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		ValidationErrorResponse(c, err)
+		return
+	}
+
+	user, err := h.userService.UpdateUserByAdmin(c.Request.Context(), uint(id), req)
+	if err != nil {
+		ErrorResponse(c, http.StatusInternalServerError, "Failed to update user", err)
+		return
+	}
+
+	SuccessResponse(c, http.StatusOK, "User updated successfully by admin", user)
+}
+
+// AssignRole assigns a role to a user (admin only)
+// @Summary Assign role to user
+// @Tags admin
+// @Security BearerAuth
+// @Accept json
+// @Produce json
+// @Param id path int true "User ID"
+// @Param request body application.AssignRoleRequest true "Role data"
+// @Success 200 {object} Response{data=application.UserResponse}
+// @Failure 400 {object} Response
+// @Failure 401 {object} Response
+// @Failure 403 {object} Response
+// @Router /admin/users/{id}/assign-role [post]
+func (h *UserHandler) AssignRole(c *gin.Context) {
+	idParam := c.Param("id")
+	id, err := strconv.ParseUint(idParam, 10, 32)
+	if err != nil {
+		ErrorResponse(c, http.StatusBadRequest, "Invalid user ID", err)
+		return
+	}
+
+	var req application.AssignRoleRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		ValidationErrorResponse(c, err)
+		return
+	}
+
+	user, err := h.userService.AssignRole(c.Request.Context(), uint(id), req.Role)
+	if err != nil {
+		ErrorResponse(c, http.StatusInternalServerError, "Failed to assign role", err)
+		return
+	}
+
+	SuccessResponse(c, http.StatusOK, "Role assigned successfully", user)
+}
+

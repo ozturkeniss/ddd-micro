@@ -14,11 +14,23 @@ type CreateUserRequest struct {
 	LastName  string `json:"last_name" binding:"required"`
 }
 
-// UpdateUserRequest represents the request to update a user
+// UpdateUserRequest represents the request to update a user (self-update)
 type UpdateUserRequest struct {
 	FirstName string `json:"first_name"`
 	LastName  string `json:"last_name"`
-	IsActive  *bool  `json:"is_active"`
+}
+
+// UpdateUserByAdminRequest represents the request for admin to update any user
+type UpdateUserByAdminRequest struct {
+	FirstName string      `json:"first_name"`
+	LastName  string      `json:"last_name"`
+	Role      domain.Role `json:"role"`
+	IsActive  *bool       `json:"is_active"`
+}
+
+// AssignRoleRequest represents the request to assign a role to a user
+type AssignRoleRequest struct {
+	Role domain.Role `json:"role" binding:"required"`
 }
 
 // LoginRequest represents the login credentials

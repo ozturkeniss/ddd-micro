@@ -2,6 +2,7 @@ package http
 
 import (
 	"github.com/ddd-micro/internal/user/application"
+	"github.com/ddd-micro/internal/user/domain"
 	"github.com/gin-gonic/gin"
 )
 
@@ -13,27 +14,39 @@ func SetupRoutes(router *gin.Engine, userService *application.UserService) {
 	// API v1 group
 	v1 := router.Group("/api/v1")
 	{
-		// Public routes
-		users := v1.Group("/users")
+		// ========== PUBLIC ROUTES ==========
+		// No authentication required
+		publicUsers := v1.Group("/users")
 		{
-			users.POST("/register", userHandler.Register)
-			users.POST("/login", userHandler.Login)
-			users.POST("/refresh-token", userHandler.RefreshToken)
+			publicUsers.POST("/register", userHandler.Register)
+			publicUsers.POST("/login", userHandler.Login)
+			publicUsers.POST("/refresh-token", userHandler.RefreshToken)
 		}
 
-		// Protected routes (require authentication)
-		authenticated := v1.Group("/users")
-		authenticated.Use(AuthMiddleware(userService))
+		// ========== USER ROUTES (User + Admin can access) ==========
+		// Requires authentication as User or Admin
+		userRoutes := v1.Group("/users")
+		userRoutes.Use(AuthMiddleware(userService))
+		userRoutes.Use(RequireRoles(domain.RoleUser, domain.RoleAdmin))
 		{
-			// Profile routes
-			authenticated.GET("/profile", userHandler.GetProfile)
-			authenticated.PUT("/profile", userHandler.UpdateProfile)
-			authenticated.POST("/change-password", userHandler.ChangePassword)
+			// Profile routes - authenticated users can manage their own profile
+			userRoutes.GET("/profile", userHandler.GetProfile)
+			userRoutes.PUT("/profile", userHandler.UpdateProfile)
+			userRoutes.POST("/change-password", userHandler.ChangePassword)
+		}
 
-			// User management routes
-			authenticated.GET("", userHandler.ListUsers)
-			authenticated.GET("/:id", userHandler.GetUserByID)
-			authenticated.DELETE("/:id", userHandler.DeleteUser)
+		// ========== ADMIN ROUTES (Only Admin can access) ==========
+		// Requires authentication as Admin
+		adminRoutes := v1.Group("/admin/users")
+		adminRoutes.Use(AuthMiddleware(userService))
+		adminRoutes.Use(RequireAdmin())
+		{
+			// User management - only admins
+			adminRoutes.GET("", userHandler.ListUsers)
+			adminRoutes.GET("/:id", userHandler.GetUserByID)
+			adminRoutes.PUT("/:id", userHandler.UpdateUserByAdmin)
+			adminRoutes.DELETE("/:id", userHandler.DeleteUser)
+			adminRoutes.POST("/:id/assign-role", userHandler.AssignRole)
 		}
 	}
 }

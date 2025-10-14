@@ -105,8 +105,32 @@ func (s *UserService) GetUserByEmail(ctx context.Context, email string) (*UserRe
 	return s.toUserResponse(user), nil
 }
 
-// UpdateUser updates a user's information
+// UpdateUser updates a user's information (self-update)
 func (s *UserService) UpdateUser(ctx context.Context, id uint, req UpdateUserRequest) (*UserResponse, error) {
+	// Get existing user
+	user, err := s.repo.GetByID(ctx, id)
+	if err != nil {
+		return nil, err
+	}
+
+	// Update fields (users can only update their name)
+	if req.FirstName != "" {
+		user.FirstName = req.FirstName
+	}
+	if req.LastName != "" {
+		user.LastName = req.LastName
+	}
+
+	// Save changes
+	if err := s.repo.Update(ctx, user); err != nil {
+		return nil, err
+	}
+
+	return s.toUserResponse(user), nil
+}
+
+// UpdateUserByAdmin updates any user's information (admin only)
+func (s *UserService) UpdateUserByAdmin(ctx context.Context, id uint, req UpdateUserByAdminRequest) (*UserResponse, error) {
 	// Get existing user
 	user, err := s.repo.GetByID(ctx, id)
 	if err != nil {
@@ -120,9 +144,36 @@ func (s *UserService) UpdateUser(ctx context.Context, id uint, req UpdateUserReq
 	if req.LastName != "" {
 		user.LastName = req.LastName
 	}
+	if req.Role != "" && req.Role.IsValid() {
+		user.AssignRole(req.Role)
+	}
 	if req.IsActive != nil {
 		user.IsActive = *req.IsActive
 	}
+
+	// Save changes
+	if err := s.repo.Update(ctx, user); err != nil {
+		return nil, err
+	}
+
+	return s.toUserResponse(user), nil
+}
+
+// AssignRole assigns a role to a user (admin only)
+func (s *UserService) AssignRole(ctx context.Context, userID uint, role domain.Role) (*UserResponse, error) {
+	// Validate role
+	if !role.IsValid() {
+		return nil, errors.New("invalid role")
+	}
+
+	// Get user
+	user, err := s.repo.GetByID(ctx, userID)
+	if err != nil {
+		return nil, err
+	}
+
+	// Assign role
+	user.AssignRole(role)
 
 	// Save changes
 	if err := s.repo.Update(ctx, user); err != nil {
