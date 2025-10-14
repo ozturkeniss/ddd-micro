@@ -1,0 +1,140 @@
+syntax = "proto3";
+
+package user;
+
+option go_package = "github.com/ddd-micro/api/proto/user;userpb";
+
+import "google/protobuf/timestamp.proto";
+
+// UserService defines the gRPC service for user management
+service UserService {
+  // Public endpoints
+  rpc Register(RegisterRequest) returns (RegisterResponse);
+  rpc Login(LoginRequest) returns (LoginResponse);
+  rpc RefreshToken(RefreshTokenRequest) returns (RefreshTokenResponse);
+  
+  // User endpoints (authenticated)
+  rpc GetProfile(GetProfileRequest) returns (UserResponse);
+  rpc UpdateProfile(UpdateProfileRequest) returns (UserResponse);
+  rpc ChangePassword(ChangePasswordRequest) returns (ChangePasswordResponse);
+  
+  // Admin endpoints
+  rpc GetUser(GetUserRequest) returns (UserResponse);
+  rpc ListUsers(ListUsersRequest) returns (ListUsersResponse);
+  rpc UpdateUser(UpdateUserRequest) returns (UserResponse);
+  rpc DeleteUser(DeleteUserRequest) returns (DeleteUserResponse);
+  rpc AssignRole(AssignRoleRequest) returns (UserResponse);
+}
+
+// User message
+message User {
+  uint32 id = 1;
+  string email = 2;
+  string first_name = 3;
+  string last_name = 4;
+  string role = 5;
+  bool is_active = 6;
+  google.protobuf.Timestamp created_at = 7;
+  google.protobuf.Timestamp updated_at = 8;
+}
+
+// Register messages
+message RegisterRequest {
+  string email = 1;
+  string password = 2;
+  string first_name = 3;
+  string last_name = 4;
+}
+
+message RegisterResponse {
+  User user = 1;
+}
+
+// Login messages
+message LoginRequest {
+  string email = 1;
+  string password = 2;
+}
+
+message LoginResponse {
+  User user = 1;
+  string token = 2;
+}
+
+// RefreshToken messages
+message RefreshTokenRequest {
+  string token = 1;
+}
+
+message RefreshTokenResponse {
+  string token = 1;
+}
+
+// GetProfile messages
+message GetProfileRequest {
+  // User ID will come from JWT token in metadata
+}
+
+// UpdateProfile messages
+message UpdateProfileRequest {
+  string first_name = 1;
+  string last_name = 2;
+}
+
+// ChangePassword messages
+message ChangePasswordRequest {
+  string old_password = 1;
+  string new_password = 2;
+}
+
+message ChangePasswordResponse {
+  string message = 1;
+}
+
+// GetUser messages
+message GetUserRequest {
+  uint32 id = 1;
+}
+
+// ListUsers messages
+message ListUsersRequest {
+  int32 offset = 1;
+  int32 limit = 2;
+}
+
+message ListUsersResponse {
+  repeated User users = 1;
+  int32 total = 2;
+  int32 offset = 3;
+  int32 limit = 4;
+}
+
+// UpdateUser messages (Admin)
+message UpdateUserRequest {
+  uint32 id = 1;
+  string first_name = 2;
+  string last_name = 3;
+  string role = 4;
+  optional bool is_active = 5;
+}
+
+// DeleteUser messages
+message DeleteUserRequest {
+  uint32 id = 1;
+}
+
+message DeleteUserResponse {
+  string message = 1;
+}
+
+// AssignRole messages
+message AssignRoleRequest {
+  uint32 id = 1;
+  string role = 2;
+}
+
+// UserResponse is a general response containing a user
+message UserResponse {
+  User user = 1;
+}
+
