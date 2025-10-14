@@ -46,10 +46,10 @@ func main() {
 	// Initialize repository
 	userRepo := persistence.NewUserRepository(db.GetDB())
 
-	// Initialize service
+	// Initialize service with CQRS
 	jwtSecret := getEnv("JWT_SECRET", "your-secret-key-change-in-production")
 	tokenDuration := 24 * time.Hour
-	userService := application.NewUserService(userRepo, jwtSecret, tokenDuration)
+	userService := application.NewUserServiceCQRS(userRepo, jwtSecret, tokenDuration)
 
 	// Initialize Gin router
 	ginMode := getEnv("GIN_MODE", "debug")
