@@ -1,7 +1,5 @@
 version: '3.8'
-
 services:
-  # PostgreSQL Database for User Service
   user-db:
     image: postgres:15-alpine
     container_name: user-db
@@ -10,18 +8,18 @@ services:
       POSTGRES_PASSWORD: postgres
       POSTGRES_DB: user_service_db
     ports:
-      - "5432:5432"
+    - 5432:5432
     volumes:
-      - user_db_data:/var/lib/postgresql/data
+    - user_db_data:/var/lib/postgresql/data
     networks:
-      - ddd-micro-network
+    - ddd-micro-network
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      test:
+      - CMD-SHELL
+      - pg_isready -U postgres
       interval: 10s
       timeout: 5s
       retries: 5
-
-  # User Service
   user-service:
     build:
       context: .
@@ -38,15 +36,13 @@ services:
       DB_SSLMODE: disable
       JWT_SECRET: your-super-secret-jwt-key-change-in-production
     ports:
-      - "8080:8080"
+    - 8080:8080
     depends_on:
       user-db:
         condition: service_healthy
     networks:
-      - ddd-micro-network
+    - ddd-micro-network
     restart: unless-stopped
-
-  # PostgreSQL Database for Product Service
   product-db:
     image: postgres:15-alpine
     container_name: product-db
@@ -55,18 +51,18 @@ services:
       POSTGRES_PASSWORD: postgres
       POSTGRES_DB: product_service_db
     ports:
-      - "5433:5432"
+    - 5433:5432
     volumes:
-      - product_db_data:/var/lib/postgresql/data
+    - product_db_data:/var/lib/postgresql/data
     networks:
-      - ddd-micro-network
+    - ddd-micro-network
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      test:
+      - CMD-SHELL
+      - pg_isready -U postgres
       interval: 10s
       timeout: 5s
       retries: 5
-
-  # PostgreSQL Database for Basket Service
   basket-db:
     image: postgres:15-alpine
     container_name: basket-db
@@ -75,18 +71,18 @@ services:
       POSTGRES_PASSWORD: postgres
       POSTGRES_DB: basket_service_db
     ports:
-      - "5434:5432"
+    - 5434:5432
     volumes:
-      - basket_db_data:/var/lib/postgresql/data
+    - basket_db_data:/var/lib/postgresql/data
     networks:
-      - ddd-micro-network
+    - ddd-micro-network
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      test:
+      - CMD-SHELL
+      - pg_isready -U postgres
       interval: 10s
       timeout: 5s
       retries: 5
-
-  # PostgreSQL Database for Payment Service
   payment-db:
     image: postgres:15-alpine
     container_name: payment-db
@@ -95,24 +91,34 @@ services:
       POSTGRES_PASSWORD: postgres
       POSTGRES_DB: payment_service_db
     ports:
-      - "5435:5432"
+    - 5435:5432
     volumes:
-      - payment_db_data:/var/lib/postgresql/data
+    - payment_db_data:/var/lib/postgresql/data
     networks:
-      - ddd-micro-network
+    - ddd-micro-network
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      test:
+      - CMD-SHELL
+      - pg_isready -U postgres
       interval: 10s
       timeout: 5s
       retries: 5
-
+  krakend:
+    image: devopsfaith/krakend:latest
+    container_name: krakend-gateway
+    ports:
+    - 8081:8080
+    volumes:
+    - "/home/tair/Masa\xFCst\xFC/ddd-micro/gateways/krakend:/etc/krakend"
+    depends_on:
+    - user-service
+    networks:
+    - ddd-micro-network
 networks:
   ddd-micro-network:
     driver: bridge
-
 volumes:
-  user_db_data:
-  product_db_data:
-  basket_db_data:
-  payment_db_data:
-
+  user_db_data: null
+  product_db_data: null
+  basket_db_data: null
+  payment_db_data: null

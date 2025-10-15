@@ -16,18 +16,26 @@
     {
       "endpoint": "/users/register",
       "method": "POST",
-      "input_headers": ["Authorization", "Content-Type"],
+      "input_headers": [
+        "Authorization",
+        "Content-Type"
+      ],
       "output_encoding": "json",
       "backend": [
         {
           "url_pattern": "/api/v1/users/register",
           "encoding": "json",
           "sd": "static",
-          "host": ["http://localhost:8085"],
+          "host": [
+            "http://host.docker.internal:8085"
+          ],
           "extra_config": {
             "proxy/headers": {
               "request": {
-                "pass": ["Authorization", "Content-Type"]
+                "pass": [
+                  "Authorization",
+                  "Content-Type"
+                ]
               }
             }
           }
@@ -37,17 +45,27 @@
     {
       "endpoint": "/users/login",
       "method": "POST",
-      "input_headers": ["Authorization", "Content-Type"],
+      "input_headers": [
+        "Authorization",
+        "Content-Type"
+      ],
       "output_encoding": "json",
       "backend": [
         {
           "url_pattern": "/api/v1/users/login",
           "encoding": "json",
           "sd": "static",
-          "host": ["http://localhost:8085"],
+          "host": [
+            "http://host.docker.internal:8085"
+          ],
           "extra_config": {
             "proxy/headers": {
-              "request": { "pass": ["Authorization", "Content-Type"] }
+              "request": {
+                "pass": [
+                  "Authorization",
+                  "Content-Type"
+                ]
+              }
             }
           }
         }
@@ -56,17 +74,27 @@
     {
       "endpoint": "/users/refresh-token",
       "method": "POST",
-      "input_headers": ["Authorization", "Content-Type"],
+      "input_headers": [
+        "Authorization",
+        "Content-Type"
+      ],
       "output_encoding": "json",
       "backend": [
         {
           "url_pattern": "/api/v1/users/refresh-token",
           "encoding": "json",
           "sd": "static",
-          "host": ["http://localhost:8085"],
+          "host": [
+            "http://host.docker.internal:8085"
+          ],
           "extra_config": {
             "proxy/headers": {
-              "request": { "pass": ["Authorization", "Content-Type"] }
+              "request": {
+                "pass": [
+                  "Authorization",
+                  "Content-Type"
+                ]
+              }
             }
           }
         }
@@ -75,17 +103,27 @@
     {
       "endpoint": "/users/profile",
       "method": "GET",
-      "input_headers": ["Authorization", "Content-Type"],
+      "input_headers": [
+        "Authorization",
+        "Content-Type"
+      ],
       "output_encoding": "json",
       "backend": [
         {
           "url_pattern": "/api/v1/users/profile",
           "encoding": "json",
           "sd": "static",
-          "host": ["http://localhost:8085"],
+          "host": [
+            "http://host.docker.internal:8085"
+          ],
           "extra_config": {
             "proxy/headers": {
-              "request": { "pass": ["Authorization", "Content-Type"] }
+              "request": {
+                "pass": [
+                  "Authorization",
+                  "Content-Type"
+                ]
+              }
             }
           }
         }
@@ -94,17 +132,27 @@
     {
       "endpoint": "/users",
       "method": "GET",
-      "input_headers": ["Authorization", "Content-Type"],
+      "input_headers": [
+        "Authorization",
+        "Content-Type"
+      ],
       "output_encoding": "json",
       "backend": [
         {
           "url_pattern": "/api/v1/admin/users",
           "encoding": "json",
           "sd": "static",
-          "host": ["http://localhost:8085"],
+          "host": [
+            "http://host.docker.internal:8085"
+          ],
           "extra_config": {
             "proxy/headers": {
-              "request": { "pass": ["Authorization", "Content-Type"] }
+              "request": {
+                "pass": [
+                  "Authorization",
+                  "Content-Type"
+                ]
+              }
             }
           }
         }
@@ -113,17 +161,27 @@
     {
       "endpoint": "/users/{id}",
       "method": "GET",
-      "input_headers": ["Authorization", "Content-Type"],
+      "input_headers": [
+        "Authorization",
+        "Content-Type"
+      ],
       "output_encoding": "json",
       "backend": [
         {
           "url_pattern": "/api/v1/admin/users/{id}",
           "encoding": "json",
           "sd": "static",
-          "host": ["http://localhost:8085"],
+          "host": [
+            "http://host.docker.internal:8085"
+          ],
           "extra_config": {
             "proxy/headers": {
-              "request": { "pass": ["Authorization", "Content-Type"] }
+              "request": {
+                "pass": [
+                  "Authorization",
+                  "Content-Type"
+                ]
+              }
             }
           }
         }
