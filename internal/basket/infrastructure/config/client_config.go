@@ -1,14 +1,18 @@
 package config
 
-import "os"
-
 // ClientConfig holds configuration for external service clients
 type ClientConfig struct {
-	UserService UserServiceConfig
+	UserService    UserServiceConfig
+	ProductService ProductServiceConfig
 }
 
 // UserServiceConfig holds configuration for user service client
 type UserServiceConfig struct {
+	URL string
+}
+
+// ProductServiceConfig holds configuration for product service client
+type ProductServiceConfig struct {
 	URL string
 }
 
@@ -17,6 +21,9 @@ func LoadClientConfig() ClientConfig {
 	return ClientConfig{
 		UserService: UserServiceConfig{
 			URL: getEnv("USER_SERVICE_URL", "localhost:9090"),
+		},
+		ProductService: ProductServiceConfig{
+			URL: getEnv("PRODUCT_SERVICE_URL", "localhost:9091"),
 		},
 	}
 }

@@ -5,22 +5,22 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/ddd-micro/api/proto/user"
+	userpb "github.com/ddd-micro/api/proto/user"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 )
 
 // UserClient interface for user service operations
 type UserClient interface {
-	GetUser(ctx context.Context, userID uint) (*user.User, error)
-	ValidateToken(ctx context.Context, token string) (*user.User, error)
+	GetUser(ctx context.Context, userID uint) (*userpb.User, error)
+	ValidateToken(ctx context.Context, token string) (*userpb.User, error)
 	Close() error
 }
 
 // userClient implements UserClient interface
 type userClient struct {
 	conn   *grpc.ClientConn
-	client user.UserServiceClient
+	client userpb.UserServiceClient
 }
 
 // NewUserClient creates a new user service gRPC client
@@ -32,7 +32,7 @@ func NewUserClient(userServiceURL string) (UserClient, error) {
 	}
 
 	// Create client
-	client := user.NewUserServiceClient(conn)
+	client := userpb.NewUserServiceClient(conn)
 
 	return &userClient{
 		conn:   conn,
@@ -41,8 +41,8 @@ func NewUserClient(userServiceURL string) (UserClient, error) {
 }
 
 // GetUser retrieves user information by ID
-func (c *userClient) GetUser(ctx context.Context, userID uint) (*user.User, error) {
-	req := &user.GetUserRequest{
+func (c *userClient) GetUser(ctx context.Context, userID uint) (*userpb.User, error) {
+	req := &userpb.GetUserRequest{
 		Id: uint32(userID),
 	}
 
@@ -55,8 +55,8 @@ func (c *userClient) GetUser(ctx context.Context, userID uint) (*user.User, erro
 }
 
 // ValidateToken validates a JWT token and returns user information
-func (c *userClient) ValidateToken(ctx context.Context, token string) (*user.User, error) {
-	req := &user.ValidateTokenRequest{
+func (c *userClient) ValidateToken(ctx context.Context, token string) (*userpb.User, error) {
+	req := &userpb.ValidateTokenRequest{
 		Token: token,
 	}
 
@@ -78,7 +78,7 @@ func (c *userClient) Close() error {
 
 // HealthCheck performs a health check on the user service
 func (c *userClient) HealthCheck(ctx context.Context) error {
-	req := &user.HealthCheckRequest{}
+	req := &userpb.HealthCheckRequest{}
 	_, err := c.client.HealthCheck(ctx, req)
 	if err != nil {
 		return fmt.Errorf("user service health check failed: %w", err)
@@ -88,7 +88,7 @@ func (c *userClient) HealthCheck(ctx context.Context) error {
 
 // Ping tests the connection to the user service
 func (c *userClient) Ping(ctx context.Context) error {
-	req := &user.PingRequest{}
+	req := &userpb.PingRequest{}
 	_, err := c.client.Ping(ctx, req)
 	if err != nil {
 		return fmt.Errorf("user service ping failed: %w", err)

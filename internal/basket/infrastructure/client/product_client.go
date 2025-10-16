@@ -4,14 +4,14 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/ddd-micro/api/proto/product"
+	productpb "github.com/ddd-micro/api/proto/product"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 )
 
 // ProductClient interface for product service operations
 type ProductClient interface {
-	GetProduct(ctx context.Context, productID uint) (*product.Product, error)
+	GetProduct(ctx context.Context, productID uint) (*productpb.Product, error)
 	ValidateProduct(ctx context.Context, productID uint) error
 	CheckStock(ctx context.Context, productID uint, quantity int) error
 	Close() error
@@ -20,7 +20,7 @@ type ProductClient interface {
 // productClient implements ProductClient interface
 type productClient struct {
 	conn   *grpc.ClientConn
-	client product.ProductServiceClient
+	client productpb.ProductServiceClient
 }
 
 // NewProductClient creates a new product service gRPC client
@@ -32,7 +32,7 @@ func NewProductClient(productServiceURL string) (ProductClient, error) {
 	}
 
 	// Create client
-	client := product.NewProductServiceClient(conn)
+	client := productpb.NewProductServiceClient(conn)
 
 	return &productClient{
 		conn:   conn,
@@ -41,8 +41,8 @@ func NewProductClient(productServiceURL string) (ProductClient, error) {
 }
 
 // GetProduct retrieves product information by ID
-func (c *productClient) GetProduct(ctx context.Context, productID uint) (*product.Product, error) {
-	req := &product.GetProductRequest{
+func (c *productClient) GetProduct(ctx context.Context, productID uint) (*productpb.Product, error) {
+	req := &productpb.GetProductRequest{
 		Id: uint32(productID),
 	}
 
@@ -56,7 +56,7 @@ func (c *productClient) GetProduct(ctx context.Context, productID uint) (*produc
 
 // ValidateProduct validates if a product exists and is active
 func (c *productClient) ValidateProduct(ctx context.Context, productID uint) error {
-	req := &product.GetProductRequest{
+	req := &productpb.GetProductRequest{
 		Id: uint32(productID),
 	}
 
@@ -70,7 +70,7 @@ func (c *productClient) ValidateProduct(ctx context.Context, productID uint) err
 	}
 
 	// Check if product is active
-	if resp.Product.IsActive == nil || !*resp.Product.IsActive {
+	if !resp.Product.IsActive {
 		return fmt.Errorf("product is not active")
 	}
 
@@ -79,7 +79,7 @@ func (c *productClient) ValidateProduct(ctx context.Context, productID uint) err
 
 // CheckStock checks if there's enough stock for the requested quantity
 func (c *productClient) CheckStock(ctx context.Context, productID uint, quantity int) error {
-	req := &product.GetProductRequest{
+	req := &productpb.GetProductRequest{
 		Id: uint32(productID),
 	}
 
@@ -92,14 +92,9 @@ func (c *productClient) CheckStock(ctx context.Context, productID uint, quantity
 		return fmt.Errorf("product not found")
 	}
 
-	// Check if product has stock information
-	if resp.Product.Stock == nil {
-		return fmt.Errorf("product stock information not available")
-	}
-
 	// Check if there's enough stock
-	if *resp.Product.Stock < int32(quantity) {
-		return fmt.Errorf("insufficient stock: requested %d, available %d", quantity, *resp.Product.Stock)
+	if resp.Product.Stock < int32(quantity) {
+		return fmt.Errorf("insufficient stock: requested %d, available %d", quantity, resp.Product.Stock)
 	}
 
 	return nil
@@ -115,7 +110,7 @@ func (c *productClient) Close() error {
 
 // HealthCheck performs a health check on the product service
 func (c *productClient) HealthCheck(ctx context.Context) error {
-	req := &product.HealthCheckRequest{}
+	req := &productpb.HealthCheckRequest{}
 	_, err := c.client.HealthCheck(ctx, req)
 	if err != nil {
 		return fmt.Errorf("product service health check failed: %w", err)

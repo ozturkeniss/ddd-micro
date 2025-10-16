@@ -2,10 +2,12 @@ package command
 
 import (
 	"context"
+	"fmt"
 	"time"
 
 	"github.com/ddd-micro/internal/basket/application/dto"
 	"github.com/ddd-micro/internal/basket/domain"
+	"github.com/ddd-micro/internal/basket/infrastructure/client"
 )
 
 // AddItemCommand represents the command to add an item to the basket
@@ -18,18 +20,42 @@ type AddItemCommand struct {
 
 // AddItemCommandHandler handles the AddItemCommand
 type AddItemCommandHandler struct {
-	basketRepo domain.BasketRepository
+	basketRepo     domain.BasketRepository
+	productClient  client.ProductClient
 }
 
 // NewAddItemCommandHandler creates a new AddItemCommandHandler
-func NewAddItemCommandHandler(basketRepo domain.BasketRepository) *AddItemCommandHandler {
+func NewAddItemCommandHandler(basketRepo domain.BasketRepository, productClient client.ProductClient) *AddItemCommandHandler {
 	return &AddItemCommandHandler{
-		basketRepo: basketRepo,
+		basketRepo:    basketRepo,
+		productClient: productClient,
 	}
 }
 
 // Handle handles the AddItemCommand
 func (h *AddItemCommandHandler) Handle(ctx context.Context, cmd AddItemCommand) (*dto.BasketResponse, error) {
+	// Validate product exists and is active
+	if err := h.productClient.ValidateProduct(ctx, cmd.ProductID); err != nil {
+		return nil, fmt.Errorf("product validation failed: %w", err)
+	}
+	
+	// Check stock availability
+	if err := h.productClient.CheckStock(ctx, cmd.ProductID, cmd.Quantity); err != nil {
+		return nil, fmt.Errorf("stock check failed: %w", err)
+	}
+	
+	// Get product to get current price
+	product, err := h.productClient.GetProduct(ctx, cmd.ProductID)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get product: %w", err)
+	}
+	
+	// Use current product price if not provided
+	unitPrice := cmd.UnitPrice
+	if unitPrice == 0 && product.Price != nil {
+		unitPrice = float64(*product.Price)
+	}
+	
 	// Get or create basket for user
 	basket, err := h.basketRepo.GetByUserID(ctx, cmd.UserID)
 	if err != nil {
@@ -60,8 +86,8 @@ func (h *AddItemCommandHandler) Handle(ctx context.Context, cmd AddItemCommand) 
 		BasketID:   basket.ID,
 		ProductID:  cmd.ProductID,
 		Quantity:   cmd.Quantity,
-		UnitPrice:  cmd.UnitPrice,
-		TotalPrice: float64(cmd.Quantity) * cmd.UnitPrice,
+		UnitPrice:  unitPrice,
+		TotalPrice: float64(cmd.Quantity) * unitPrice,
 	}
 	
 	// Validate item
