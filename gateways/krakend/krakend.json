@@ -186,6 +186,325 @@
           }
         }
       ]
+    },
+    {
+      "endpoint": "/products",
+      "method": "GET",
+      "input_headers": [
+        "Authorization",
+        "Content-Type"
+      ],
+      "output_encoding": "json",
+      "backend": [
+        {
+          "url_pattern": "/api/v1/products",
+          "encoding": "json",
+          "sd": "static",
+          "host": [
+            "http://product-service:8081"
+          ],
+          "extra_config": {
+            "proxy/headers": {
+              "request": {
+                "pass": [
+                  "Authorization",
+                  "Content-Type"
+                ]
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "endpoint": "/products/search",
+      "method": "GET",
+      "input_headers": [
+        "Authorization",
+        "Content-Type"
+      ],
+      "output_encoding": "json",
+      "backend": [
+        {
+          "url_pattern": "/api/v1/products/search",
+          "encoding": "json",
+          "sd": "static",
+          "host": [
+            "http://product-service:8081"
+          ],
+          "extra_config": {
+            "proxy/headers": {
+              "request": {
+                "pass": [
+                  "Authorization",
+                  "Content-Type"
+                ]
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "endpoint": "/products/category/{category}",
+      "method": "GET",
+      "input_headers": [
+        "Authorization",
+        "Content-Type"
+      ],
+      "output_encoding": "json",
+      "backend": [
+        {
+          "url_pattern": "/api/v1/products/category/{category}",
+          "encoding": "json",
+          "sd": "static",
+          "host": [
+            "http://product-service:8081"
+          ],
+          "extra_config": {
+            "proxy/headers": {
+              "request": {
+                "pass": [
+                  "Authorization",
+                  "Content-Type"
+                ]
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "endpoint": "/products/{id}",
+      "method": "GET",
+      "input_headers": [
+        "Authorization",
+        "Content-Type"
+      ],
+      "output_encoding": "json",
+      "backend": [
+        {
+          "url_pattern": "/api/v1/products/{id}",
+          "encoding": "json",
+          "sd": "static",
+          "host": [
+            "http://product-service:8081"
+          ],
+          "extra_config": {
+            "proxy/headers": {
+              "request": {
+                "pass": [
+                  "Authorization",
+                  "Content-Type"
+                ]
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "endpoint": "/products/{id}/view",
+      "method": "POST",
+      "input_headers": [
+        "Authorization",
+        "Content-Type"
+      ],
+      "output_encoding": "json",
+      "backend": [
+        {
+          "url_pattern": "/api/v1/products/{id}/view",
+          "encoding": "json",
+          "sd": "static",
+          "host": [
+            "http://product-service:8081"
+          ],
+          "extra_config": {
+            "proxy/headers": {
+              "request": {
+                "pass": [
+                  "Authorization",
+                  "Content-Type"
+                ]
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "endpoint": "/admin/products",
+      "method": "POST",
+      "input_headers": [
+        "Authorization",
+        "Content-Type"
+      ],
+      "output_encoding": "json",
+      "backend": [
+        {
+          "url_pattern": "/api/v1/admin/products",
+          "encoding": "json",
+          "sd": "static",
+          "host": [
+            "http://product-service:8081"
+          ],
+          "extra_config": {
+            "proxy/headers": {
+              "request": {
+                "pass": [
+                  "Authorization",
+                  "Content-Type"
+                ]
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "endpoint": "/admin/products/{id}",
+      "method": "PUT",
+      "input_headers": [
+        "Authorization",
+        "Content-Type"
+      ],
+      "output_encoding": "json",
+      "backend": [
+        {
+          "url_pattern": "/api/v1/admin/products/{id}",
+          "encoding": "json",
+          "sd": "static",
+          "host": [
+            "http://product-service:8081"
+          ],
+          "extra_config": {
+            "proxy/headers": {
+              "request": {
+                "pass": [
+                  "Authorization",
+                  "Content-Type"
+                ]
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "endpoint": "/admin/products/{id}",
+      "method": "DELETE",
+      "input_headers": [
+        "Authorization",
+        "Content-Type"
+      ],
+      "output_encoding": "json",
+      "backend": [
+        {
+          "url_pattern": "/api/v1/admin/products/{id}",
+          "encoding": "json",
+          "sd": "static",
+          "host": [
+            "http://product-service:8081"
+          ],
+          "extra_config": {
+            "proxy/headers": {
+              "request": {
+                "pass": [
+                  "Authorization",
+                  "Content-Type"
+                ]
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "endpoint": "/admin/products/{id}/stock",
+      "method": "PUT",
+      "input_headers": [
+        "Authorization",
+        "Content-Type"
+      ],
+      "output_encoding": "json",
+      "backend": [
+        {
+          "url_pattern": "/api/v1/admin/products/{id}/stock",
+          "encoding": "json",
+          "sd": "static",
+          "host": [
+            "http://product-service:8081"
+          ],
+          "extra_config": {
+            "proxy/headers": {
+              "request": {
+                "pass": [
+                  "Authorization",
+                  "Content-Type"
+                ]
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "endpoint": "/admin/products/{id}/activate",
+      "method": "POST",
+      "input_headers": [
+        "Authorization",
+        "Content-Type"
+      ],
+      "output_encoding": "json",
+      "backend": [
+        {
+          "url_pattern": "/api/v1/admin/products/{id}/activate",
+          "encoding": "json",
+          "sd": "static",
+          "host": [
+            "http://product-service:8081"
+          ],
+          "extra_config": {
+            "proxy/headers": {
+              "request": {
+                "pass": [
+                  "Authorization",
+                  "Content-Type"
+                ]
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "endpoint": "/admin/products/{id}/featured",
+      "method": "POST",
+      "input_headers": [
+        "Authorization",
+        "Content-Type"
+      ],
+      "output_encoding": "json",
+      "backend": [
+        {
+          "url_pattern": "/api/v1/admin/products/{id}/featured",
+          "encoding": "json",
+          "sd": "static",
+          "host": [
+            "http://product-service:8081"
+          ],
+          "extra_config": {
+            "proxy/headers": {
+              "request": {
+                "pass": [
+                  "Authorization",
+                  "Content-Type"
+                ]
+              }
+            }
+          }
+        }
+      ]
     }
   ]
 }
