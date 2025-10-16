@@ -4,27 +4,43 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// SetupRoutes sets up all HTTP routes
-func SetupRoutes(router *gin.Engine, productHandler *ProductHandler, userHandler *UserHandler) {
+// SetupRoutes sets up all HTTP routes with RBAC
+func SetupRoutes(router *gin.Engine, productHandler *ProductHandler, userHandler *UserHandler, authMiddleware *AuthMiddleware) {
 	// API v1 group
 	v1 := router.Group("/api/v1")
 	{
-		// Product routes
-		products := v1.Group("/products")
+		// Public product routes (no authentication required)
+		public := v1.Group("/products")
 		{
-			products.POST("", productHandler.CreateProduct)
-			products.GET("", productHandler.ListProducts)
-			products.GET("/search", productHandler.SearchProducts)
-			products.GET("/:id", productHandler.GetProduct)
-			products.PUT("/:id", productHandler.UpdateProduct)
-			products.DELETE("/:id", productHandler.DeleteProduct)
+			public.GET("", productHandler.ListProducts)
+			public.GET("/search", productHandler.SearchProducts)
+			public.GET("/category/:category", productHandler.ListProductsByCategory)
+			public.GET("/:id", productHandler.GetProduct)
+			public.POST("/:id/view", productHandler.IncrementViewCount)
 		}
 
-		// User routes (for user validation)
+		// User routes (authentication required)
 		users := v1.Group("/users")
+		users.Use(authMiddleware.AuthRequired())
 		{
 			users.GET("/profile", userHandler.GetProfile)
 			users.POST("/validate-token", userHandler.ValidateToken)
+		}
+
+		// Admin product routes (admin access required)
+		admin := v1.Group("/admin/products")
+		admin.Use(authMiddleware.AdminRequired())
+		{
+			admin.POST("", productHandler.CreateProduct)
+			admin.PUT("/:id", productHandler.UpdateProduct)
+			admin.DELETE("/:id", productHandler.DeleteProduct)
+			admin.PUT("/:id/stock", productHandler.UpdateStock)
+			admin.POST("/:id/reduce-stock", productHandler.ReduceStock)
+			admin.POST("/:id/increase-stock", productHandler.IncreaseStock)
+			admin.POST("/:id/activate", productHandler.ActivateProduct)
+			admin.POST("/:id/deactivate", productHandler.DeactivateProduct)
+			admin.POST("/:id/featured", productHandler.MarkAsFeatured)
+			admin.DELETE("/:id/featured", productHandler.UnmarkAsFeatured)
 		}
 	}
 }
