@@ -6,6 +6,8 @@ import (
 	"gorm.io/gorm"
 )
 
+// Test comment with bad formatting
+
 // User represents the user domain entity
 type User struct {
 	ID        uint           `gorm:"primaryKey" json:"id"`

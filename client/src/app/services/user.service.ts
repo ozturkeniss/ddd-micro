@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-// Types
+// Types - Bad formatting test
 export interface User {
   id: number;
   email: string;
