@@ -55,6 +55,7 @@ wire:
 swagger:
 	@echo "Generating Swagger documentation..."
 	swag init -g cmd/user/main.go -o cmd/user/docs
+	swag init -g cmd/product/main.go -o cmd/product/docs
 	@echo "Swagger documentation generated successfully!"
 
 # Build services

@@ -20,6 +20,18 @@ func NewProductHandler(productService interface{}) *ProductHandler {
 }
 
 // CreateProduct creates a new product
+// @Summary Create a new product
+// @Description Create a new product (Admin only)
+// @Tags admin-products
+// @Accept json
+// @Produce json
+// @Security BearerAuth
+// @Param product body application.CreateProductRequest true "Product data"
+// @Success 201 {object} application.ProductResponse
+// @Failure 400 {object} map[string]string
+// @Failure 401 {object} map[string]string
+// @Failure 403 {object} map[string]string
+// @Router /admin/products [post]
 func (h *ProductHandler) CreateProduct(c *gin.Context) {
 	// This would handle product creation
 	// For now, return a placeholder response
@@ -29,6 +41,16 @@ func (h *ProductHandler) CreateProduct(c *gin.Context) {
 }
 
 // GetProduct retrieves a product by ID
+// @Summary Get a product by ID
+// @Description Get product details by ID (Public)
+// @Tags products
+// @Accept json
+// @Produce json
+// @Param id path int true "Product ID"
+// @Success 200 {object} application.ProductResponse
+// @Failure 400 {object} map[string]string
+// @Failure 404 {object} map[string]string
+// @Router /products/{id} [get]
 func (h *ProductHandler) GetProduct(c *gin.Context) {
 	idStr := c.Param("id")
 	id, err := strconv.ParseUint(idStr, 10, 32)
@@ -48,6 +70,15 @@ func (h *ProductHandler) GetProduct(c *gin.Context) {
 }
 
 // ListProducts retrieves all products with pagination
+// @Summary List all products
+// @Description Get a paginated list of all products (Public)
+// @Tags products
+// @Accept json
+// @Produce json
+// @Param offset query int false "Offset for pagination" default(0)
+// @Param limit query int false "Limit for pagination" default(10)
+// @Success 200 {object} application.ListProductsResponse
+// @Router /products [get]
 func (h *ProductHandler) ListProducts(c *gin.Context) {
 	// This would handle product listing with pagination
 	// For now, return a placeholder response
@@ -57,6 +88,20 @@ func (h *ProductHandler) ListProducts(c *gin.Context) {
 }
 
 // UpdateProduct updates an existing product
+// @Summary Update a product
+// @Description Update an existing product (Admin only)
+// @Tags admin-products
+// @Accept json
+// @Produce json
+// @Security BearerAuth
+// @Param id path int true "Product ID"
+// @Param product body application.UpdateProductRequest true "Product data"
+// @Success 200 {object} application.ProductResponse
+// @Failure 400 {object} map[string]string
+// @Failure 401 {object} map[string]string
+// @Failure 403 {object} map[string]string
+// @Failure 404 {object} map[string]string
+// @Router /admin/products/{id} [put]
 func (h *ProductHandler) UpdateProduct(c *gin.Context) {
 	idStr := c.Param("id")
 	id, err := strconv.ParseUint(idStr, 10, 32)
@@ -76,6 +121,19 @@ func (h *ProductHandler) UpdateProduct(c *gin.Context) {
 }
 
 // DeleteProduct deletes a product
+// @Summary Delete a product
+// @Description Delete a product (Admin only)
+// @Tags admin-products
+// @Accept json
+// @Produce json
+// @Security BearerAuth
+// @Param id path int true "Product ID"
+// @Success 200 {object} map[string]string
+// @Failure 400 {object} map[string]string
+// @Failure 401 {object} map[string]string
+// @Failure 403 {object} map[string]string
+// @Failure 404 {object} map[string]string
+// @Router /admin/products/{id} [delete]
 func (h *ProductHandler) DeleteProduct(c *gin.Context) {
 	idStr := c.Param("id")
 	id, err := strconv.ParseUint(idStr, 10, 32)
@@ -95,6 +153,20 @@ func (h *ProductHandler) DeleteProduct(c *gin.Context) {
 }
 
 // SearchProducts searches products
+// @Summary Search products
+// @Description Search products by name or other criteria (Public)
+// @Tags products
+// @Accept json
+// @Produce json
+// @Param query query string false "Search query"
+// @Param category query string false "Category filter"
+// @Param brand query string false "Brand filter"
+// @Param min_price query number false "Minimum price"
+// @Param max_price query number false "Maximum price"
+// @Param offset query int false "Offset for pagination" default(0)
+// @Param limit query int false "Limit for pagination" default(10)
+// @Success 200 {object} application.ListProductsResponse
+// @Router /products/search [get]
 func (h *ProductHandler) SearchProducts(c *gin.Context) {
 	// This would handle product search
 	// For now, return a placeholder response
