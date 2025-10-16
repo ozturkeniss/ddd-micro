@@ -83,7 +83,7 @@ const apiClient = axios.create({
 });
 
 // Request interceptor to add auth token
-apiClient.interceptors.request.use((config) => {
+apiClient.interceptors.request.use(config => {
   const token = localStorage.getItem('auth_token');
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
@@ -93,8 +93,8 @@ apiClient.interceptors.request.use((config) => {
 
 // Response interceptor for error handling
 apiClient.interceptors.response.use(
-  (response) => response,
-  (error) => {
+  response => response,
+  error => {
     if (error.response?.status === 401) {
       localStorage.removeItem('auth_token');
       localStorage.removeItem('user');
@@ -107,7 +107,7 @@ apiClient.interceptors.response.use(
 // User Service Class
 export class UserService {
   // ========== PUBLIC ENDPOINTS ==========
-  
+
   /**
    * Register a new user
    */
@@ -121,32 +121,34 @@ export class UserService {
    */
   static async login(data: LoginRequest): Promise<ApiResponse<LoginResponse>> {
     const response = await apiClient.post('/users/login', data);
-    
+
     // Store token and user data in localStorage
     if (response.data.success && response.data.data) {
       localStorage.setItem('auth_token', response.data.data.token);
       localStorage.setItem('user', JSON.stringify(response.data.data.user));
     }
-    
+
     return response.data;
   }
 
   /**
    * Refresh JWT token
    */
-  static async refreshToken(data: RefreshTokenRequest): Promise<ApiResponse<TokenResponse>> {
+  static async refreshToken(
+    data: RefreshTokenRequest
+  ): Promise<ApiResponse<TokenResponse>> {
     const response = await apiClient.post('/users/refresh-token', data);
-    
+
     // Update stored token
     if (response.data.success && response.data.data) {
       localStorage.setItem('auth_token', response.data.data.token);
     }
-    
+
     return response.data;
   }
 
   // ========== AUTHENTICATED USER ENDPOINTS ==========
-  
+
   /**
    * Get current user profile
    */
@@ -158,7 +160,9 @@ export class UserService {
   /**
    * Update current user profile
    */
-  static async updateProfile(data: UpdateUserRequest): Promise<ApiResponse<User>> {
+  static async updateProfile(
+    data: UpdateUserRequest
+  ): Promise<ApiResponse<User>> {
     const response = await apiClient.put('/users/profile', data);
     return response.data;
   }
@@ -166,13 +170,15 @@ export class UserService {
   /**
    * Change password
    */
-  static async changePassword(data: ChangePasswordRequest): Promise<ApiResponse<null>> {
+  static async changePassword(
+    data: ChangePasswordRequest
+  ): Promise<ApiResponse<null>> {
     const response = await apiClient.post('/users/change-password', data);
     return response.data;
   }
 
   // ========== ADMIN ENDPOINTS ==========
-  
+
   /**
    * List all users (Admin only)
    */
@@ -196,7 +202,10 @@ export class UserService {
   /**
    * Update user by admin (Admin only)
    */
-  static async updateUserByAdmin(id: number, data: UpdateUserByAdminRequest): Promise<ApiResponse<User>> {
+  static async updateUserByAdmin(
+    id: number,
+    data: UpdateUserByAdminRequest
+  ): Promise<ApiResponse<User>> {
     const response = await apiClient.put(`/admin/users/${id}`, data);
     return response.data;
   }
@@ -212,13 +221,19 @@ export class UserService {
   /**
    * Assign role to user (Admin only)
    */
-  static async assignRole(id: number, data: AssignRoleRequest): Promise<ApiResponse<User>> {
-    const response = await apiClient.post(`/admin/users/${id}/assign-role`, data);
+  static async assignRole(
+    id: number,
+    data: AssignRoleRequest
+  ): Promise<ApiResponse<User>> {
+    const response = await apiClient.post(
+      `/admin/users/${id}/assign-role`,
+      data
+    );
     return response.data;
   }
 
   // ========== UTILITY METHODS ==========
-  
+
   /**
    * Logout user (clear local storage)
    */
