@@ -4,10 +4,15 @@ import (
 	"github.com/ddd-micro/internal/user/application"
 	"github.com/ddd-micro/internal/user/domain"
 	"github.com/gin-gonic/gin"
+	ginSwagger "github.com/swaggo/gin-swagger"
+	"github.com/swaggo/gin-swagger/swaggerFiles"
 )
 
 // SetupRoutes configures all user-related routes
 func SetupRoutes(router *gin.Engine, userService *application.UserServiceCQRS) {
+	// Swagger documentation
+	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
+
 	// Create handler
 	userHandler := NewUserHandler(userService)
 

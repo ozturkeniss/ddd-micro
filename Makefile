@@ -1,4 +1,4 @@
-.PHONY: proto proto-install proto-clean wire build run test clean help
+.PHONY: proto proto-install proto-clean wire swagger build run test clean help
 
 # Variables
 PROTO_DIR=api/proto
@@ -12,6 +12,7 @@ help:
 	@echo "  make proto          - Generate Go code from proto files"
 	@echo "  make proto-clean    - Clean generated proto files"
 	@echo "  make wire           - Generate wire dependency injection code"
+	@echo "  make swagger        - Generate Swagger documentation"
 	@echo "  make build          - Build user service"
 	@echo "  make run            - Run user service"
 	@echo "  make test           - Run tests"
@@ -44,6 +45,12 @@ wire:
 	@echo "Generating wire code..."
 	cd cmd/user && $(GO_BIN)/wire
 	@echo "Wire generation completed!"
+
+# Generate Swagger documentation
+swagger:
+	@echo "Generating Swagger documentation..."
+	swag init -g cmd/user/main.go -o cmd/user/docs
+	@echo "Swagger documentation generated successfully!"
 
 # Build user service
 build:

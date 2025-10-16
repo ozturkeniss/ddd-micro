@@ -220,7 +220,7 @@ func (h *UserHandler) ListUsers(c *gin.Context) {
 // @Security BearerAuth
 // @Accept json
 // @Produce json
-// @Param request body ChangePasswordRequest true "Password change data"
+// @Param request body application.ChangePasswordRequest true "Password change data"
 // @Success 200 {object} Response
 // @Failure 400 {object} Response
 // @Failure 401 {object} Response
@@ -232,17 +232,13 @@ func (h *UserHandler) ChangePassword(c *gin.Context) {
 		return
 	}
 
-	var req struct {
-		OldPassword string `json:"old_password" binding:"required"`
-		NewPassword string `json:"new_password" binding:"required,min=6"`
-	}
-
+	var req application.ChangePasswordRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		ValidationErrorResponse(c, err)
 		return
 	}
 
-	if err := h.userService.ChangePassword(c.Request.Context(), userID, req.OldPassword, req.NewPassword); err != nil {
+	if err := h.userService.ChangePassword(c.Request.Context(), userID, req.CurrentPassword, req.NewPassword); err != nil {
 		if err == application.ErrInvalidCredentials {
 			UnauthorizedResponse(c, "Invalid old password")
 			return
@@ -259,8 +255,8 @@ func (h *UserHandler) ChangePassword(c *gin.Context) {
 // @Tags users
 // @Accept json
 // @Produce json
-// @Param request body RefreshTokenRequest true "Token to refresh"
-// @Success 200 {object} Response{data=TokenResponse}
+// @Param request body application.RefreshTokenRequest true "Token to refresh"
+// @Success 200 {object} Response{data=application.TokenResponse}
 // @Failure 400 {object} Response
 // @Failure 401 {object} Response
 // @Router /users/refresh-token [post]

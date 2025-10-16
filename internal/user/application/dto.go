@@ -33,6 +33,22 @@ type AssignRoleRequest struct {
 	Role domain.Role `json:"role" binding:"required"`
 }
 
+// ChangePasswordRequest represents the request to change password
+type ChangePasswordRequest struct {
+	CurrentPassword string `json:"current_password" binding:"required"`
+	NewPassword     string `json:"new_password" binding:"required,min=6"`
+}
+
+// RefreshTokenRequest represents the request to refresh token
+type RefreshTokenRequest struct {
+	RefreshToken string `json:"refresh_token" binding:"required"`
+}
+
+// TokenResponse represents the response with token
+type TokenResponse struct {
+	Token string `json:"token"`
+}
+
 // LoginRequest represents the login credentials
 type LoginRequest struct {
 	Email    string `json:"email" binding:"required,email"`
