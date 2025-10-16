@@ -110,8 +110,10 @@ func (c *productClient) Close() error {
 
 // HealthCheck performs a health check on the product service
 func (c *productClient) HealthCheck(ctx context.Context) error {
-	req := &productpb.HealthCheckRequest{}
-	_, err := c.client.HealthCheck(ctx, req)
+	// For now, just try to get a product with ID 1 to check if service is alive
+	// In a real implementation, you might want to add a dedicated health check endpoint
+	req := &productpb.GetProductRequest{Id: 1}
+	_, err := c.client.GetProduct(ctx, req)
 	if err != nil {
 		return fmt.Errorf("product service health check failed: %w", err)
 	}

@@ -52,8 +52,8 @@ func (h *AddItemCommandHandler) Handle(ctx context.Context, cmd AddItemCommand) 
 	
 	// Use current product price if not provided
 	unitPrice := cmd.UnitPrice
-	if unitPrice == 0 && product.Price != nil {
-		unitPrice = float64(*product.Price)
+	if unitPrice == 0 && product.Price != 0 {
+		unitPrice = float64(product.Price)
 	}
 	
 	// Get or create basket for user

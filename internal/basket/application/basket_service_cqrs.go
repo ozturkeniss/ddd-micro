@@ -7,6 +7,7 @@ import (
 	"github.com/ddd-micro/internal/basket/application/dto"
 	"github.com/ddd-micro/internal/basket/application/query"
 	"github.com/ddd-micro/internal/basket/domain"
+	"github.com/ddd-micro/internal/basket/infrastructure/client"
 )
 
 // BasketServiceCQRS represents the main basket service using CQRS pattern
@@ -26,10 +27,10 @@ type BasketServiceCQRS struct {
 }
 
 // NewBasketServiceCQRS creates a new BasketServiceCQRS
-func NewBasketServiceCQRS(basketRepo domain.BasketRepository) *BasketServiceCQRS {
+func NewBasketServiceCQRS(basketRepo domain.BasketRepository, productClient client.ProductClient) *BasketServiceCQRS {
 	return &BasketServiceCQRS{
 		createBasketHandler:  command.NewCreateBasketCommandHandler(basketRepo),
-		addItemHandler:       command.NewAddItemCommandHandler(basketRepo),
+		addItemHandler:       command.NewAddItemCommandHandler(basketRepo, productClient),
 		updateItemHandler:    command.NewUpdateItemCommandHandler(basketRepo),
 		removeItemHandler:    command.NewRemoveItemCommandHandler(basketRepo),
 		clearBasketHandler:   command.NewClearBasketCommandHandler(basketRepo),

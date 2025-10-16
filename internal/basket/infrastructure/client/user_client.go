@@ -3,7 +3,6 @@ package client
 import (
 	"context"
 	"fmt"
-	"log"
 
 	userpb "github.com/ddd-micro/api/proto/user"
 	"google.golang.org/grpc"
@@ -56,16 +55,10 @@ func (c *userClient) GetUser(ctx context.Context, userID uint) (*userpb.User, er
 
 // ValidateToken validates a JWT token and returns user information
 func (c *userClient) ValidateToken(ctx context.Context, token string) (*userpb.User, error) {
-	req := &userpb.ValidateTokenRequest{
-		Token: token,
-	}
-
-	resp, err := c.client.ValidateToken(ctx, req)
-	if err != nil {
-		return nil, fmt.Errorf("failed to validate token: %w", err)
-	}
-
-	return resp.User, nil
+	// For now, we'll use a simple approach - in a real implementation,
+	// you might want to add a dedicated ValidateToken RPC method
+	// or implement token validation logic here
+	return nil, fmt.Errorf("ValidateToken not implemented yet")
 }
 
 // Close closes the gRPC connection
@@ -78,20 +71,12 @@ func (c *userClient) Close() error {
 
 // HealthCheck performs a health check on the user service
 func (c *userClient) HealthCheck(ctx context.Context) error {
-	req := &userpb.HealthCheckRequest{}
-	_, err := c.client.HealthCheck(ctx, req)
+	// For now, just try to get a user with ID 1 to check if service is alive
+	// In a real implementation, you might want to add a dedicated health check endpoint
+	req := &userpb.GetUserRequest{Id: 1}
+	_, err := c.client.GetUser(ctx, req)
 	if err != nil {
 		return fmt.Errorf("user service health check failed: %w", err)
-	}
-	return nil
-}
-
-// Ping tests the connection to the user service
-func (c *userClient) Ping(ctx context.Context) error {
-	req := &userpb.PingRequest{}
-	_, err := c.client.Ping(ctx, req)
-	if err != nil {
-		return fmt.Errorf("user service ping failed: %w", err)
 	}
 	return nil
 }
