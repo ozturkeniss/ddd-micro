@@ -74,10 +74,41 @@ run-product:
 	@echo "Running product service..."
 	go run ./cmd/product/main.go
 
+# Run API Gateway
+run-gateway:
+	@echo "Running KrakenD API Gateway..."
+	docker run --rm -it -p 8080:8080 -v $(PWD)/gateways/krakend:/etc/krakend devopsfaith/krakend:latest run -c /etc/krakend/krakend.json
+
 # Run tests
 test:
 	@echo "Running tests..."
 	go test -v ./...
+
+# Docker Compose commands
+docker-up:
+	@echo "Starting all services with Docker Compose..."
+	docker-compose up -d
+
+docker-down:
+	@echo "Stopping all services..."
+	docker-compose down
+
+docker-logs:
+	@echo "Showing logs for all services..."
+	docker-compose logs -f
+
+docker-rebuild:
+	@echo "Rebuilding and starting all services..."
+	docker-compose up -d --build
+
+# API Gateway specific commands
+gateway-logs:
+	@echo "Showing KrakenD Gateway logs..."
+	docker-compose logs -f krakend
+
+gateway-restart:
+	@echo "Restarting KrakenD Gateway..."
+	docker-compose restart krakend
 
 # Run Go linter
 lint:

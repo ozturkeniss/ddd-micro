@@ -41,6 +41,33 @@ services:
     networks:
     - ddd-micro-network
     restart: unless-stopped
+  product-service:
+    build:
+      context: .
+      dockerfile: dockerfiles/product.dockerfile
+    container_name: product-service
+    environment:
+      HTTP_PORT: 8081
+      GRPC_PORT: 9091
+      GIN_MODE: release
+      DB_HOST: product-db
+      DB_PORT: 5432
+      DB_USER: postgres
+      DB_PASSWORD: postgres
+      DB_NAME: product_service_db
+      DB_SSLMODE: disable
+      USER_SERVICE_URL: http://user-service:9090
+    ports:
+    - 8082:8081
+    - 9092:9091
+    depends_on:
+      product-db:
+        condition: service_healthy
+      user-service:
+        condition: service_started
+    networks:
+    - ddd-micro-network
+    restart: unless-stopped
   product-db:
     image: postgres:15-alpine
     container_name: product-db
@@ -110,6 +137,7 @@ services:
     - "/home/tair/Masa\xFCst\xFC/ddd-micro/gateways/krakend:/etc/krakend"
     depends_on:
     - user-service
+    - product-service
     networks:
     - ddd-micro-network
 networks:
