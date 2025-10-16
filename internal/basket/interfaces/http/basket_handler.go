@@ -138,7 +138,7 @@ func (h *BasketHandler) AddItem(c *gin.Context) {
 
 	req.UserID = userID.(uint)
 
-	basket, err := h.basketService.AddItem(c.Request.Context(), req)
+	basket, err := h.basketService.AddItem(c.Request.Context(), req.UserID, req)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, dto.ErrorResponse{
 			Error:   "Internal Server Error",
@@ -157,13 +157,24 @@ func (h *BasketHandler) AddItem(c *gin.Context) {
 // @Accept json
 // @Produce json
 // @Security BearerAuth
+// @Param product_id path int true "Product ID"
 // @Param request body dto.UpdateItemRequest true "Update item request"
 // @Success 200 {object} dto.BasketResponse
 // @Failure 400 {object} dto.ErrorResponse
 // @Failure 401 {object} dto.ErrorResponse
 // @Failure 500 {object} dto.ErrorResponse
-// @Router /users/basket/items [put]
+// @Router /users/basket/items/{product_id} [put]
 func (h *BasketHandler) UpdateItem(c *gin.Context) {
+	productIDStr := c.Param("product_id")
+	productID, err := strconv.ParseUint(productIDStr, 10, 32)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, dto.ErrorResponse{
+			Error:   "Bad Request",
+			Message: "Invalid product ID",
+		})
+		return
+	}
+
 	var req dto.UpdateItemRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, dto.ErrorResponse{
@@ -185,7 +196,7 @@ func (h *BasketHandler) UpdateItem(c *gin.Context) {
 
 	req.UserID = userID.(uint)
 
-	basket, err := h.basketService.UpdateItem(c.Request.Context(), req)
+	basket, err := h.basketService.UpdateItem(c.Request.Context(), userID.(uint), uint(productID), req)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, dto.ErrorResponse{
 			Error:   "Internal Server Error",
@@ -231,12 +242,7 @@ func (h *BasketHandler) RemoveItem(c *gin.Context) {
 		return
 	}
 
-	req := dto.RemoveItemRequest{
-		UserID:    userID.(uint),
-		ProductID: uint(productID),
-	}
-
-	basket, err := h.basketService.RemoveItem(c.Request.Context(), req)
+	basket, err := h.basketService.RemoveItem(c.Request.Context(), userID.(uint), uint(productID))
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, dto.ErrorResponse{
 			Error:   "Internal Server Error",
@@ -270,11 +276,7 @@ func (h *BasketHandler) ClearBasket(c *gin.Context) {
 		return
 	}
 
-	req := dto.ClearBasketRequest{
-		UserID: userID.(uint),
-	}
-
-	err := h.basketService.ClearBasket(c.Request.Context(), req)
+	basket, err := h.basketService.ClearBasket(c.Request.Context(), userID.(uint))
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, dto.ErrorResponse{
 			Error:   "Internal Server Error",
@@ -284,7 +286,9 @@ func (h *BasketHandler) ClearBasket(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, dto.SuccessResponse{
+		Success: true,
 		Message: "Basket cleared successfully",
+		Data:    basket,
 	})
 }
 
@@ -367,6 +371,7 @@ func (h *BasketHandler) AdminDeleteBasket(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, dto.SuccessResponse{
+		Success: true,
 		Message: "Basket deleted successfully",
 	})
 }
@@ -393,6 +398,7 @@ func (h *BasketHandler) AdminCleanupExpiredBaskets(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, dto.SuccessResponse{
+		Success: true,
 		Message: "Expired baskets cleaned up successfully",
 	})
 }

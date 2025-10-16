@@ -17,7 +17,8 @@ var ProviderSet = wire.NewSet(
 	ProvideDatabaseConfig,
 	ProvideDatabase,
 	ProvideBasketRepository,
-	client.ProviderSet,
+	ProvideUserClient,
+	ProvideProductClient,
 )
 
 // ProvideConfig provides application configuration
@@ -50,4 +51,14 @@ func ProvideDatabase(cfg database.Config) (*database.Database, error) {
 // ProvideBasketRepository provides basket repository
 func ProvideBasketRepository(db *database.Database) domain.BasketRepository {
 	return persistence.NewBasketRepository(db.GetClient())
+}
+
+// ProvideUserClient provides user client
+func ProvideUserClient(cfg *config.Config) client.UserClient {
+	return client.NewUserClientFromConfig(cfg.Client)
+}
+
+// ProvideProductClient provides product client
+func ProvideProductClient(cfg *config.Config) client.ProductClient {
+	return client.NewProductClientFromConfig(cfg.Client)
 }
