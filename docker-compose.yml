@@ -134,7 +134,7 @@ services:
     ports:
     - 8081:8080
     volumes:
-    - "/home/tair/Masa\xFCst\xFC/ddd-micro/gateways/krakend:/etc/krakend"
+    - "./gateways/krakend:/etc/krakend"
     depends_on:
     - user-service
     - product-service
