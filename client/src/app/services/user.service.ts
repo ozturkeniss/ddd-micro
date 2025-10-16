@@ -1,9 +1,11 @@
 import axios from 'axios';
+import React from 'react';
 
 // Types - Bad formatting test
 export interface User {
   // Badly formatted comment    with    extra    spaces
   id: number;
+  // Very badly formatted comment with     lots     of     spaces     and     tabs
   email: string;
   first_name: string;
   last_name: string;

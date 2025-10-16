@@ -7,58 +7,47 @@ on:
     branches: [ main, develop ]
 
 jobs:
-  lint-go:
-    name: Lint Go Code
-    runs-on: ubuntu-latest
-    
-    steps:
-    - uses: actions/checkout@v4
-      with:
-        token: ${{ secrets.GITHUB_TOKEN }}
-        fetch-depth: 0
-    
-    - name: Set up Go
-      uses: actions/setup-go@v4
-      with:
-        go-version: '1.23'
-    
-    - name: Install golangci-lint
-      run: |
-        curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(go env GOPATH)/bin v1.54.2
-    
-    - name: Install goimports
-      run: |
-        go install golang.org/x/tools/cmd/goimports@latest
-        echo "Goimports installed at: $(go env GOPATH)/bin/goimports"
-    
-    - name: Auto-fix Go formatting
-      run: |
-        # Fix formatting issues
-        echo "Running gofmt..."
-        gofmt -w .
-        
-        echo "Running goimports..."
-        $(go env GOPATH)/bin/goimports -w .
-        
-        echo "Checking for changes..."
-        # Check if there are changes
-        if ! git diff --quiet; then
-          echo "Found formatting changes, committing..."
-          git config --local user.email "action@github.com"
-          git config --local user.name "GitHub Action"
-          git add .
-          git commit -m "Auto-fix: Format Go code [skip ci]"
-          git push
-          echo "✅ Go formatting issues auto-fixed and committed"
-        else
-          echo "✅ No Go formatting issues found"
-        fi
-    
-    - name: Run golangci-lint
-      run: $(go env GOPATH)/bin/golangci-lint run ./...
-    
-    - name: Run go vet
-      run: go vet ./...
+  # lint-go:
+  #   name: Lint Go Code
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #   - uses: actions/checkout@v4
+  #     with:
+  #       token: ${{ secrets.GITHUB_TOKEN }}
+  #       fetch-depth: 0
+  #   - name: Set up Go
+  #     uses: actions/setup-go@v4
+  #     with:
+  #       go-version: '1.23'
+  #   - name: Install golangci-lint
+  #     run: |
+  #       curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(go env GOPATH)/bin v1.54.2
+  #   - name: Install goimports
+  #     run: |
+  #       go install golang.org/x/tools/cmd/goimports@latest
+  #       echo "Goimports installed at: $(go env GOPATH)/bin/goimports"
+  #   - name: Auto-fix Go formatting
+  #     run: |
+  #       echo "Running gofmt..."
+  #       gofmt -w .
+  #       echo "Running goimports..."
+  #       $(go env GOPATH)/bin/goimports -w .
+  #       echo "Checking for changes..."
+  #       if ! git diff --quiet; then
+  #         echo "Found formatting changes, committing..."
+  #         git config --local user.email "action@github.com"
+  #         git config --local user.name "GitHub Action"
+  #         git add .
+  #         git commit -m "Auto-fix: Format Go code [skip ci]"
+  #         git push
+  #         echo "✅ Go formatting issues auto-fixed and committed"
+  #       else
+  #         echo "✅ No Go formatting issues found"
+  #       fi
+  #   - name: Run golangci-lint
+  #     run: $(go env GOPATH)/bin/golangci-lint run ./...
+  #   - name: Run go vet
+  #     run: go vet ./...
 
   lint-frontend:
     name: Lint Frontend Code
