@@ -8,35 +8,14 @@ output:
     - format: colored-line-number
 
 linters-settings:
-  gci:
-    sections:
-      - standard
-      - default
-      - prefix(github.com/ddd-micro)
   goimports:
     local-prefixes: github.com/ddd-micro
-  govet:
-    settings:
-      printf:
-        funcs:
-          - (github.com/golangci/golangci-lint/pkg/logutils.Log).Infof
-          - (github.com/golangci/golangci-lint/pkg/logutils.Log).Warnf
-          - (github.com/golangci/golangci-lint/pkg/logutils.Log).Errorf
-          - (github.com/golangci/golangci-lint/pkg/logutils.Log).Fatalf
-  misspell:
-    locale: US
-  nolintlint:
-    allow-leading-space: true
-    allow-unused: false
-    require-explanation: false
-    require-specific: false
 
 linters:
   disable-all: true
   enable:
     - errcheck
     - gofmt
-    - goimports
     - govet
     - ineffassign
     - misspell
@@ -47,20 +26,5 @@ linters:
 issues:
   exclude-rules:
     - path: _test\.go
-      linters:
-        - errcheck
-    - path: cmd/
-      linters:
-        - errcheck
-    - path: internal/
-      linters:
-        - errcheck
-    - text: "weak cryptographic primitive"
-      linters:
-        - errcheck
-    - text: "Error return value of"
-      linters:
-        - errcheck
-    - text: "Use of weak random number generator"
       linters:
         - errcheck
