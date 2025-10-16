@@ -1,0 +1,112 @@
+name: Lint Code
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  lint-go:
+    name: Lint Go Code
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Go
+      uses: actions/setup-go@v4
+      with:
+        go-version: '1.23'
+    
+    - name: Install golangci-lint
+      run: |
+        curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(go env GOPATH)/bin v1.54.2
+    
+    - name: Run golangci-lint
+      run: $(go env GOPATH)/bin/golangci-lint run ./...
+    
+    - name: Run go vet
+      run: go vet ./...
+    
+    - name: Run go fmt check
+      run: |
+        if [ "$(gofmt -s -l . | wc -l)" -gt 0 ]; then
+          echo "The following files are not formatted:"
+          gofmt -s -l .
+          exit 1
+        fi
+
+  lint-frontend:
+    name: Lint Frontend Code
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+        cache-dependency-path: client/package-lock.json
+    
+    - name: Install dependencies
+      run: |
+        cd client
+        npm ci
+    
+    - name: Run ESLint
+      run: |
+        cd client
+        npm run lint
+    
+    - name: Run TypeScript check
+      run: |
+        cd client
+        npx tsc --noEmit
+    
+    - name: Check formatting with Prettier
+      run: |
+        cd client
+        npx prettier --check "src/**/*.{js,jsx,ts,tsx,json,css,md}"
+
+  test-go:
+    name: Test Go Code
+    runs-on: ubuntu-latest
+    
+    services:
+      postgres:
+        image: postgres:15-alpine
+        env:
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_USER: postgres
+          POSTGRES_DB: test_db
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Go
+      uses: actions/setup-go@v4
+      with:
+        go-version: '1.23'
+    
+    - name: Install dependencies
+      run: go mod download
+    
+    - name: Run tests
+      run: go test -v ./...
+      env:
+        DB_HOST: localhost
+        DB_PORT: 5432
+        DB_USER: postgres
+        DB_PASSWORD: postgres
+        DB_NAME: test_db
+        JWT_SECRET: test-secret-key

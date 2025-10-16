@@ -1,4 +1,4 @@
-.PHONY: proto proto-install proto-clean wire swagger build run test clean help
+.PHONY: proto proto-install proto-clean wire swagger build run test clean lint lint-frontend help
 
 # Variables
 PROTO_DIR=api/proto
@@ -16,6 +16,8 @@ help:
 	@echo "  make build          - Build user service"
 	@echo "  make run            - Run user service"
 	@echo "  make test           - Run tests"
+	@echo "  make lint           - Run Go linter"
+	@echo "  make lint-frontend  - Run frontend linter"
 	@echo "  make clean          - Clean build artifacts"
 
 # Install protoc plugins
@@ -31,7 +33,7 @@ proto:
 	protoc --go_out=. --go_opt=module=github.com/ddd-micro \
 		--go-grpc_out=. --go-grpc_opt=module=github.com/ddd-micro \
 		--proto_path=. \
-		$(PROTO_DIR)/user/user.proto
+		$(PROTO_DIR)/**/*.proto
 	@echo "Proto generation completed!"
 
 # Clean generated proto files
@@ -68,37 +70,54 @@ test:
 	@echo "Running tests..."
 	go test -v ./...
 
+# Run Go linter
+lint:
+	@echo "Running Go linter..."
+	$(GO_BIN)/golangci-lint run ./...
+
+# Run frontend linter
+lint-frontend:
+	@echo "Running frontend linter..."
+	cd client && npm run lint
+	cd client && npm run type-check
+	cd client && npm run format:check
+
+# Install dependencies
+install-deps:
+	@echo "Installing Go dependencies..."
+	go mod download
+	@echo "Installing frontend dependencies..."
+	cd client && npm install
+	@echo "Installing golangci-lint..."
+	curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(GO_BIN) v1.54.2
+
 # Clean build artifacts
 clean:
 	@echo "Cleaning build artifacts..."
 	rm -rf bin/
-	rm -f cmd/user/wire_gen.go
+	rm -rf client/.next/
+	rm -rf client/node_modules/
 	@echo "Clean completed!"
 
-# Build docker image
-docker-build:
-	@echo "Building Docker image..."
-	docker build -f dockerfiles/user.dockerfile -t user-service:latest .
-	@echo "Docker build completed!"
-
-# Run docker compose
-docker-up:
-	@echo "Starting services with docker-compose..."
-	docker-compose up -d
-
-# Stop docker compose
-docker-down:
-	@echo "Stopping services..."
-	docker-compose down
-
-# Install all dependencies
-install-deps: proto-install
-	@echo "Installing Go dependencies..."
-	go mod download
-	go install github.com/google/wire/cmd/wire@latest
-	@echo "All dependencies installed!"
-
-# Full build (proto + wire + build)
-full-build: proto wire build
+# Full build (includes proto, wire, swagger generation and building)
+full-build: proto wire swagger build
 	@echo "Full build completed!"
 
+# Docker commands
+docker-build:
+	@echo "Building Docker images..."
+	docker-compose build
+
+docker-up:
+	@echo "Starting Docker services..."
+	docker-compose up -d
+
+docker-down:
+	@echo "Stopping Docker services..."
+	docker-compose down
+
+# Development commands
+dev:
+	@echo "Starting development environment..."
+	docker-compose up -d user-db
+	@echo "Database started. Run 'make run' to start the service."
