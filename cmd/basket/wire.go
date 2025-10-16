@@ -1,7 +1,7 @@
 //go:build wireinject
 // +build wireinject
 
-package wire
+package main
 
 import (
 	"github.com/ddd-micro/internal/basket/application"

@@ -9,6 +9,7 @@ type CreateBasketRequest struct {
 
 // AddItemRequest represents the request to add an item to the basket
 type AddItemRequest struct {
+	UserID    uint    `json:"user_id"`
 	ProductID uint    `json:"product_id" binding:"required"`
 	Quantity  int     `json:"quantity" binding:"required,min=1"`
 	UnitPrice float64 `json:"unit_price" binding:"required,min=0"`
@@ -16,7 +17,8 @@ type AddItemRequest struct {
 
 // UpdateItemRequest represents the request to update an item quantity
 type UpdateItemRequest struct {
-	Quantity int `json:"quantity" binding:"required,min=1"`
+	UserID   uint `json:"user_id"`
+	Quantity int  `json:"quantity" binding:"required,min=1"`
 }
 
 // BasketResponse represents the response for basket operations
@@ -54,6 +56,17 @@ type ErrorResponse struct {
 	Error   string `json:"error"`
 	Message string `json:"message,omitempty"`
 	Code    string `json:"code,omitempty"`
+}
+
+// RemoveItemRequest represents the request to remove an item from the basket
+type RemoveItemRequest struct {
+	UserID    uint `json:"user_id"`
+	ProductID uint `json:"product_id" binding:"required"`
+}
+
+// ClearBasketRequest represents the request to clear the basket
+type ClearBasketRequest struct {
+	UserID uint `json:"user_id"`
 }
 
 // SuccessResponse represents a success response

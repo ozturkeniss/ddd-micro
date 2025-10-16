@@ -9,7 +9,6 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/ddd-micro/cmd/basket/wire"
 	"github.com/gin-gonic/gin"
 )
 
@@ -27,7 +26,7 @@ func main() {
 	loadEnv()
 
 	// Initialize application dependencies
-	app, cleanup, err := wire.InitializeApp()
+	app, cleanup, err := InitializeApp()
 	if err != nil {
 		log.Fatalf("Failed to initialize application: %v", err)
 	}
