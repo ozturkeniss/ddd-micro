@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/ddd-micro/internal/basket/application/command"
+	"github.com/ddd-micro/internal/basket/application/dto"
 	"github.com/ddd-micro/internal/basket/application/query"
 	"github.com/ddd-micro/internal/basket/domain"
 )
@@ -38,7 +39,7 @@ func NewBasketServiceCQRS(basketRepo domain.BasketRepository) *BasketServiceCQRS
 }
 
 // CreateBasket creates a new basket for a user
-func (s *BasketServiceCQRS) CreateBasket(ctx context.Context, req CreateBasketRequest) (*BasketResponse, error) {
+func (s *BasketServiceCQRS) CreateBasket(ctx context.Context, req dto.CreateBasketRequest) (*dto.BasketResponse, error) {
 	cmd := command.CreateBasketCommand{
 		UserID: req.UserID,
 	}
@@ -47,7 +48,7 @@ func (s *BasketServiceCQRS) CreateBasket(ctx context.Context, req CreateBasketRe
 }
 
 // AddItem adds an item to the basket
-func (s *BasketServiceCQRS) AddItem(ctx context.Context, userID uint, req AddItemRequest) (*BasketResponse, error) {
+func (s *BasketServiceCQRS) AddItem(ctx context.Context, userID uint, req dto.AddItemRequest) (*dto.BasketResponse, error) {
 	cmd := command.AddItemCommand{
 		UserID:    userID,
 		ProductID: req.ProductID,
@@ -59,7 +60,7 @@ func (s *BasketServiceCQRS) AddItem(ctx context.Context, userID uint, req AddIte
 }
 
 // UpdateItem updates the quantity of an item in the basket
-func (s *BasketServiceCQRS) UpdateItem(ctx context.Context, userID uint, productID uint, req UpdateItemRequest) (*BasketResponse, error) {
+func (s *BasketServiceCQRS) UpdateItem(ctx context.Context, userID uint, productID uint, req dto.UpdateItemRequest) (*dto.BasketResponse, error) {
 	cmd := command.UpdateItemCommand{
 		UserID:    userID,
 		ProductID: productID,
@@ -70,7 +71,7 @@ func (s *BasketServiceCQRS) UpdateItem(ctx context.Context, userID uint, product
 }
 
 // RemoveItem removes an item from the basket
-func (s *BasketServiceCQRS) RemoveItem(ctx context.Context, userID uint, productID uint) (*BasketResponse, error) {
+func (s *BasketServiceCQRS) RemoveItem(ctx context.Context, userID uint, productID uint) (*dto.BasketResponse, error) {
 	cmd := command.RemoveItemCommand{
 		UserID:    userID,
 		ProductID: productID,
@@ -80,7 +81,7 @@ func (s *BasketServiceCQRS) RemoveItem(ctx context.Context, userID uint, product
 }
 
 // ClearBasket removes all items from the basket
-func (s *BasketServiceCQRS) ClearBasket(ctx context.Context, userID uint) (*BasketResponse, error) {
+func (s *BasketServiceCQRS) ClearBasket(ctx context.Context, userID uint) (*dto.BasketResponse, error) {
 	cmd := command.ClearBasketCommand{
 		UserID: userID,
 	}
@@ -89,7 +90,7 @@ func (s *BasketServiceCQRS) ClearBasket(ctx context.Context, userID uint) (*Bask
 }
 
 // GetBasket retrieves the basket for a user
-func (s *BasketServiceCQRS) GetBasket(ctx context.Context, userID uint) (*BasketResponse, error) {
+func (s *BasketServiceCQRS) GetBasket(ctx context.Context, userID uint) (*dto.BasketResponse, error) {
 	query := query.GetBasketQuery{
 		UserID: userID,
 	}

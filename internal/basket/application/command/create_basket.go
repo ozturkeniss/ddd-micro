@@ -4,7 +4,7 @@ import (
 	"context"
 	"time"
 
-	"github.com/ddd-micro/internal/basket/application"
+	"github.com/ddd-micro/internal/basket/application/dto"
 	"github.com/ddd-micro/internal/basket/domain"
 	"github.com/google/uuid"
 )
@@ -27,7 +27,7 @@ func NewCreateBasketCommandHandler(basketRepo domain.BasketRepository) *CreateBa
 }
 
 // Handle handles the CreateBasketCommand
-func (h *CreateBasketCommandHandler) Handle(ctx context.Context, cmd CreateBasketCommand) (*application.BasketResponse, error) {
+func (h *CreateBasketCommandHandler) Handle(ctx context.Context, cmd CreateBasketCommand) (*dto.BasketResponse, error) {
 	// Check if basket already exists for this user
 	exists, err := h.basketRepo.ExistsByUserID(ctx, cmd.UserID)
 	if err != nil {
@@ -70,11 +70,11 @@ func (h *CreateBasketCommandHandler) Handle(ctx context.Context, cmd CreateBaske
 	return h.mapToResponse(basket), nil
 }
 
-// mapToResponse maps domain.Basket to application.BasketResponse
-func (h *CreateBasketCommandHandler) mapToResponse(basket *domain.Basket) *application.BasketResponse {
-	items := make([]application.BasketItemResponse, len(basket.Items))
+// mapToResponse maps domain.Basket to dto.BasketResponse
+func (h *CreateBasketCommandHandler) mapToResponse(basket *domain.Basket) *dto.BasketResponse {
+	items := make([]dto.BasketItemResponse, len(basket.Items))
 	for i, item := range basket.Items {
-		items[i] = application.BasketItemResponse{
+		items[i] = dto.BasketItemResponse{
 			ID:         item.ID,
 			ProductID:  item.ProductID,
 			Quantity:   item.Quantity,
@@ -85,7 +85,7 @@ func (h *CreateBasketCommandHandler) mapToResponse(basket *domain.Basket) *appli
 		}
 	}
 	
-	return &application.BasketResponse{
+	return &dto.BasketResponse{
 		ID:        basket.ID,
 		UserID:    basket.UserID,
 		Items:     items,

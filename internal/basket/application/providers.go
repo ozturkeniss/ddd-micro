@@ -3,7 +3,6 @@ package application
 import (
 	"github.com/ddd-micro/internal/basket/application/command"
 	"github.com/ddd-micro/internal/basket/application/query"
-	"github.com/ddd-micro/internal/basket/domain"
 	"github.com/google/wire"
 )
 

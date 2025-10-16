@@ -3,7 +3,7 @@ package command
 import (
 	"context"
 
-	"github.com/ddd-micro/internal/basket/application"
+	"github.com/ddd-micro/internal/basket/application/dto"
 	"github.com/ddd-micro/internal/basket/domain"
 )
 
@@ -26,7 +26,7 @@ func NewRemoveItemCommandHandler(basketRepo domain.BasketRepository) *RemoveItem
 }
 
 // Handle handles the RemoveItemCommand
-func (h *RemoveItemCommandHandler) Handle(ctx context.Context, cmd RemoveItemCommand) (*application.BasketResponse, error) {
+func (h *RemoveItemCommandHandler) Handle(ctx context.Context, cmd RemoveItemCommand) (*dto.BasketResponse, error) {
 	// Get basket for user
 	basket, err := h.basketRepo.GetByUserID(ctx, cmd.UserID)
 	if err != nil {
@@ -54,10 +54,10 @@ func (h *RemoveItemCommandHandler) Handle(ctx context.Context, cmd RemoveItemCom
 }
 
 // mapToResponse maps domain.Basket to application.BasketResponse
-func (h *RemoveItemCommandHandler) mapToResponse(basket *domain.Basket) *application.BasketResponse {
-	items := make([]application.BasketItemResponse, len(basket.Items))
+func (h *RemoveItemCommandHandler) mapToResponse(basket *domain.Basket) *dto.BasketResponse {
+	items := make([]dto.BasketItemResponse, len(basket.Items))
 	for i, item := range basket.Items {
-		items[i] = application.BasketItemResponse{
+		items[i] = dto.BasketItemResponse{
 			ID:         item.ID,
 			ProductID:  item.ProductID,
 			Quantity:   item.Quantity,
@@ -68,7 +68,7 @@ func (h *RemoveItemCommandHandler) mapToResponse(basket *domain.Basket) *applica
 		}
 	}
 	
-	return &application.BasketResponse{
+	return &dto.BasketResponse{
 		ID:        basket.ID,
 		UserID:    basket.UserID,
 		Items:     items,

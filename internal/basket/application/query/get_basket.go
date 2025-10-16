@@ -3,7 +3,7 @@ package query
 import (
 	"context"
 
-	"github.com/ddd-micro/internal/basket/application"
+	"github.com/ddd-micro/internal/basket/application/dto"
 	"github.com/ddd-micro/internal/basket/domain"
 )
 
@@ -25,7 +25,7 @@ func NewGetBasketQueryHandler(basketRepo domain.BasketRepository) *GetBasketQuer
 }
 
 // Handle handles the GetBasketQuery
-func (h *GetBasketQueryHandler) Handle(ctx context.Context, query GetBasketQuery) (*application.BasketResponse, error) {
+func (h *GetBasketQueryHandler) Handle(ctx context.Context, query GetBasketQuery) (*dto.BasketResponse, error) {
 	// Get basket for user
 	basket, err := h.basketRepo.GetByUserID(ctx, query.UserID)
 	if err != nil {
@@ -36,10 +36,10 @@ func (h *GetBasketQueryHandler) Handle(ctx context.Context, query GetBasketQuery
 }
 
 // mapToResponse maps domain.Basket to application.BasketResponse
-func (h *GetBasketQueryHandler) mapToResponse(basket *domain.Basket) *application.BasketResponse {
-	items := make([]application.BasketItemResponse, len(basket.Items))
+func (h *GetBasketQueryHandler) mapToResponse(basket *domain.Basket) *dto.BasketResponse {
+	items := make([]dto.BasketItemResponse, len(basket.Items))
 	for i, item := range basket.Items {
-		items[i] = application.BasketItemResponse{
+		items[i] = dto.BasketItemResponse{
 			ID:         item.ID,
 			ProductID:  item.ProductID,
 			Quantity:   item.Quantity,
@@ -50,7 +50,7 @@ func (h *GetBasketQueryHandler) mapToResponse(basket *domain.Basket) *applicatio
 		}
 	}
 	
-	return &application.BasketResponse{
+	return &dto.BasketResponse{
 		ID:        basket.ID,
 		UserID:    basket.UserID,
 		Items:     items,
