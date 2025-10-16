@@ -11,6 +11,14 @@ import (
 	"google.golang.org/grpc/status"
 )
 
+type contextKey string
+
+const (
+	userIDKey    contextKey = "user_id"
+	userEmailKey contextKey = "user_email"
+	userRoleKey  contextKey = "user_role"
+)
+
 // AuthInterceptor is a gRPC interceptor for JWT authentication
 type AuthInterceptor struct {
 	userService *application.UserServiceCQRS
@@ -81,9 +89,9 @@ func (i *AuthInterceptor) authorize(ctx context.Context) (context.Context, error
 	}
 
 	// Add user info to context
-	ctx = context.WithValue(ctx, "user_id", claims.UserID)
-	ctx = context.WithValue(ctx, "user_email", claims.Email)
-	ctx = context.WithValue(ctx, "user_role", string(claims.Role))
+	ctx = context.WithValue(ctx, userIDKey, claims.UserID)
+	ctx = context.WithValue(ctx, userEmailKey, claims.Email)
+	ctx = context.WithValue(ctx, userRoleKey, string(claims.Role))
 
 	return ctx, nil
 }
