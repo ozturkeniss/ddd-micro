@@ -8,6 +8,7 @@ import (
 
 type Config struct {
 	Database database.Config
+	Client   ClientConfig
 }
 
 // LoadConfig loads configuration from environment variables
@@ -19,6 +20,7 @@ func LoadConfig() *Config {
 			Password: getEnv("REDIS_PASSWORD", ""),
 			DB:       getEnv("REDIS_DB", "0"),
 		},
+		Client: LoadClientConfig(),
 	}
 }
 
