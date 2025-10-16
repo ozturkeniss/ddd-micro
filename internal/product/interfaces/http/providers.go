@@ -1,7 +1,6 @@
 package http
 
 import (
-	"github.com/ddd-micro/internal/product/application"
 	"github.com/gin-gonic/gin"
 	"github.com/google/wire"
 )
@@ -23,16 +22,3 @@ func NewHTTPRouter(productHandler *ProductHandler, userHandler *UserHandler) *gi
 	return router
 }
 
-// NewProductHandler creates a new product handler
-func NewProductHandler(productService *application.ProductServiceCQRS) *ProductHandler {
-	return &ProductHandler{
-		productService: productService,
-	}
-}
-
-// NewUserHandler creates a new user handler
-func NewUserHandler(userService *application.UserService) *UserHandler {
-	return &UserHandler{
-		userService: userService,
-	}
-}

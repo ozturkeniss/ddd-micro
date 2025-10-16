@@ -2,8 +2,6 @@ package application
 
 import (
 	"time"
-
-	"github.com/ddd-micro/internal/product/domain"
 )
 
 // ========== PRODUCT DTOs ==========

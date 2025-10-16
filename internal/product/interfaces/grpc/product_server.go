@@ -96,9 +96,9 @@ func (s *ProductServer) UpdateProduct(ctx context.Context, req *productpb.Update
 		Price:            req.Price,
 		ComparePrice:     req.ComparePrice,
 		CostPrice:        req.CostPrice,
-		Stock:            req.Stock,
-		MinStock:         req.MinStock,
-		MaxStock:         req.MaxStock,
+		Stock:            int32ToIntPtr(req.Stock),
+		MinStock:         int32ToIntPtr(req.MinStock),
+		MaxStock:         int32ToIntPtr(req.MaxStock),
 		Category:         req.Category,
 		SubCategory:      req.SubCategory,
 		Brand:            req.Brand,
@@ -114,7 +114,7 @@ func (s *ProductServer) UpdateProduct(ctx context.Context, req *productpb.Update
 		IsDigital:        req.IsDigital,
 		IsFeatured:       req.IsFeatured,
 		IsOnSale:         req.IsOnSale,
-		SortOrder:        req.SortOrder,
+		SortOrder:        int32ToIntPtr(req.SortOrder),
 	}
 
 	productResp, err := s.productService.UpdateProduct(ctx, uint(req.Id), appReq)
@@ -293,6 +293,15 @@ func (s *ProductServer) IncrementViewCount(ctx context.Context, req *productpb.I
 	return &productpb.IncrementViewCountResponse{
 		Message: "View count incremented successfully",
 	}, nil
+}
+
+// Helper function to convert *int32 to *int
+func int32ToIntPtr(i *int32) *int {
+	if i == nil {
+		return nil
+	}
+	val := int(*i)
+	return &val
 }
 
 // Helper function to convert application.ProductResponse to proto.Product

@@ -7,10 +7,10 @@ import (
 
 // ProviderSet is the Wire provider set for client layer
 var ProviderSet = wire.NewSet(
-	NewUserClient,
+	NewUserClientFromConfig,
 )
 
-// NewUserClient creates a new user service client
-func NewUserClient(config *config.ClientConfig) (UserClient, error) {
+// NewUserClientFromConfig creates a new user service client from config
+func NewUserClientFromConfig(config *config.ClientConfig) (UserClient, error) {
 	return NewUserClient(config.UserService.URL)
 }
