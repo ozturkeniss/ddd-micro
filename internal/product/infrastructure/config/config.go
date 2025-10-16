@@ -8,6 +8,7 @@ import (
 
 type Config struct {
 	Database database.Config
+	Client   ClientConfig
 }
 
 // LoadConfig loads configuration from environment variables
@@ -21,6 +22,7 @@ func LoadConfig() *Config {
 			DBName:   getEnv("DB_NAME", "product_service_db"),
 			SSLMode:  getEnv("DB_SSLMODE", "disable"),
 		},
+		Client: *LoadClientConfig(),
 	}
 }
 

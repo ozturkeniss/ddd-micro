@@ -11,6 +11,7 @@ import (
 var ProviderSet = wire.NewSet(
 	NewProductService,
 	NewProductServiceCQRS,
+	NewUserService,
 )
 
 // NewProductService creates a new product service (non-CQRS)
