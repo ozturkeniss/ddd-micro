@@ -27,4 +27,3 @@ func NewGetUserByEmailHandler(repo domain.UserRepository) *GetUserByEmailHandler
 func (h *GetUserByEmailHandler) Handle(ctx context.Context, query GetUserByEmailQuery) (*domain.User, error) {
 	return h.repo.GetByEmail(ctx, query.Email)
 }
-

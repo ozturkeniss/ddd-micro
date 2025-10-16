@@ -9,4 +9,3 @@ type PasswordHasher = security.PasswordHasher
 func NewPasswordHasher() *PasswordHasher {
 	return security.NewPasswordHasher()
 }
-

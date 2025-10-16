@@ -68,7 +68,7 @@ func (i *AuthInterceptor) authorize(ctx context.Context) (context.Context, error
 	}
 
 	accessToken := values[0]
-	
+
 	// Remove "Bearer " prefix if present
 	if strings.HasPrefix(accessToken, "Bearer ") {
 		accessToken = strings.TrimPrefix(accessToken, "Bearer ")
@@ -87,4 +87,3 @@ func (i *AuthInterceptor) authorize(ctx context.Context) (context.Context, error
 
 	return ctx, nil
 }
-

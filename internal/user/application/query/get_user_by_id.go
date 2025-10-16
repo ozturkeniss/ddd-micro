@@ -27,4 +27,3 @@ func NewGetUserByIDHandler(repo domain.UserRepository) *GetUserByIDHandler {
 func (h *GetUserByIDHandler) Handle(ctx context.Context, query GetUserByIDQuery) (*domain.User, error) {
 	return h.repo.GetByID(ctx, query.UserID)
 }
-

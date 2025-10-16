@@ -46,4 +46,3 @@ func (h *ListUsersHandler) Handle(ctx context.Context, query ListUsersQuery) (*L
 		Limit:  query.Limit,
 	}, nil
 }
-

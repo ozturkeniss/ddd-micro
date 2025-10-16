@@ -54,4 +54,3 @@ func (h *CreateUserHandler) Handle(ctx context.Context, cmd CreateUserCommand) (
 
 	return user, nil
 }
-

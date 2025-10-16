@@ -91,4 +91,3 @@ func (j *JWTHelper) RefreshToken(tokenString string) (string, error) {
 
 	return j.GenerateToken(claims.UserID, claims.Email, claims.Role)
 }
-

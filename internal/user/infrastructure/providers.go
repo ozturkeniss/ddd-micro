@@ -66,4 +66,3 @@ func ProvideJWTSecret() string {
 	}
 	return secret
 }
-

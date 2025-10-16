@@ -35,7 +35,7 @@ func main() {
 	httpPort := getEnv("HTTP_PORT", "8080")
 	grpcPort := getEnv("GRPC_PORT", "9090")
 	ginMode := getEnv("GIN_MODE", "debug")
-	
+
 	// Set Gin mode
 	if ginMode == "release" {
 		gin.SetMode(gin.ReleaseMode)

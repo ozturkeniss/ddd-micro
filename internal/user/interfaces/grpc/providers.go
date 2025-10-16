@@ -24,4 +24,3 @@ func ProvideGRPCServer(userServer *UserServer, authInterceptor *AuthInterceptor)
 
 	return grpcServer
 }
-

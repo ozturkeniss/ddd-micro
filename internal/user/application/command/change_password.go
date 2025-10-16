@@ -56,4 +56,3 @@ func (h *ChangePasswordHandler) Handle(ctx context.Context, cmd ChangePasswordCo
 	user.Password = hashedPassword
 	return h.repo.Update(ctx, user)
 }
-

@@ -354,4 +354,3 @@ func (h *UserHandler) AssignRole(c *gin.Context) {
 
 	SuccessResponse(c, http.StatusOK, "Role assigned successfully", user)
 }
-

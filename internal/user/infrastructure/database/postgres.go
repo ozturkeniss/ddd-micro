@@ -80,4 +80,3 @@ func (d *Database) Close() error {
 func (d *Database) GetDB() *gorm.DB {
 	return d.DB
 }
-

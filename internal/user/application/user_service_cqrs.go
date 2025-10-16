@@ -239,4 +239,3 @@ func (s *UserServiceCQRS) toUserResponse(user *domain.User) *UserResponse {
 		UpdatedAt: user.UpdatedAt,
 	}
 }
-

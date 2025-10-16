@@ -32,4 +32,3 @@ func (r Role) IsAdmin() bool {
 func (r Role) IsUser() bool {
 	return r == RoleUser
 }
-

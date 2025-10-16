@@ -27,4 +27,3 @@ func NewDeleteUserHandler(repo domain.UserRepository) *DeleteUserHandler {
 func (h *DeleteUserHandler) Handle(ctx context.Context, cmd DeleteUserCommand) error {
 	return h.repo.Delete(ctx, cmd.UserID)
 }
-

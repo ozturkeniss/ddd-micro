@@ -48,4 +48,3 @@ func (h *UpdateUserHandler) Handle(ctx context.Context, cmd UpdateUserCommand) (
 
 	return user, nil
 }
-

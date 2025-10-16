@@ -56,4 +56,3 @@ func (h *UpdateUserByAdminHandler) Handle(ctx context.Context, cmd UpdateUserByA
 
 	return user, nil
 }
-

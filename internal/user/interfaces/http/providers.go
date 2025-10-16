@@ -30,4 +30,3 @@ func ProvideRouter(userService *application.UserServiceCQRS) *gin.Engine {
 
 	return router
 }
-

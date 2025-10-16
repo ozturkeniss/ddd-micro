@@ -54,4 +54,3 @@ func (j *JWTHelper) ValidateToken(tokenString string) (*JWTClaims, error) {
 func (j *JWTHelper) RefreshToken(tokenString string) (string, error) {
 	return j.helper.RefreshToken(tokenString)
 }
-

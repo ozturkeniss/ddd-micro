@@ -52,4 +52,3 @@ func (h *AssignRoleHandler) Handle(ctx context.Context, cmd AssignRoleCommand) (
 
 	return user, nil
 }
-

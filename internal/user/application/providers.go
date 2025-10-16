@@ -74,4 +74,3 @@ func ProvideJWTHelper(jwtSecret string, tokenDuration time.Duration) *JWTHelper 
 func ProvideTokenDuration() time.Duration {
 	return 24 * time.Hour
 }
-

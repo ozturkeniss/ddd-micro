@@ -29,4 +29,3 @@ func (p *PasswordHasher) HashPassword(password string) (string, error) {
 func (p *PasswordHasher) ComparePassword(hashedPassword, password string) error {
 	return bcrypt.CompareHashAndPassword([]byte(hashedPassword), []byte(password))
 }
-

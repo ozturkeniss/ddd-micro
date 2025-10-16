@@ -71,4 +71,3 @@ func (h *LoginHandler) Handle(ctx context.Context, cmd LoginCommand) (*LoginResu
 		Token: token,
 	}, nil
 }
-

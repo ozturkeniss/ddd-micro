@@ -70,4 +70,3 @@ func InternalServerErrorResponse(c *gin.Context, err error) {
 		Error:   err.Error(),
 	})
 }
-

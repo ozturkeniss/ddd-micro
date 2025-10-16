@@ -255,4 +255,3 @@ func (s *UserService) toUserResponse(user *domain.User) *UserResponse {
 		UpdatedAt: user.UpdatedAt,
 	}
 }
-

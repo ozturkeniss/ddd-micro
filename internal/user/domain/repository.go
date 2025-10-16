@@ -25,4 +25,3 @@ type UserRepository interface {
 	// Exists checks if a user exists by email
 	Exists(ctx context.Context, email string) (bool, error)
 }
-

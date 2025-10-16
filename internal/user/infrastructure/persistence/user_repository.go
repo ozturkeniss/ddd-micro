@@ -48,7 +48,7 @@ func (r *UserRepository) Create(ctx context.Context, user *domain.User) error {
 func (r *UserRepository) GetByID(ctx context.Context, id uint) (*domain.User, error) {
 	var user domain.User
 	result := r.db.WithContext(ctx).First(&user, id)
-	
+
 	if result.Error != nil {
 		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
 			return nil, ErrUserNotFound
@@ -63,7 +63,7 @@ func (r *UserRepository) GetByID(ctx context.Context, id uint) (*domain.User, er
 func (r *UserRepository) GetByEmail(ctx context.Context, email string) (*domain.User, error) {
 	var user domain.User
 	result := r.db.WithContext(ctx).Where("email = ?", email).First(&user)
-	
+
 	if result.Error != nil {
 		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
 			return nil, ErrUserNotFound
@@ -91,7 +91,7 @@ func (r *UserRepository) Update(ctx context.Context, user *domain.User) error {
 // Delete soft deletes a user by ID
 func (r *UserRepository) Delete(ctx context.Context, id uint) error {
 	result := r.db.WithContext(ctx).Delete(&domain.User{}, id)
-	
+
 	if result.Error != nil {
 		return result.Error
 	}
@@ -106,12 +106,12 @@ func (r *UserRepository) Delete(ctx context.Context, id uint) error {
 // List retrieves all users with pagination
 func (r *UserRepository) List(ctx context.Context, offset, limit int) ([]*domain.User, error) {
 	var users []*domain.User
-	
+
 	result := r.db.WithContext(ctx).
 		Offset(offset).
 		Limit(limit).
 		Find(&users)
-	
+
 	if result.Error != nil {
 		return nil, result.Error
 	}
@@ -126,11 +126,10 @@ func (r *UserRepository) Exists(ctx context.Context, email string) (bool, error)
 		Model(&domain.User{}).
 		Where("email = ?", email).
 		Count(&count)
-	
+
 	if result.Error != nil {
 		return false, result.Error
 	}
 
 	return count > 0, nil
 }
-

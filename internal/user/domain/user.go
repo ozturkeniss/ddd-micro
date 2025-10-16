@@ -66,4 +66,3 @@ func (u *User) AssignRole(role Role) {
 		u.Role = role
 	}
 }
-
