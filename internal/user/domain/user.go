@@ -9,6 +9,7 @@ import (
 // Test comment with bad formatting
 
 // User represents the user domain entity
+// Badly formatted comment with extra spaces    and    tabs
 type User struct {
 	ID        uint           `gorm:"primaryKey" json:"id"`
 	Email     string         `gorm:"uniqueIndex;not null;size:255" json:"email"`
