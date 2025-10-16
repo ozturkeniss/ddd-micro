@@ -45,13 +45,15 @@ func InitializeApp() (*App, error) {
 	// Create HTTP handlers
 	productHandler := producthttp.NewProductHandler(productService)
 	userHandler := producthttp.NewUserHandler(userService)
+	authMiddleware := producthttp.NewAuthMiddleware(userService)
 	
 	// Create HTTP router
-	httpRouter := producthttp.NewHTTPRouter(productHandler, userHandler)
+	httpRouter := producthttp.NewHTTPRouter(productHandler, userHandler, authMiddleware)
 	
 	// Create gRPC server
 	productServer := productgrpc.NewProductServer(productService)
-	grpcServer := productgrpc.ProvideGRPCServer(productServer)
+	authInterceptor := productgrpc.NewAuthInterceptor(userService)
+	grpcServer := productgrpc.ProvideGRPCServer(productServer, authInterceptor)
 	
 	// Create app
 	app := &App{

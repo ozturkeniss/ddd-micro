@@ -5,7 +5,6 @@ import (
 	"strings"
 
 	"github.com/ddd-micro/internal/product/application"
-	userpb "github.com/ddd-micro/api/proto/user"
 	"github.com/gin-gonic/gin"
 )
 

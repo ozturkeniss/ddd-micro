@@ -102,3 +102,166 @@ func (h *ProductHandler) SearchProducts(c *gin.Context) {
 		"message": "Search products endpoint - to be implemented",
 	})
 }
+
+// ListProductsByCategory retrieves products by category
+func (h *ProductHandler) ListProductsByCategory(c *gin.Context) {
+	category := c.Param("category")
+	// This would handle product listing by category
+	// For now, return a placeholder response
+	c.JSON(http.StatusOK, gin.H{
+		"message":  "List products by category endpoint - to be implemented",
+		"category": category,
+	})
+}
+
+// UpdateStock updates product stock
+func (h *ProductHandler) UpdateStock(c *gin.Context) {
+	idStr := c.Param("id")
+	id, err := strconv.ParseUint(idStr, 10, 32)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "Invalid product ID",
+		})
+		return
+	}
+
+	// This would update product stock
+	// For now, return a placeholder response
+	c.JSON(http.StatusOK, gin.H{
+		"message": "Update stock endpoint - to be implemented",
+		"id":      id,
+	})
+}
+
+// ReduceStock reduces product stock
+func (h *ProductHandler) ReduceStock(c *gin.Context) {
+	idStr := c.Param("id")
+	id, err := strconv.ParseUint(idStr, 10, 32)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "Invalid product ID",
+		})
+		return
+	}
+
+	// This would reduce product stock
+	// For now, return a placeholder response
+	c.JSON(http.StatusOK, gin.H{
+		"message": "Reduce stock endpoint - to be implemented",
+		"id":      id,
+	})
+}
+
+// IncreaseStock increases product stock
+func (h *ProductHandler) IncreaseStock(c *gin.Context) {
+	idStr := c.Param("id")
+	id, err := strconv.ParseUint(idStr, 10, 32)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "Invalid product ID",
+		})
+		return
+	}
+
+	// This would increase product stock
+	// For now, return a placeholder response
+	c.JSON(http.StatusOK, gin.H{
+		"message": "Increase stock endpoint - to be implemented",
+		"id":      id,
+	})
+}
+
+// ActivateProduct activates a product
+func (h *ProductHandler) ActivateProduct(c *gin.Context) {
+	idStr := c.Param("id")
+	id, err := strconv.ParseUint(idStr, 10, 32)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "Invalid product ID",
+		})
+		return
+	}
+
+	// This would activate the product
+	// For now, return a placeholder response
+	c.JSON(http.StatusOK, gin.H{
+		"message": "Activate product endpoint - to be implemented",
+		"id":      id,
+	})
+}
+
+// DeactivateProduct deactivates a product
+func (h *ProductHandler) DeactivateProduct(c *gin.Context) {
+	idStr := c.Param("id")
+	id, err := strconv.ParseUint(idStr, 10, 32)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "Invalid product ID",
+		})
+		return
+	}
+
+	// This would deactivate the product
+	// For now, return a placeholder response
+	c.JSON(http.StatusOK, gin.H{
+		"message": "Deactivate product endpoint - to be implemented",
+		"id":      id,
+	})
+}
+
+// MarkAsFeatured marks a product as featured
+func (h *ProductHandler) MarkAsFeatured(c *gin.Context) {
+	idStr := c.Param("id")
+	id, err := strconv.ParseUint(idStr, 10, 32)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "Invalid product ID",
+		})
+		return
+	}
+
+	// This would mark product as featured
+	// For now, return a placeholder response
+	c.JSON(http.StatusOK, gin.H{
+		"message": "Mark as featured endpoint - to be implemented",
+		"id":      id,
+	})
+}
+
+// UnmarkAsFeatured removes featured status from a product
+func (h *ProductHandler) UnmarkAsFeatured(c *gin.Context) {
+	idStr := c.Param("id")
+	id, err := strconv.ParseUint(idStr, 10, 32)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "Invalid product ID",
+		})
+		return
+	}
+
+	// This would unmark product as featured
+	// For now, return a placeholder response
+	c.JSON(http.StatusOK, gin.H{
+		"message": "Unmark as featured endpoint - to be implemented",
+		"id":      id,
+	})
+}
+
+// IncrementViewCount increments product view count
+func (h *ProductHandler) IncrementViewCount(c *gin.Context) {
+	idStr := c.Param("id")
+	id, err := strconv.ParseUint(idStr, 10, 32)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "Invalid product ID",
+		})
+		return
+	}
+
+	// This would increment view count
+	// For now, return a placeholder response
+	c.JSON(http.StatusOK, gin.H{
+		"message": "Increment view count endpoint - to be implemented",
+		"id":      id,
+	})
+}
