@@ -4,6 +4,7 @@ import (
 	"log"
 
 	"github.com/ddd-micro/internal/basket/domain"
+	"github.com/ddd-micro/internal/basket/infrastructure/client"
 	"github.com/ddd-micro/internal/basket/infrastructure/config"
 	"github.com/ddd-micro/internal/basket/infrastructure/database"
 	"github.com/ddd-micro/internal/basket/infrastructure/persistence"
@@ -16,6 +17,7 @@ var ProviderSet = wire.NewSet(
 	ProvideDatabaseConfig,
 	ProvideDatabase,
 	ProvideBasketRepository,
+	client.ProviderSet,
 )
 
 // ProvideConfig provides application configuration

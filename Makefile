@@ -49,6 +49,7 @@ wire:
 	@echo "Generating wire code..."
 	cd cmd/user && $(GO_BIN)/wire
 	cd cmd/product && $(GO_BIN)/wire
+	cd cmd/basket && $(GO_BIN)/wire
 	@echo "Wire generation completed!"
 
 # Generate Swagger documentation
@@ -56,6 +57,7 @@ swagger:
 	@echo "Generating Swagger documentation..."
 	swag init -g cmd/user/main.go -o cmd/user/docs
 	swag init -g cmd/product/main.go -o cmd/product/docs
+	swag init -g cmd/basket/main.go -o cmd/basket/docs
 	@echo "Swagger documentation generated successfully!"
 
 # Build services
@@ -63,6 +65,7 @@ build:
 	@echo "Building services..."
 	go build -o bin/user-service ./cmd/user
 	go build -o bin/product-service ./cmd/product
+	go build -o bin/basket-service ./cmd/basket
 	@echo "Build completed!"
 
 # Run services
@@ -73,6 +76,10 @@ run-user:
 run-product:
 	@echo "Running product service..."
 	go run ./cmd/product/main.go
+
+run-basket:
+	@echo "Running basket service..."
+	go run ./cmd/basket/main.go
 
 # Run API Gateway
 run-gateway:
