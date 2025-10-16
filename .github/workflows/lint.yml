@@ -13,6 +13,9 @@ jobs:
     
     steps:
     - uses: actions/checkout@v4
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+        fetch-depth: 0
     
     - name: Set up Go
       uses: actions/setup-go@v4
@@ -23,19 +26,32 @@ jobs:
       run: |
         curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(go env GOPATH)/bin v1.54.2
     
+    - name: Install goimports
+      run: go install golang.org/x/tools/cmd/goimports@latest
+    
+    - name: Auto-fix Go formatting
+      run: |
+        # Fix formatting issues
+        gofmt -w .
+        $(go env GOPATH)/bin/goimports -w .
+        
+        # Check if there are changes
+        if ! git diff --quiet; then
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add .
+          git commit -m "Auto-fix: Format Go code [skip ci]"
+          git push
+          echo "✅ Go formatting issues auto-fixed and committed"
+        else
+          echo "✅ No Go formatting issues found"
+        fi
+    
     - name: Run golangci-lint
       run: $(go env GOPATH)/bin/golangci-lint run ./...
     
     - name: Run go vet
       run: go vet ./...
-    
-    - name: Run go fmt check
-      run: |
-        if [ "$(gofmt -s -l . | wc -l)" -gt 0 ]; then
-          echo "The following files are not formatted:"
-          gofmt -s -l .
-          exit 1
-        fi
 
   lint-frontend:
     name: Lint Frontend Code
@@ -43,6 +59,9 @@ jobs:
     
     steps:
     - uses: actions/checkout@v4
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+        fetch-depth: 0
     
     - name: Set up Node.js
       uses: actions/setup-node@v4
@@ -56,7 +75,30 @@ jobs:
         cd client
         npm ci
     
-    - name: Run ESLint
+    - name: Auto-fix Frontend formatting
+      run: |
+        cd client
+        
+        # Fix ESLint issues that can be auto-fixed
+        npm run lint:fix || true
+        
+        # Fix Prettier formatting
+        npm run format
+        
+        # Check if there are changes
+        cd ..
+        if ! git diff --quiet; then
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add .
+          git commit -m "Auto-fix: Format frontend code [skip ci]"
+          git push
+          echo "✅ Frontend formatting issues auto-fixed and committed"
+        else
+          echo "✅ No frontend formatting issues found"
+        fi
+    
+    - name: Run ESLint (strict check)
       run: |
         cd client
         npm run lint
@@ -66,10 +108,10 @@ jobs:
         cd client
         npx tsc --noEmit
     
-    - name: Check formatting with Prettier
+    - name: Check formatting with Prettier (strict check)
       run: |
         cd client
-        npx prettier --check "src/**/*.{js,jsx,ts,tsx,json,css,md}"
+        npm run format:check
 
   test-go:
     name: Test Go Code

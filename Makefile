@@ -8,17 +8,19 @@ GO_BIN=$(shell go env GOPATH)/bin
 # Help command
 help:
 	@echo "Available commands:"
-	@echo "  make proto-install  - Install protoc plugins"
-	@echo "  make proto          - Generate Go code from proto files"
-	@echo "  make proto-clean    - Clean generated proto files"
-	@echo "  make wire           - Generate wire dependency injection code"
-	@echo "  make swagger        - Generate Swagger documentation"
-	@echo "  make build          - Build user service"
-	@echo "  make run            - Run user service"
-	@echo "  make test           - Run tests"
-	@echo "  make lint           - Run Go linter"
-	@echo "  make lint-frontend  - Run frontend linter"
-	@echo "  make clean          - Clean build artifacts"
+	@echo "  make proto-install     - Install protoc plugins"
+	@echo "  make proto             - Generate Go code from proto files"
+	@echo "  make proto-clean       - Clean generated proto files"
+	@echo "  make wire              - Generate wire dependency injection code"
+	@echo "  make swagger           - Generate Swagger documentation"
+	@echo "  make build             - Build user service"
+	@echo "  make run               - Run user service"
+	@echo "  make test              - Run tests"
+	@echo "  make lint              - Run Go linter"
+	@echo "  make lint-fix          - Auto-fix Go formatting"
+	@echo "  make lint-frontend     - Run frontend linter"
+	@echo "  make lint-frontend-fix - Auto-fix frontend formatting"
+	@echo "  make clean             - Clean build artifacts"
 
 # Install protoc plugins
 proto-install:
@@ -75,12 +77,26 @@ lint:
 	@echo "Running Go linter..."
 	$(GO_BIN)/golangci-lint run ./...
 
+# Auto-fix Go formatting
+lint-fix:
+	@echo "Auto-fixing Go formatting..."
+	gofmt -w .
+	$(GO_BIN)/goimports -w .
+	@echo "✅ Go formatting fixed!"
+
 # Run frontend linter
 lint-frontend:
 	@echo "Running frontend linter..."
 	cd client && npm run lint
 	cd client && npm run type-check
 	cd client && npm run format:check
+
+# Auto-fix frontend formatting
+lint-frontend-fix:
+	@echo "Auto-fixing frontend formatting..."
+	cd client && npm run lint:fix
+	cd client && npm run format
+	@echo "✅ Frontend formatting fixed!"
 
 # Install dependencies
 install-deps:
