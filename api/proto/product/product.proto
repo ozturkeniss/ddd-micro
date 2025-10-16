@@ -1,0 +1,237 @@
+syntax = "proto3";
+
+package product;
+
+option go_package = "github.com/ddd-micro/api/proto/product;productpb";
+
+import "google/protobuf/timestamp.proto";
+
+// ProductService defines the gRPC service for product management
+service ProductService {
+  // Product CRUD operations
+  rpc CreateProduct(CreateProductRequest) returns (ProductResponse);
+  rpc GetProduct(GetProductRequest) returns (ProductResponse);
+  rpc GetProductBySKU(GetProductBySKURequest) returns (ProductResponse);
+  rpc UpdateProduct(UpdateProductRequest) returns (ProductResponse);
+  rpc DeleteProduct(DeleteProductRequest) returns (DeleteProductResponse);
+  rpc ListProducts(ListProductsRequest) returns (ListProductsResponse);
+  
+  // Product search and filtering
+  rpc SearchProducts(SearchProductsRequest) returns (ListProductsResponse);
+  rpc ListProductsByCategory(ListProductsByCategoryRequest) returns (ListProductsResponse);
+  
+  // Stock management
+  rpc UpdateStock(UpdateStockRequest) returns (UpdateStockResponse);
+  rpc ReduceStock(ReduceStockRequest) returns (ReduceStockResponse);
+  rpc IncreaseStock(IncreaseStockRequest) returns (IncreaseStockResponse);
+  
+  // Product status management
+  rpc ActivateProduct(ActivateProductRequest) returns (ProductResponse);
+  rpc DeactivateProduct(DeactivateProductRequest) returns (ProductResponse);
+  rpc MarkAsFeatured(MarkAsFeaturedRequest) returns (ProductResponse);
+  rpc UnmarkAsFeatured(UnmarkAsFeaturedRequest) returns (ProductResponse);
+  rpc IncrementViewCount(IncrementViewCountRequest) returns (IncrementViewCountResponse);
+}
+
+// Product message
+message Product {
+  uint32 id = 1;
+  string name = 2;
+  string description = 3;
+  string short_description = 4;
+  double price = 5;
+  double compare_price = 6;
+  double cost_price = 7;
+  int32 stock = 8;
+  int32 min_stock = 9;
+  int32 max_stock = 10;
+  string category = 11;
+  string sub_category = 12;
+  string brand = 13;
+  string sku = 14;
+  string barcode = 15;
+  double weight = 16;
+  string dimensions = 17;
+  string color = 18;
+  string size = 19;
+  string material = 20;
+  string tags = 21;
+  string images = 22;
+  bool is_active = 23;
+  bool is_digital = 24;
+  bool is_featured = 25;
+  bool is_on_sale = 26;
+  int32 sort_order = 27;
+  int32 view_count = 28;
+  google.protobuf.Timestamp created_at = 29;
+  google.protobuf.Timestamp updated_at = 30;
+}
+
+// CreateProduct messages
+message CreateProductRequest {
+  string name = 1;
+  string description = 2;
+  string short_description = 3;
+  double price = 4;
+  double compare_price = 5;
+  double cost_price = 6;
+  int32 stock = 7;
+  int32 min_stock = 8;
+  int32 max_stock = 9;
+  string category = 10;
+  string sub_category = 11;
+  string brand = 12;
+  string sku = 13;
+  string barcode = 14;
+  double weight = 15;
+  string dimensions = 16;
+  string color = 17;
+  string size = 18;
+  string material = 19;
+  string tags = 20;
+  string images = 21;
+  bool is_digital = 22;
+  bool is_featured = 23;
+  bool is_on_sale = 24;
+  int32 sort_order = 25;
+}
+
+message ProductResponse {
+  Product product = 1;
+}
+
+// GetProduct messages
+message GetProductRequest {
+  uint32 id = 1;
+}
+
+message GetProductBySKURequest {
+  string sku = 1;
+}
+
+// UpdateProduct messages
+message UpdateProductRequest {
+  uint32 id = 1;
+  optional string name = 2;
+  optional string description = 3;
+  optional string short_description = 4;
+  optional double price = 5;
+  optional double compare_price = 6;
+  optional double cost_price = 7;
+  optional int32 stock = 8;
+  optional int32 min_stock = 9;
+  optional int32 max_stock = 10;
+  optional string category = 11;
+  optional string sub_category = 12;
+  optional string brand = 13;
+  optional string barcode = 14;
+  optional double weight = 15;
+  optional string dimensions = 16;
+  optional string color = 17;
+  optional string size = 18;
+  optional string material = 19;
+  optional string tags = 20;
+  optional string images = 21;
+  optional bool is_active = 22;
+  optional bool is_digital = 23;
+  optional bool is_featured = 24;
+  optional bool is_on_sale = 25;
+  optional int32 sort_order = 26;
+}
+
+// DeleteProduct messages
+message DeleteProductRequest {
+  uint32 id = 1;
+}
+
+message DeleteProductResponse {
+  string message = 1;
+}
+
+// ListProducts messages
+message ListProductsRequest {
+  int32 offset = 1;
+  int32 limit = 2;
+}
+
+message ListProductsResponse {
+  repeated Product products = 1;
+  int32 total = 2;
+  int32 offset = 3;
+  int32 limit = 4;
+}
+
+// SearchProducts messages
+message SearchProductsRequest {
+  string query = 1;
+  string category = 2;
+  string brand = 3;
+  double min_price = 4;
+  double max_price = 5;
+  optional bool is_active = 6;
+  optional bool is_digital = 7;
+  optional bool is_featured = 8;
+  optional bool is_on_sale = 9;
+  int32 offset = 10;
+  int32 limit = 11;
+}
+
+// ListProductsByCategory messages
+message ListProductsByCategoryRequest {
+  string category = 1;
+  int32 offset = 2;
+  int32 limit = 3;
+}
+
+// Stock management messages
+message UpdateStockRequest {
+  uint32 product_id = 1;
+  int32 stock = 2;
+}
+
+message UpdateStockResponse {
+  string message = 1;
+}
+
+message ReduceStockRequest {
+  uint32 product_id = 1;
+  int32 amount = 2;
+}
+
+message ReduceStockResponse {
+  string message = 1;
+}
+
+message IncreaseStockRequest {
+  uint32 product_id = 1;
+  int32 amount = 2;
+}
+
+message IncreaseStockResponse {
+  string message = 1;
+}
+
+// Product status management messages
+message ActivateProductRequest {
+  uint32 product_id = 1;
+}
+
+message DeactivateProductRequest {
+  uint32 product_id = 1;
+}
+
+message MarkAsFeaturedRequest {
+  uint32 product_id = 1;
+}
+
+message UnmarkAsFeaturedRequest {
+  uint32 product_id = 1;
+}
+
+message IncrementViewCountRequest {
+  uint32 product_id = 1;
+}
+
+message IncrementViewCountResponse {
+  string message = 1;
+}

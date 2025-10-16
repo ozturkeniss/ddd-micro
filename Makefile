@@ -48,6 +48,7 @@ proto-clean:
 wire:
 	@echo "Generating wire code..."
 	cd cmd/user && $(GO_BIN)/wire
+	cd cmd/product && $(GO_BIN)/wire
 	@echo "Wire generation completed!"
 
 # Generate Swagger documentation
@@ -56,16 +57,21 @@ swagger:
 	swag init -g cmd/user/main.go -o cmd/user/docs
 	@echo "Swagger documentation generated successfully!"
 
-# Build user service
+# Build services
 build:
-	@echo "Building user service..."
+	@echo "Building services..."
 	go build -o bin/user-service ./cmd/user
+	go build -o bin/product-service ./cmd/product
 	@echo "Build completed!"
 
-# Run user service
-run:
+# Run services
+run-user:
 	@echo "Running user service..."
 	go run ./cmd/user/main.go
+
+run-product:
+	@echo "Running product service..."
+	go run ./cmd/product/main.go
 
 # Run tests
 test:
