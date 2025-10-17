@@ -159,6 +159,64 @@
       ]
     },
     {
+      "endpoint": "/users/profile",
+      "method": "PUT",
+      "input_headers": [
+        "Authorization",
+        "Content-Type"
+      ],
+      "output_encoding": "json",
+      "backend": [
+        {
+          "url_pattern": "/api/v1/users/profile",
+          "encoding": "json",
+          "sd": "static",
+          "host": [
+            "http://user-service:8080"
+          ],
+          "extra_config": {
+            "proxy/headers": {
+              "request": {
+                "pass": [
+                  "Authorization",
+                  "Content-Type"
+                ]
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "endpoint": "/users/change-password",
+      "method": "POST",
+      "input_headers": [
+        "Authorization",
+        "Content-Type"
+      ],
+      "output_encoding": "json",
+      "backend": [
+        {
+          "url_pattern": "/api/v1/users/change-password",
+          "encoding": "json",
+          "sd": "static",
+          "host": [
+            "http://user-service:8080"
+          ],
+          "extra_config": {
+            "proxy/headers": {
+              "request": {
+                "pass": [
+                  "Authorization",
+                  "Content-Type"
+                ]
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
       "endpoint": "/users/{id}",
       "method": "GET",
       "input_headers": [
@@ -169,6 +227,93 @@
       "backend": [
         {
           "url_pattern": "/api/v1/admin/users/{id}",
+          "encoding": "json",
+          "sd": "static",
+          "host": [
+            "http://user-service:8080"
+          ],
+          "extra_config": {
+            "proxy/headers": {
+              "request": {
+                "pass": [
+                  "Authorization",
+                  "Content-Type"
+                ]
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "endpoint": "/admin/users/{id}",
+      "method": "PUT",
+      "input_headers": [
+        "Authorization",
+        "Content-Type"
+      ],
+      "output_encoding": "json",
+      "backend": [
+        {
+          "url_pattern": "/api/v1/admin/users/{id}",
+          "encoding": "json",
+          "sd": "static",
+          "host": [
+            "http://user-service:8080"
+          ],
+          "extra_config": {
+            "proxy/headers": {
+              "request": {
+                "pass": [
+                  "Authorization",
+                  "Content-Type"
+                ]
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "endpoint": "/admin/users/{id}",
+      "method": "DELETE",
+      "input_headers": [
+        "Authorization",
+        "Content-Type"
+      ],
+      "output_encoding": "json",
+      "backend": [
+        {
+          "url_pattern": "/api/v1/admin/users/{id}",
+          "encoding": "json",
+          "sd": "static",
+          "host": [
+            "http://user-service:8080"
+          ],
+          "extra_config": {
+            "proxy/headers": {
+              "request": {
+                "pass": [
+                  "Authorization",
+                  "Content-Type"
+                ]
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "endpoint": "/admin/users/{id}/assign-role",
+      "method": "POST",
+      "input_headers": [
+        "Authorization",
+        "Content-Type"
+      ],
+      "output_encoding": "json",
+      "backend": [
+        {
+          "url_pattern": "/api/v1/admin/users/{id}/assign-role",
           "encoding": "json",
           "sd": "static",
           "host": [
