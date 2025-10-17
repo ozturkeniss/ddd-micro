@@ -9,37 +9,39 @@ package main
 import (
 	"github.com/ddd-micro/internal/basket/application"
 	"github.com/ddd-micro/internal/basket/infrastructure"
+	"github.com/ddd-micro/internal/basket/interfaces/grpc"
 	"github.com/ddd-micro/internal/basket/interfaces/http"
 	"github.com/gin-gonic/gin"
+	"google.golang.org/grpc"
 )
-
-// App represents the application dependencies
-type App struct {
-	HTTPRouter *gin.Engine
-}
-
-// NewApp creates a new App instance
-func NewApp(httpRouter *gin.Engine) *App {
-	return &App{
-		HTTPRouter: httpRouter,
-	}
-}
 
 // Injectors from wire.go:
 
 func InitializeApp() (*App, func(), error) {
-	config := infrastructure.ProvideConfig()
-	databaseConfig := infrastructure.ProvideDatabaseConfig(config)
-	database, err := infrastructure.ProvideDatabase(databaseConfig)
-	if err != nil {
-		return nil, nil, err
-	}
-	basketRepository := infrastructure.ProvideBasketRepository(database)
-	userClient := infrastructure.ProvideUserClient(config)
-	productClient := infrastructure.ProvideProductClient(config)
-	basketServiceCQRS := application.NewBasketServiceCQRS(basketRepository, productClient)
-	engine := http.NewHTTPRouter(basketServiceCQRS, userClient)
-	app := NewApp(engine)
+	// Infrastructure layer
+	config := infrastructure.NewConfig()
+	redisClient := infrastructure.NewRedisClient(config)
+	userClient := infrastructure.NewUserClient(config)
+	productClient := infrastructure.NewProductClient(config)
+	basketRepository := infrastructure.NewBasketRepository(redisClient)
+	
+	// Application layer
+	basketServiceCQRS := application.NewBasketServiceCQRS(basketRepository, userClient, productClient)
+	
+	// HTTP interface layer
+	httpConfig := http.NewConfig()
+	authMiddleware := http.NewAuthMiddleware(userClient)
+	basketHandler := http.NewBasketHandler(basketServiceCQRS)
+	userHandler := http.NewUserHandler(userClient)
+	httpRouter := http.NewHTTPRouter(httpConfig, basketHandler, userHandler, authMiddleware)
+	
+	// gRPC interface layer
+	basketServer := grpc.NewBasketServer(basketServiceCQRS)
+	authInterceptor := grpc.NewAuthInterceptor(userClient)
+	grpcServer := grpc.NewGRPCServer(basketServer, authInterceptor)
+	
+	// Main app
+	app := NewApp(httpRouter, grpcServer)
 	return app, func() {
 	}, nil
 }
