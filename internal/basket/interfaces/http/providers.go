@@ -4,8 +4,6 @@ import (
 	"github.com/ddd-micro/internal/basket/application"
 	"github.com/ddd-micro/internal/basket/infrastructure/client"
 	"github.com/gin-gonic/gin"
-	ginSwagger "github.com/swaggo/gin-swagger"
-	swaggerFiles "github.com/swaggo/files"
 	"github.com/google/wire"
 )
 
