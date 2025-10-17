@@ -505,6 +505,296 @@
           }
         }
       ]
+    },
+    {
+      "endpoint": "/basket",
+      "method": "POST",
+      "input_headers": [
+        "Authorization",
+        "Content-Type"
+      ],
+      "output_encoding": "json",
+      "backend": [
+        {
+          "url_pattern": "/api/v1/users/basket",
+          "encoding": "json",
+          "sd": "static",
+          "host": [
+            "http://basket-service:8083"
+          ],
+          "extra_config": {
+            "proxy/headers": {
+              "request": {
+                "pass": [
+                  "Authorization",
+                  "Content-Type"
+                ]
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "endpoint": "/basket",
+      "method": "GET",
+      "input_headers": [
+        "Authorization",
+        "Content-Type"
+      ],
+      "output_encoding": "json",
+      "backend": [
+        {
+          "url_pattern": "/api/v1/users/basket",
+          "encoding": "json",
+          "sd": "static",
+          "host": [
+            "http://basket-service:8083"
+          ],
+          "extra_config": {
+            "proxy/headers": {
+              "request": {
+                "pass": [
+                  "Authorization",
+                  "Content-Type"
+                ]
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "endpoint": "/basket/items",
+      "method": "POST",
+      "input_headers": [
+        "Authorization",
+        "Content-Type"
+      ],
+      "output_encoding": "json",
+      "backend": [
+        {
+          "url_pattern": "/api/v1/users/basket/items",
+          "encoding": "json",
+          "sd": "static",
+          "host": [
+            "http://basket-service:8083"
+          ],
+          "extra_config": {
+            "proxy/headers": {
+              "request": {
+                "pass": [
+                  "Authorization",
+                  "Content-Type"
+                ]
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "endpoint": "/basket/items",
+      "method": "PUT",
+      "input_headers": [
+        "Authorization",
+        "Content-Type"
+      ],
+      "output_encoding": "json",
+      "backend": [
+        {
+          "url_pattern": "/api/v1/users/basket/items",
+          "encoding": "json",
+          "sd": "static",
+          "host": [
+            "http://basket-service:8083"
+          ],
+          "extra_config": {
+            "proxy/headers": {
+              "request": {
+                "pass": [
+                  "Authorization",
+                  "Content-Type"
+                ]
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "endpoint": "/basket/items/{product_id}",
+      "method": "DELETE",
+      "input_headers": [
+        "Authorization",
+        "Content-Type"
+      ],
+      "output_encoding": "json",
+      "backend": [
+        {
+          "url_pattern": "/api/v1/users/basket/items/{product_id}",
+          "encoding": "json",
+          "sd": "static",
+          "host": [
+            "http://basket-service:8083"
+          ],
+          "extra_config": {
+            "proxy/headers": {
+              "request": {
+                "pass": [
+                  "Authorization",
+                  "Content-Type"
+                ]
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "endpoint": "/basket/clear",
+      "method": "DELETE",
+      "input_headers": [
+        "Authorization",
+        "Content-Type"
+      ],
+      "output_encoding": "json",
+      "backend": [
+        {
+          "url_pattern": "/api/v1/users/basket/clear",
+          "encoding": "json",
+          "sd": "static",
+          "host": [
+            "http://basket-service:8083"
+          ],
+          "extra_config": {
+            "proxy/headers": {
+              "request": {
+                "pass": [
+                  "Authorization",
+                  "Content-Type"
+                ]
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "endpoint": "/admin/baskets/{user_id}",
+      "method": "GET",
+      "input_headers": [
+        "Authorization",
+        "Content-Type"
+      ],
+      "output_encoding": "json",
+      "backend": [
+        {
+          "url_pattern": "/api/v1/admin/baskets/{user_id}",
+          "encoding": "json",
+          "sd": "static",
+          "host": [
+            "http://basket-service:8083"
+          ],
+          "extra_config": {
+            "proxy/headers": {
+              "request": {
+                "pass": [
+                  "Authorization",
+                  "Content-Type"
+                ]
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "endpoint": "/admin/baskets/{user_id}",
+      "method": "DELETE",
+      "input_headers": [
+        "Authorization",
+        "Content-Type"
+      ],
+      "output_encoding": "json",
+      "backend": [
+        {
+          "url_pattern": "/api/v1/admin/baskets/{user_id}",
+          "encoding": "json",
+          "sd": "static",
+          "host": [
+            "http://basket-service:8083"
+          ],
+          "extra_config": {
+            "proxy/headers": {
+              "request": {
+                "pass": [
+                  "Authorization",
+                  "Content-Type"
+                ]
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "endpoint": "/admin/baskets/cleanup",
+      "method": "POST",
+      "input_headers": [
+        "Authorization",
+        "Content-Type"
+      ],
+      "output_encoding": "json",
+      "backend": [
+        {
+          "url_pattern": "/api/v1/admin/baskets/cleanup",
+          "encoding": "json",
+          "sd": "static",
+          "host": [
+            "http://basket-service:8083"
+          ],
+          "extra_config": {
+            "proxy/headers": {
+              "request": {
+                "pass": [
+                  "Authorization",
+                  "Content-Type"
+                ]
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "endpoint": "/validate-token",
+      "method": "POST",
+      "input_headers": [
+        "Authorization",
+        "Content-Type"
+      ],
+      "output_encoding": "json",
+      "backend": [
+        {
+          "url_pattern": "/api/v1/public/validate-token",
+          "encoding": "json",
+          "sd": "static",
+          "host": [
+            "http://basket-service:8083"
+          ],
+          "extra_config": {
+            "proxy/headers": {
+              "request": {
+                "pass": [
+                  "Authorization",
+                  "Content-Type"
+                ]
+              }
+            }
+          }
+        }
+      ]
     }
   ]
 }
