@@ -1,0 +1,37 @@
+package domain
+
+import "errors"
+
+// Domain layer errors
+var (
+	ErrPaymentNotFound           = errors.New("payment not found")
+	ErrPaymentMethodNotFound     = errors.New("payment method not found")
+	ErrRefundNotFound            = errors.New("refund not found")
+	ErrInvalidUserID             = errors.New("invalid user ID")
+	ErrInvalidOrderID            = errors.New("invalid order ID")
+	ErrInvalidPaymentID          = errors.New("invalid payment ID")
+	ErrInvalidAmount             = errors.New("invalid amount")
+	ErrInvalidCurrency           = errors.New("invalid currency")
+	ErrInvalidPaymentMethod      = errors.New("invalid payment method")
+	ErrInvalidPaymentMethodType  = errors.New("invalid payment method type")
+	ErrInvalidPaymentProvider    = errors.New("invalid payment provider")
+	ErrInvalidRefundReason       = errors.New("invalid refund reason")
+	ErrInvalidStatus             = errors.New("invalid status")
+	ErrPaymentAlreadyCompleted   = errors.New("payment already completed")
+	ErrPaymentAlreadyFailed      = errors.New("payment already failed")
+	ErrPaymentAlreadyCancelled   = errors.New("payment already cancelled")
+	ErrPaymentAlreadyRefunded    = errors.New("payment already refunded")
+	ErrPaymentExpired            = errors.New("payment has expired")
+	ErrPaymentCannotBeRefunded   = errors.New("payment cannot be refunded")
+	ErrPaymentCannotBeCancelled  = errors.New("payment cannot be cancelled")
+	ErrRefundAlreadyCompleted    = errors.New("refund already completed")
+	ErrRefundAlreadyFailed       = errors.New("refund already failed")
+	ErrRefundAmountExceedsPayment = errors.New("refund amount exceeds payment amount")
+	ErrPaymentMethodAlreadyExists = errors.New("payment method already exists")
+	ErrPaymentMethodInactive     = errors.New("payment method is inactive")
+	ErrInsufficientFunds         = errors.New("insufficient funds")
+	ErrGatewayError              = errors.New("payment gateway error")
+	ErrInvalidGatewayResponse    = errors.New("invalid gateway response")
+	ErrTransactionNotFound       = errors.New("transaction not found")
+	ErrDuplicateTransaction      = errors.New("duplicate transaction")
+)
