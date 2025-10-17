@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"log"
+	"net"
 	"net/http"
 	"os"
 	"os/signal"
@@ -10,6 +11,7 @@ import (
 	"time"
 
 	_ "github.com/ddd-micro/cmd/basket/docs"
+	"google.golang.org/grpc"
 )
 
 // @title Basket Service API
@@ -44,6 +46,24 @@ func main() {
 		}
 	}()
 
+	// Start gRPC server
+	go func() {
+		grpcPort := os.Getenv("GRPC_PORT")
+		if grpcPort == "" {
+			grpcPort = "9093"
+		}
+		
+		lis, err := net.Listen("tcp", ":"+grpcPort)
+		if err != nil {
+			log.Fatalf("Failed to listen on gRPC port %s: %v", grpcPort, err)
+		}
+
+		log.Printf("Starting gRPC Server on port %s...", grpcPort)
+		if err := app.GRPCServer.Serve(lis); err != nil {
+			log.Fatalf("gRPC server failed to start: %v", err)
+		}
+	}()
+
 	// Wait for interrupt signal
 	quit := make(chan os.Signal, 1)
 	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
@@ -54,6 +74,12 @@ func main() {
 	// Graceful shutdown with timeout
 	shutdownCtx, shutdownCancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer shutdownCancel()
+
+	// Gracefully stop gRPC server
+	go func() {
+		log.Println("Stopping gRPC server...")
+		app.GRPCServer.GracefulStop()
+	}()
 
 	// Cancel main context
 	cancel()
