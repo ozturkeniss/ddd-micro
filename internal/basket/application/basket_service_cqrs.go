@@ -27,7 +27,7 @@ type BasketServiceCQRS struct {
 }
 
 // NewBasketServiceCQRS creates a new BasketServiceCQRS
-func NewBasketServiceCQRS(basketRepo domain.BasketRepository, productClient client.ProductClient) *BasketServiceCQRS {
+func NewBasketServiceCQRS(basketRepo domain.BasketRepository, userClient client.UserClient, productClient client.ProductClient) *BasketServiceCQRS {
 	return &BasketServiceCQRS{
 		createBasketHandler:  command.NewCreateBasketCommandHandler(basketRepo),
 		addItemHandler:       command.NewAddItemCommandHandler(basketRepo, productClient),
@@ -106,5 +106,62 @@ func (s *BasketServiceCQRS) DeleteBasket(ctx context.Context, userID uint) error
 
 // CleanupExpiredBaskets removes expired baskets
 func (s *BasketServiceCQRS) CleanupExpiredBaskets(ctx context.Context) error {
+	return s.basketRepo.CleanupExpired(ctx)
+}
+
+// AddItem adds an item to the basket (gRPC version)
+func (s *BasketServiceCQRS) AddItem(ctx context.Context, req dto.AddItemRequest) (*dto.BasketResponse, error) {
+	cmd := command.AddItemCommand{
+		UserID:    req.UserID,
+		ProductID: req.ProductID,
+		Quantity:  req.Quantity,
+		UnitPrice: req.UnitPrice,
+	}
+	
+	return s.addItemHandler.Handle(ctx, cmd)
+}
+
+// UpdateItem updates the quantity of an item in the basket (gRPC version)
+func (s *BasketServiceCQRS) UpdateItem(ctx context.Context, productID uint, req dto.UpdateItemRequest) (*dto.BasketResponse, error) {
+	cmd := command.UpdateItemCommand{
+		UserID:    req.UserID,
+		ProductID: productID,
+		Quantity:  req.Quantity,
+	}
+	
+	return s.updateItemHandler.Handle(ctx, cmd)
+}
+
+// RemoveItem removes an item from the basket (gRPC version)
+func (s *BasketServiceCQRS) RemoveItem(ctx context.Context, req dto.RemoveItemRequest) (*dto.BasketResponse, error) {
+	cmd := command.RemoveItemCommand{
+		UserID:    req.UserID,
+		ProductID: req.ProductID,
+	}
+	
+	return s.removeItemHandler.Handle(ctx, cmd)
+}
+
+// ClearBasket removes all items from the basket (gRPC version)
+func (s *BasketServiceCQRS) ClearBasket(ctx context.Context, req dto.ClearBasketRequest) error {
+	cmd := command.ClearBasketCommand{
+		UserID: req.UserID,
+	}
+	
+	_, err := s.clearBasketHandler.Handle(ctx, cmd)
+	return err
+}
+
+// GetBasket retrieves the basket for a user (gRPC version)
+func (s *BasketServiceCQRS) GetBasket(ctx context.Context, req dto.GetBasketRequest) (*dto.BasketResponse, error) {
+	query := query.GetBasketQuery{
+		UserID: req.UserID,
+	}
+	
+	return s.getBasketHandler.Handle(ctx, query)
+}
+
+// AdminCleanupExpiredBaskets removes expired baskets and returns count
+func (s *BasketServiceCQRS) AdminCleanupExpiredBaskets(ctx context.Context) (int, error) {
 	return s.basketRepo.CleanupExpired(ctx)
 }
