@@ -2,6 +2,8 @@ package http
 
 import (
 	"github.com/gin-gonic/gin"
+	ginSwagger "github.com/swaggo/gin-swagger"
+	swaggerFiles "github.com/swaggo/files"
 )
 
 // SetupRoutes configures all HTTP routes for the basket service
@@ -13,6 +15,9 @@ func SetupRoutes(router *gin.Engine, basketHandler *BasketHandler, userHandler *
 			"service": "basket-service",
 		})
 	})
+
+	// Swagger documentation endpoint (public)
+	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
 	// API v1 group
 	v1 := router.Group("/api/v1")

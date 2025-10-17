@@ -1,8 +1,13 @@
 {
     "swagger": "2.0",
     "info": {
-        "contact": {}
+        "description": "Basket Service API for managing user baskets",
+        "title": "Basket Service API",
+        "contact": {},
+        "version": "1.0"
     },
+    "host": "localhost:8083",
+    "basePath": "/api/v1",
     "paths": {
         "/admin/baskets/cleanup": {
             "post": {
@@ -2122,6 +2127,14 @@
                     "type": "boolean"
                 }
             }
+        }
+    },
+    "securityDefinitions": {
+        "BearerAuth": {
+            "description": "Type \"Bearer\" followed by a space and JWT token.",
+            "type": "apiKey",
+            "name": "Authorization",
+            "in": "header"
         }
     }
 }

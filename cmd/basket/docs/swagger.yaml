@@ -1,3 +1,4 @@
+basePath: /api/v1
 definitions:
   application.AssignRoleRequest:
     properties:
@@ -403,8 +404,12 @@ definitions:
       success:
         type: boolean
     type: object
+host: localhost:8083
 info:
   contact: {}
+  description: Basket Service API for managing user baskets
+  title: Basket Service API
+  version: "1.0"
 paths:
   /admin/baskets/{user_id}:
     delete:
@@ -1346,4 +1351,10 @@ paths:
       summary: Validate JWT token
       tags:
       - users
+securityDefinitions:
+  BearerAuth:
+    description: Type "Bearer" followed by a space and JWT token.
+    in: header
+    name: Authorization
+    type: apiKey
 swagger: "2.0"
