@@ -8,7 +8,7 @@ type PaymentRepository interface {
 	Create(ctx context.Context, payment *Payment) error
 	GetByID(ctx context.Context, paymentID string) (*Payment, error)
 	GetByOrderID(ctx context.Context, orderID string) (*Payment, error)
-	GetByUserID(ctx context.Context, userID uint, offset, limit int) ([]*Payment, int, error)
+	GetByUserID(ctx context.Context, userID uint, limit, offset int, status string) ([]*Payment, int, error)
 	GetByTransactionID(ctx context.Context, transactionID string) (*Payment, error)
 	Update(ctx context.Context, payment *Payment) error
 	Delete(ctx context.Context, paymentID string) error
@@ -39,6 +39,7 @@ type PaymentMethodRepository interface {
 	// Payment method status operations
 	SetDefault(ctx context.Context, userID uint, paymentMethodID string) error
 	SetActive(ctx context.Context, paymentMethodID string, isActive bool) error
+	SetAllNonDefault(ctx context.Context, userID uint) error
 }
 
 // RefundRepository defines the interface for refund data operations
