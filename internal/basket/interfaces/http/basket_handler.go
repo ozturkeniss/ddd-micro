@@ -83,7 +83,7 @@ func (h *BasketHandler) GetBasket(c *gin.Context) {
 		return
 	}
 
-	basket, err := h.basketService.GetBasket(c.Request.Context(), userID.(uint))
+	basket, err := h.basketService.GetBasketHTTP(c.Request.Context(), userID.(uint))
 	if err != nil {
 		if err.Error() == "basket not found" {
 			c.JSON(http.StatusNotFound, dto.ErrorResponse{
@@ -138,7 +138,7 @@ func (h *BasketHandler) AddItem(c *gin.Context) {
 
 	req.UserID = userID.(uint)
 
-	basket, err := h.basketService.AddItem(c.Request.Context(), req.UserID, req)
+	basket, err := h.basketService.AddItemHTTP(c.Request.Context(), req.UserID, req)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, dto.ErrorResponse{
 			Error:   "Internal Server Error",
@@ -196,7 +196,7 @@ func (h *BasketHandler) UpdateItem(c *gin.Context) {
 
 	req.UserID = userID.(uint)
 
-	basket, err := h.basketService.UpdateItem(c.Request.Context(), userID.(uint), uint(productID), req)
+	basket, err := h.basketService.UpdateItemHTTP(c.Request.Context(), userID.(uint), uint(productID), req)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, dto.ErrorResponse{
 			Error:   "Internal Server Error",
@@ -242,7 +242,7 @@ func (h *BasketHandler) RemoveItem(c *gin.Context) {
 		return
 	}
 
-	basket, err := h.basketService.RemoveItem(c.Request.Context(), userID.(uint), uint(productID))
+	basket, err := h.basketService.RemoveItemHTTP(c.Request.Context(), userID.(uint), uint(productID))
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, dto.ErrorResponse{
 			Error:   "Internal Server Error",
@@ -276,7 +276,7 @@ func (h *BasketHandler) ClearBasket(c *gin.Context) {
 		return
 	}
 
-	basket, err := h.basketService.ClearBasket(c.Request.Context(), userID.(uint))
+	basket, err := h.basketService.ClearBasketHTTP(c.Request.Context(), userID.(uint))
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, dto.ErrorResponse{
 			Error:   "Internal Server Error",
@@ -317,7 +317,7 @@ func (h *BasketHandler) AdminGetBasket(c *gin.Context) {
 		return
 	}
 
-	basket, err := h.basketService.GetBasket(c.Request.Context(), uint(userID))
+	basket, err := h.basketService.GetBasketHTTP(c.Request.Context(), uint(userID))
 	if err != nil {
 		if err.Error() == "basket not found" {
 			c.JSON(http.StatusNotFound, dto.ErrorResponse{

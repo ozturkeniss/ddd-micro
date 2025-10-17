@@ -48,8 +48,8 @@ func (s *BasketServiceCQRS) CreateBasket(ctx context.Context, req dto.CreateBask
 	return s.createBasketHandler.Handle(ctx, cmd)
 }
 
-// AddItem adds an item to the basket
-func (s *BasketServiceCQRS) AddItem(ctx context.Context, userID uint, req dto.AddItemRequest) (*dto.BasketResponse, error) {
+// AddItem adds an item to the basket (HTTP version)
+func (s *BasketServiceCQRS) AddItemHTTP(ctx context.Context, userID uint, req dto.AddItemRequest) (*dto.BasketResponse, error) {
 	cmd := command.AddItemCommand{
 		UserID:    userID,
 		ProductID: req.ProductID,
@@ -60,8 +60,8 @@ func (s *BasketServiceCQRS) AddItem(ctx context.Context, userID uint, req dto.Ad
 	return s.addItemHandler.Handle(ctx, cmd)
 }
 
-// UpdateItem updates the quantity of an item in the basket
-func (s *BasketServiceCQRS) UpdateItem(ctx context.Context, userID uint, productID uint, req dto.UpdateItemRequest) (*dto.BasketResponse, error) {
+// UpdateItem updates the quantity of an item in the basket (HTTP version)
+func (s *BasketServiceCQRS) UpdateItemHTTP(ctx context.Context, userID uint, productID uint, req dto.UpdateItemRequest) (*dto.BasketResponse, error) {
 	cmd := command.UpdateItemCommand{
 		UserID:    userID,
 		ProductID: productID,
@@ -71,8 +71,8 @@ func (s *BasketServiceCQRS) UpdateItem(ctx context.Context, userID uint, product
 	return s.updateItemHandler.Handle(ctx, cmd)
 }
 
-// RemoveItem removes an item from the basket
-func (s *BasketServiceCQRS) RemoveItem(ctx context.Context, userID uint, productID uint) (*dto.BasketResponse, error) {
+// RemoveItem removes an item from the basket (HTTP version)
+func (s *BasketServiceCQRS) RemoveItemHTTP(ctx context.Context, userID uint, productID uint) (*dto.BasketResponse, error) {
 	cmd := command.RemoveItemCommand{
 		UserID:    userID,
 		ProductID: productID,
@@ -81,8 +81,8 @@ func (s *BasketServiceCQRS) RemoveItem(ctx context.Context, userID uint, product
 	return s.removeItemHandler.Handle(ctx, cmd)
 }
 
-// ClearBasket removes all items from the basket
-func (s *BasketServiceCQRS) ClearBasket(ctx context.Context, userID uint) (*dto.BasketResponse, error) {
+// ClearBasket removes all items from the basket (HTTP version)
+func (s *BasketServiceCQRS) ClearBasketHTTP(ctx context.Context, userID uint) (*dto.BasketResponse, error) {
 	cmd := command.ClearBasketCommand{
 		UserID: userID,
 	}
@@ -90,8 +90,8 @@ func (s *BasketServiceCQRS) ClearBasket(ctx context.Context, userID uint) (*dto.
 	return s.clearBasketHandler.Handle(ctx, cmd)
 }
 
-// GetBasket retrieves the basket for a user
-func (s *BasketServiceCQRS) GetBasket(ctx context.Context, userID uint) (*dto.BasketResponse, error) {
+// GetBasket retrieves the basket for a user (HTTP version)
+func (s *BasketServiceCQRS) GetBasketHTTP(ctx context.Context, userID uint) (*dto.BasketResponse, error) {
 	query := query.GetBasketQuery{
 		UserID: userID,
 	}
@@ -106,7 +106,8 @@ func (s *BasketServiceCQRS) DeleteBasket(ctx context.Context, userID uint) error
 
 // CleanupExpiredBaskets removes expired baskets
 func (s *BasketServiceCQRS) CleanupExpiredBaskets(ctx context.Context) error {
-	return s.basketRepo.CleanupExpired(ctx)
+	_, err := s.basketRepo.CleanupExpired(ctx)
+	return err
 }
 
 // AddItem adds an item to the basket (gRPC version)

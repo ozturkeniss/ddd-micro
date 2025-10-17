@@ -5,6 +5,7 @@ import (
 
 	basketpb "github.com/ddd-micro/api/proto/basket"
 	"github.com/ddd-micro/internal/basket/application"
+	"github.com/ddd-micro/internal/basket/application/dto"
 	"github.com/ddd-micro/internal/basket/domain"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -26,7 +27,7 @@ func NewBasketServer(basketService *application.BasketServiceCQRS) *BasketServer
 
 // CreateBasket creates a new basket for a user
 func (s *BasketServer) CreateBasket(ctx context.Context, req *basketpb.CreateBasketRequest) (*basketpb.BasketResponse, error) {
-	appReq := application.CreateBasketRequest{
+	appReq := dto.CreateBasketRequest{
 		UserID: uint(req.UserId),
 	}
 
@@ -40,7 +41,7 @@ func (s *BasketServer) CreateBasket(ctx context.Context, req *basketpb.CreateBas
 
 // GetBasket retrieves a user's basket
 func (s *BasketServer) GetBasket(ctx context.Context, req *basketpb.GetBasketRequest) (*basketpb.BasketResponse, error) {
-	appReq := application.GetBasketRequest{
+	appReq := dto.GetBasketRequest{
 		UserID: uint(req.UserId),
 	}
 
@@ -57,7 +58,7 @@ func (s *BasketServer) GetBasket(ctx context.Context, req *basketpb.GetBasketReq
 
 // AddItem adds an item to the basket
 func (s *BasketServer) AddItem(ctx context.Context, req *basketpb.AddItemRequest) (*basketpb.BasketResponse, error) {
-	appReq := application.AddItemRequest{
+	appReq := dto.AddItemRequest{
 		UserID:    uint(req.UserId),
 		ProductID: uint(req.ProductId),
 		Quantity:  int(req.Quantity),
@@ -83,7 +84,7 @@ func (s *BasketServer) AddItem(ctx context.Context, req *basketpb.AddItemRequest
 
 // UpdateItem updates the quantity of an item in the basket
 func (s *BasketServer) UpdateItem(ctx context.Context, req *basketpb.UpdateItemRequest) (*basketpb.BasketResponse, error) {
-	appReq := application.UpdateItemRequest{
+	appReq := dto.UpdateItemRequest{
 		UserID:   uint(req.UserId),
 		Quantity: int(req.Quantity),
 	}
@@ -107,7 +108,7 @@ func (s *BasketServer) UpdateItem(ctx context.Context, req *basketpb.UpdateItemR
 
 // RemoveItem removes an item from the basket
 func (s *BasketServer) RemoveItem(ctx context.Context, req *basketpb.RemoveItemRequest) (*basketpb.BasketResponse, error) {
-	appReq := application.RemoveItemRequest{
+	appReq := dto.RemoveItemRequest{
 		UserID:    uint(req.UserId),
 		ProductID: uint(req.ProductId),
 	}
@@ -128,7 +129,7 @@ func (s *BasketServer) RemoveItem(ctx context.Context, req *basketpb.RemoveItemR
 
 // ClearBasket clears all items from the basket
 func (s *BasketServer) ClearBasket(ctx context.Context, req *basketpb.ClearBasketRequest) (*basketpb.ClearBasketResponse, error) {
-	appReq := application.ClearBasketRequest{
+	appReq := dto.ClearBasketRequest{
 		UserID: uint(req.UserId),
 	}
 
@@ -152,7 +153,7 @@ func (s *BasketServer) GetUserBasket(ctx context.Context, req *basketpb.GetUserB
 		return nil, err
 	}
 
-	appReq := application.GetBasketRequest{
+	appReq := dto.GetBasketRequest{
 		UserID: uint(req.UserId),
 	}
 
@@ -173,7 +174,7 @@ func (s *BasketServer) DeleteUserBasket(ctx context.Context, req *basketpb.Delet
 		return nil, err
 	}
 
-	appReq := application.ClearBasketRequest{
+	appReq := dto.ClearBasketRequest{
 		UserID: uint(req.UserId),
 	}
 
@@ -211,7 +212,7 @@ func (s *BasketServer) CleanupExpiredBaskets(ctx context.Context, req *basketpb.
 
 // Helper functions
 
-func toProtoBasket(basket *application.BasketResponse) *basketpb.BasketResponse {
+func toProtoBasket(basket *dto.BasketResponse) *basketpb.BasketResponse {
 	items := make([]*basketpb.BasketItem, len(basket.Items))
 	for i, item := range basket.Items {
 		items[i] = &basketpb.BasketItem{
@@ -240,7 +241,7 @@ func toProtoBasket(basket *application.BasketResponse) *basketpb.BasketResponse 
 
 func requireAdmin(ctx context.Context) error {
 	role, ok := ctx.Value("user_role").(string)
-	if !ok || role != string(domain.RoleAdmin) {
+	if !ok || role != "admin" {
 		return status.Errorf(codes.PermissionDenied, "admin access required")
 	}
 	return nil
