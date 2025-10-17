@@ -8,8 +8,6 @@ import (
 	"os/signal"
 	"syscall"
 	"time"
-
-	"github.com/gin-gonic/gin"
 )
 
 // @title Basket Service API
@@ -33,7 +31,7 @@ func main() {
 	defer cleanup()
 
 	// Setup graceful shutdown
-	ctx, cancel := context.WithCancel(context.Background())
+	_, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
 	// Start HTTP server
