@@ -40,8 +40,8 @@ type BasketRepository interface {
 	// ExistsByUserID checks if a basket exists for a user
 	ExistsByUserID(ctx context.Context, userID uint) (bool, error)
 	
-	// CleanupExpired removes expired baskets
-	CleanupExpired(ctx context.Context) error
+	// CleanupExpired removes expired baskets and returns count
+	CleanupExpired(ctx context.Context) (int, error)
 	
 	// GetExpiredBaskets retrieves expired baskets
 	GetExpiredBaskets(ctx context.Context) ([]*Basket, error)

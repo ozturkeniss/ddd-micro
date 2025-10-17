@@ -69,6 +69,11 @@ type ClearBasketRequest struct {
 	UserID uint `json:"user_id"`
 }
 
+// GetBasketRequest represents the request to get a basket
+type GetBasketRequest struct {
+	UserID uint `json:"user_id"`
+}
+
 // SuccessResponse represents a success response
 type SuccessResponse struct {
 	Success bool        `json:"success"`

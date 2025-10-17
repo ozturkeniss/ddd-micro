@@ -242,14 +242,14 @@ func (r *BasketRepository) ExistsByUserID(ctx context.Context, userID uint) (boo
 	return exists > 0, nil
 }
 
-// CleanupExpired removes expired baskets
-func (r *BasketRepository) CleanupExpired(ctx context.Context) error {
+// CleanupExpired removes expired baskets and returns count
+func (r *BasketRepository) CleanupExpired(ctx context.Context) (int, error) {
 	// Redis automatically removes expired keys, but we can manually check
 	// This is mainly for logging and monitoring purposes
 	pattern := "basket:*"
 	keys, err := r.client.Keys(ctx, pattern).Result()
 	if err != nil {
-		return fmt.Errorf("failed to get basket keys: %w", err)
+		return 0, fmt.Errorf("failed to get basket keys: %w", err)
 	}
 	
 	var expiredCount int
@@ -268,7 +268,7 @@ func (r *BasketRepository) CleanupExpired(ctx context.Context) error {
 		fmt.Printf("Cleaned up %d expired baskets\n", expiredCount)
 	}
 	
-	return nil
+	return expiredCount, nil
 }
 
 // GetExpiredBaskets retrieves expired baskets
