@@ -128,6 +128,51 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+  basket-service:
+    build:
+      context: .
+      dockerfile: dockerfiles/basket.dockerfile
+    container_name: basket-service
+    environment:
+      HTTP_PORT: 8083
+      GRPC_PORT: 9093
+      GIN_MODE: release
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      REDIS_PASSWORD: ""
+      REDIS_DB: "0"
+      USER_SERVICE_URL: user-service:9090
+      PRODUCT_SERVICE_URL: product-service:9091
+    ports:
+    - 8083:8083
+    - 9093:9093
+    depends_on:
+      redis:
+        condition: service_healthy
+      user-service:
+        condition: service_started
+      product-service:
+        condition: service_started
+    networks:
+    - ddd-micro-network
+    restart: unless-stopped
+  redis:
+    image: redis:7-alpine
+    container_name: redis
+    ports:
+    - 6379:6379
+    volumes:
+    - redis_data:/data
+    networks:
+    - ddd-micro-network
+    healthcheck:
+      test:
+      - CMD
+      - redis-cli
+      - ping
+      interval: 10s
+      timeout: 5s
+      retries: 5
   krakend:
     image: devopsfaith/krakend:latest
     container_name: krakend-gateway
@@ -138,6 +183,7 @@ services:
     depends_on:
     - user-service
     - product-service
+    - basket-service
     networks:
     - ddd-micro-network
 networks:
@@ -148,3 +194,4 @@ volumes:
   product_db_data: null
   basket_db_data: null
   payment_db_data: null
+  redis_data: null
