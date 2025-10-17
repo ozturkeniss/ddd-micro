@@ -1,78 +1,18 @@
 import axios from 'axios';
-
-// Types - Bad formatting test
-export interface User {
-  // Badly formatted comment    with    extra    spaces
-  id: number;
-  // Very badly formatted comment with     lots     of     spaces     and     tabs
-  // Another badly formatted comment        with        many        spaces
-  email: string;
-  first_name: string;
-  last_name: string;
-  role: 'user' | 'admin';
-  is_active: boolean;
-  created_at: string;
-  updated_at: string;
-}
-
-export interface CreateUserRequest {
-  email: string;
-  password: string;
-  first_name: string;
-  last_name: string;
-}
-
-export interface UpdateUserRequest {
-  first_name?: string;
-  last_name?: string;
-}
-
-export interface UpdateUserByAdminRequest {
-  first_name?: string;
-  last_name?: string;
-  role?: 'user' | 'admin';
-  is_active?: boolean;
-}
-
-export interface AssignRoleRequest {
-  role: 'user' | 'admin';
-}
-
-export interface LoginRequest {
-  email: string;
-  password: string;
-}
-
-export interface LoginResponse {
-  user: User;
-  token: string;
-}
-
-export interface ChangePasswordRequest {
-  current_password: string;
-  new_password: string;
-}
-
-export interface RefreshTokenRequest {
-  refresh_token: string;
-}
-
-export interface TokenResponse {
-  token: string;
-}
-
-export interface ListUsersResponse {
-  users: User[];
-  total: number;
-  offset: number;
-  limit: number;
-}
-
-export interface ApiResponse<T> {
-  success: boolean;
-  message: string;
-  data?: T;
-}
+import {
+  User,
+  CreateUserRequest,
+  UpdateUserRequest,
+  UpdateUserByAdminRequest,
+  AssignRoleRequest,
+  LoginRequest,
+  LoginResponse,
+  ChangePasswordRequest,
+  RefreshTokenRequest,
+  TokenResponse,
+  ListUsersResponse,
+  ApiResponse,
+} from '../../types/user.types';
 
 // API Configuration
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8081';
