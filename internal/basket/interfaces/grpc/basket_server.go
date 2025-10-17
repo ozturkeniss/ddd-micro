@@ -6,7 +6,6 @@ import (
 	basketpb "github.com/ddd-micro/api/proto/basket"
 	"github.com/ddd-micro/internal/basket/application"
 	"github.com/ddd-micro/internal/basket/application/dto"
-	"github.com/ddd-micro/internal/basket/domain"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/timestamppb"

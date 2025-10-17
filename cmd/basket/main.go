@@ -11,7 +11,6 @@ import (
 	"time"
 
 	_ "github.com/ddd-micro/cmd/basket/docs"
-	"google.golang.org/grpc"
 )
 
 // @title Basket Service API

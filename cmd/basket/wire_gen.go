@@ -9,11 +9,25 @@ package main
 import (
 	"github.com/ddd-micro/internal/basket/application"
 	"github.com/ddd-micro/internal/basket/infrastructure"
-	"github.com/ddd-micro/internal/basket/interfaces/grpc"
+	basketgrpc "github.com/ddd-micro/internal/basket/interfaces/grpc"
 	"github.com/ddd-micro/internal/basket/interfaces/http"
 	"github.com/gin-gonic/gin"
 	"google.golang.org/grpc"
 )
+
+// App represents the application dependencies
+type App struct {
+	HTTPRouter *gin.Engine
+	GRPCServer *grpc.Server
+}
+
+// NewApp creates a new App instance
+func NewApp(httpRouter *gin.Engine, grpcServer *grpc.Server) *App {
+	return &App{
+		HTTPRouter: httpRouter,
+		GRPCServer: grpcServer,
+	}
+}
 
 // Injectors from wire.go:
 
@@ -29,16 +43,12 @@ func InitializeApp() (*App, func(), error) {
 	basketServiceCQRS := application.NewBasketServiceCQRS(basketRepository, userClient, productClient)
 	
 	// HTTP interface layer
-	httpConfig := http.NewConfig()
-	authMiddleware := http.NewAuthMiddleware(userClient)
-	basketHandler := http.NewBasketHandler(basketServiceCQRS)
-	userHandler := http.NewUserHandler(userClient)
-	httpRouter := http.NewHTTPRouter(httpConfig, basketHandler, userHandler, authMiddleware)
+	httpRouter := http.NewHTTPRouter(basketServiceCQRS, userClient)
 	
 	// gRPC interface layer
-	basketServer := grpc.NewBasketServer(basketServiceCQRS)
-	authInterceptor := grpc.NewAuthInterceptor(userClient)
-	grpcServer := grpc.NewGRPCServer(basketServer, authInterceptor)
+	basketServer := basketgrpc.NewBasketServer(basketServiceCQRS)
+	authInterceptor := basketgrpc.NewAuthInterceptor(&userClient)
+	grpcServer := basketgrpc.NewGRPCServer(basketServer, authInterceptor)
 	
 	// Main app
 	app := NewApp(httpRouter, grpcServer)

@@ -52,14 +52,14 @@ func (a *AuthInterceptor) UnaryAuthInterceptor() grpc.UnaryServerInterceptor {
 			return nil, status.Errorf(codes.Unauthenticated, "invalid authorization header format")
 		}
 
-		// Validate token with user service
-		user, err := a.userClient.ValidateToken(ctx, token)
-		if err != nil {
-			return nil, status.Errorf(codes.Unauthenticated, "invalid token: %v", err)
-		}
+	// Validate token with user service
+	user, err := (*a.userClient).ValidateToken(ctx, token)
+	if err != nil {
+		return nil, status.Errorf(codes.Unauthenticated, "invalid token: %v", err)
+	}
 
 		// Add user info to context
-		ctx = context.WithValue(ctx, "user_id", user.ID)
+		ctx = context.WithValue(ctx, "user_id", uint(user.Id))
 		ctx = context.WithValue(ctx, "user_role", string(user.Role))
 		ctx = context.WithValue(ctx, "user_email", user.Email)
 
@@ -68,7 +68,7 @@ func (a *AuthInterceptor) UnaryAuthInterceptor() grpc.UnaryServerInterceptor {
 }
 
 // shouldSkipAuth determines if authentication should be skipped for a method
-func (a *AuthInterceptor) shouldSkipAuth(method string) {
+func (a *AuthInterceptor) shouldSkipAuth(method string) bool {
 	// Add methods that don't require authentication
 	// For now, all basket methods require authentication
 	return false
@@ -122,13 +122,13 @@ func (a *AuthInterceptor) authenticate(ctx context.Context, method string) (cont
 	}
 
 	// Validate token with user service
-	user, err := a.userClient.ValidateToken(ctx, token)
+	user, err := (*a.userClient).ValidateToken(ctx, token)
 	if err != nil {
 		return nil, status.Errorf(codes.Unauthenticated, "invalid token: %v", err)
 	}
 
 	// Add user info to context
-	ctx = context.WithValue(ctx, "user_id", user.ID)
+	ctx = context.WithValue(ctx, "user_id", uint(user.Id))
 	ctx = context.WithValue(ctx, "user_role", string(user.Role))
 	ctx = context.WithValue(ctx, "user_email", user.Email)
 

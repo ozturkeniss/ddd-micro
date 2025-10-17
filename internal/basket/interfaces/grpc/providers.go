@@ -2,8 +2,6 @@ package grpc
 
 import (
 	basketpb "github.com/ddd-micro/api/proto/basket"
-	"github.com/ddd-micro/internal/basket/application"
-	"github.com/ddd-micro/internal/basket/infrastructure/client"
 	"github.com/google/wire"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"

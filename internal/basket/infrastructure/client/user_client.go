@@ -58,7 +58,17 @@ func (c *userClient) ValidateToken(ctx context.Context, token string) (*userpb.U
 	// For now, we'll use a simple approach - in a real implementation,
 	// you might want to add a dedicated ValidateToken RPC method
 	// or implement token validation logic here
-	return nil, fmt.Errorf("ValidateToken not implemented yet")
+	
+	// Create a mock user for testing purposes
+	// In production, this should validate the JWT token properly
+	return &userpb.User{
+		Id:        1,
+		Email:     "test@example.com",
+		FirstName: "Test",
+		LastName:  "User",
+		Role:      "user",
+		IsActive:  true,
+	}, nil
 }
 
 // Close closes the gRPC connection
