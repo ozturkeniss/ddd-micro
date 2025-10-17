@@ -1,0 +1,117 @@
+syntax = "proto3";
+
+package basket;
+
+option go_package = "github.com/ddd-micro/api/proto/basket";
+
+import "google/protobuf/timestamp.proto";
+
+// Basket service definition
+service BasketService {
+  // Create a new basket for a user
+  rpc CreateBasket(CreateBasketRequest) returns (BasketResponse);
+  
+  // Get user's basket
+  rpc GetBasket(GetBasketRequest) returns (BasketResponse);
+  
+  // Add item to basket
+  rpc AddItem(AddItemRequest) returns (BasketResponse);
+  
+  // Update item quantity in basket
+  rpc UpdateItem(UpdateItemRequest) returns (BasketResponse);
+  
+  // Remove item from basket
+  rpc RemoveItem(RemoveItemRequest) returns (BasketResponse);
+  
+  // Clear all items from basket
+  rpc ClearBasket(ClearBasketRequest) returns (ClearBasketResponse);
+  
+  // Admin operations
+  rpc GetUserBasket(GetUserBasketRequest) returns (BasketResponse);
+  rpc DeleteUserBasket(DeleteUserBasketRequest) returns (DeleteUserBasketResponse);
+  rpc CleanupExpiredBaskets(CleanupExpiredBasketsRequest) returns (CleanupExpiredBasketsResponse);
+}
+
+// Request/Response messages
+
+message CreateBasketRequest {
+  uint32 user_id = 1;
+}
+
+message GetBasketRequest {
+  uint32 user_id = 1;
+}
+
+message AddItemRequest {
+  uint32 user_id = 1;
+  uint32 product_id = 2;
+  int32 quantity = 3;
+  double unit_price = 4;
+}
+
+message UpdateItemRequest {
+  uint32 user_id = 1;
+  uint32 product_id = 2;
+  int32 quantity = 3;
+}
+
+message RemoveItemRequest {
+  uint32 user_id = 1;
+  uint32 product_id = 2;
+}
+
+message ClearBasketRequest {
+  uint32 user_id = 1;
+}
+
+message GetUserBasketRequest {
+  uint32 user_id = 1;
+}
+
+message DeleteUserBasketRequest {
+  uint32 user_id = 1;
+}
+
+message CleanupExpiredBasketsRequest {
+  // Empty request
+}
+
+// Response messages
+
+message BasketResponse {
+  string id = 1;
+  uint32 user_id = 2;
+  repeated BasketItem items = 3;
+  double total = 4;
+  int32 item_count = 5;
+  google.protobuf.Timestamp created_at = 6;
+  google.protobuf.Timestamp updated_at = 7;
+  google.protobuf.Timestamp expires_at = 8;
+  bool is_expired = 9;
+}
+
+message BasketItem {
+  uint32 id = 1;
+  uint32 product_id = 2;
+  int32 quantity = 3;
+  double unit_price = 4;
+  double total_price = 5;
+  google.protobuf.Timestamp created_at = 6;
+  google.protobuf.Timestamp updated_at = 7;
+}
+
+message ClearBasketResponse {
+  bool success = 1;
+  string message = 2;
+}
+
+message DeleteUserBasketResponse {
+  bool success = 1;
+  string message = 2;
+}
+
+message CleanupExpiredBasketsResponse {
+  bool success = 1;
+  string message = 2;
+  int32 cleaned_count = 3;
+}
