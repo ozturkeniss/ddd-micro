@@ -190,7 +190,7 @@ export class UserService {
     limit?: number;
     search?: string;
   }): Promise<ApiResponse<ListUsersResponse>> {
-    const response = await apiClient.get('/admin/users', { params });
+    const response = await apiClient.get('/users', { params });
     return response.data;
   }
 
@@ -198,7 +198,7 @@ export class UserService {
    * Get user by ID (Admin only)
    */
   static async getUserById(id: number): Promise<ApiResponse<User>> {
-    const response = await apiClient.get(`/admin/users/${id}`);
+    const response = await apiClient.get(`/users/${id}`);
     return response.data;
   }
 
