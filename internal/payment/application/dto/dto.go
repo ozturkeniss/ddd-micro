@@ -41,12 +41,23 @@ type PaymentResponse struct {
 	ExpiresAt       *time.Time             `json:"expires_at,omitempty"`
 }
 
+// ListPaymentsRequest represents the request for listing payments
+type ListPaymentsRequest struct {
+	UserID uint   `json:"user_id"`
+	Page   int    `json:"page"`
+	Limit  int    `json:"limit"`
+	Status string `json:"status,omitempty"`
+}
+
 // ListPaymentsResponse represents the response for listing payments
-type ListPaymentsResponse struct {
-	Payments []PaymentResponse `json:"payments"`
-	Total    int               `json:"total"`
-	Offset   int               `json:"offset"`
-	Limit    int               `json:"limit"`
+type PaymentListResponse struct {
+	Payments   []PaymentResponse `json:"payments"`
+	Total      int               `json:"total"`
+	Page       int               `json:"page"`
+	Limit      int               `json:"limit"`
+	TotalPages int               `json:"total_pages"`
+	HasNext    bool              `json:"has_next"`
+	HasPrev    bool              `json:"has_prev"`
 }
 
 // PaymentMethod DTOs
@@ -80,8 +91,8 @@ type PaymentMethodResponse struct {
 	UpdatedAt      time.Time `json:"updated_at"`
 }
 
-// ListPaymentMethodsResponse represents the response for listing payment methods
-type ListPaymentMethodsResponse struct {
+// PaymentMethodListResponse represents the response for listing payment methods
+type PaymentMethodListResponse struct {
 	PaymentMethods []PaymentMethodResponse `json:"payment_methods"`
 	Total          int                     `json:"total"`
 }
@@ -107,11 +118,33 @@ type RefundResponse struct {
 	CompletedAt *time.Time `json:"completed_at,omitempty"`
 }
 
-// ListRefundsResponse represents the response for listing refunds
-type ListRefundsResponse struct {
+// AdminListPaymentsRequest represents the request for admin listing payments
+type AdminListPaymentsRequest struct {
+	Page   int     `json:"page"`
+	Limit  int     `json:"limit"`
+	UserID *uint   `json:"user_id,omitempty"`
+	Status string  `json:"status,omitempty"`
+}
+
+// UpdatePaymentStatusRequest represents the request to update payment status
+type UpdatePaymentStatusRequest struct {
+	Status string `json:"status" binding:"required"`
+	Reason string `json:"reason,omitempty"`
+}
+
+// AdminListRefundsRequest represents the request for admin listing refunds
+type AdminListRefundsRequest struct {
+	Page      int    `json:"page"`
+	Limit     int    `json:"limit"`
+	PaymentID string `json:"payment_id,omitempty"`
+	Status    string `json:"status,omitempty"`
+}
+
+// RefundListResponse represents the response for listing refunds
+type RefundListResponse struct {
 	Refunds []RefundResponse `json:"refunds"`
 	Total   int              `json:"total"`
-	Offset  int              `json:"offset"`
+	Page    int              `json:"page"`
 	Limit   int              `json:"limit"`
 }
 
