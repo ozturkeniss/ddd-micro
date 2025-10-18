@@ -3,19 +3,23 @@ package http
 import (
 	"net/http"
 	"strconv"
+	"time"
 
+	"github.com/ddd-micro/internal/product/infrastructure/monitoring"
 	"github.com/gin-gonic/gin"
 )
 
 // ProductHandler handles product-related HTTP requests
 type ProductHandler struct {
 	productService interface{}
+	metrics        *monitoring.PrometheusMetrics
 }
 
 // NewProductHandler creates a new product handler
-func NewProductHandler(productService interface{}) *ProductHandler {
+func NewProductHandler(productService interface{}, metrics *monitoring.PrometheusMetrics) *ProductHandler {
 	return &ProductHandler{
 		productService: productService,
+		metrics:        metrics,
 	}
 }
 
@@ -33,8 +37,25 @@ func NewProductHandler(productService interface{}) *ProductHandler {
 // @Failure 403 {object} map[string]string
 // @Router /admin/products [post]
 func (h *ProductHandler) CreateProduct(c *gin.Context) {
+	// Start tracing span
+	span, ctx := monitoring.StartSpanFromGinContext(c, "product.create")
+	defer span.Finish()
+
+	start := time.Now()
 	// This would handle product creation
 	// For now, return a placeholder response
+	duration := time.Since(start)
+
+	// Record database query duration
+	h.metrics.RecordDatabaseQuery("create_product", "products", duration)
+
+	// Record successful creation
+	h.metrics.RecordProductCreation()
+	monitoring.SetSpanTags(span, map[string]interface{}{
+		"operation": "create_product",
+		"success":   true,
+	})
+
 	c.JSON(http.StatusOK, gin.H{
 		"message": "Create product endpoint - to be implemented",
 	})
@@ -52,17 +73,34 @@ func (h *ProductHandler) CreateProduct(c *gin.Context) {
 // @Failure 404 {object} map[string]string
 // @Router /products/{id} [get]
 func (h *ProductHandler) GetProduct(c *gin.Context) {
+	// Start tracing span
+	span, ctx := monitoring.StartSpanFromGinContext(c, "product.get")
+	defer span.Finish()
+
 	idStr := c.Param("id")
 	id, err := strconv.ParseUint(idStr, 10, 32)
 	if err != nil {
+		monitoring.LogSpanError(span, err)
 		c.JSON(http.StatusBadRequest, gin.H{
 			"error": "Invalid product ID",
 		})
 		return
 	}
 
+	start := time.Now()
 	// This would retrieve the product
 	// For now, return a placeholder response
+	duration := time.Since(start)
+
+	// Record database query duration
+	h.metrics.RecordDatabaseQuery("get_product", "products", duration)
+
+	monitoring.SetSpanTags(span, map[string]interface{}{
+		"product.id": id,
+		"operation":  "get_product",
+		"success":    true,
+	})
+
 	c.JSON(http.StatusOK, gin.H{
 		"message": "Get product endpoint - to be implemented",
 		"id":      id,
@@ -321,17 +359,36 @@ func (h *ProductHandler) UnmarkAsFeatured(c *gin.Context) {
 
 // IncrementViewCount increments product view count
 func (h *ProductHandler) IncrementViewCount(c *gin.Context) {
+	// Start tracing span
+	span, ctx := monitoring.StartSpanFromGinContext(c, "product.increment_view")
+	defer span.Finish()
+
 	idStr := c.Param("id")
 	id, err := strconv.ParseUint(idStr, 10, 32)
 	if err != nil {
+		monitoring.LogSpanError(span, err)
 		c.JSON(http.StatusBadRequest, gin.H{
 			"error": "Invalid product ID",
 		})
 		return
 	}
 
+	start := time.Now()
 	// This would increment view count
 	// For now, return a placeholder response
+	duration := time.Since(start)
+
+	// Record database query duration
+	h.metrics.RecordDatabaseQuery("increment_view", "products", duration)
+
+	// Record product view
+	h.metrics.RecordProductView()
+	monitoring.SetSpanTags(span, map[string]interface{}{
+		"product.id": id,
+		"operation":  "increment_view",
+		"success":    true,
+	})
+
 	c.JSON(http.StatusOK, gin.H{
 		"message": "Increment view count endpoint - to be implemented",
 		"id":      id,
