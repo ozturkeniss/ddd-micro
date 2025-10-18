@@ -7,6 +7,7 @@ import (
 	"github.com/ddd-micro/internal/user/domain"
 	"github.com/ddd-micro/internal/user/infrastructure/config"
 	"github.com/ddd-micro/internal/user/infrastructure/database"
+	"github.com/ddd-micro/internal/user/infrastructure/monitoring"
 	"github.com/ddd-micro/internal/user/infrastructure/persistence"
 	"github.com/google/wire"
 )
@@ -17,6 +18,7 @@ var ProviderSet = wire.NewSet(
 	ProvideDatabaseConfig,
 	ProvideDatabase,
 	ProvideUserRepository,
+	monitoring.ProviderSet,
 )
 
 // ProvideConfig provides application configuration

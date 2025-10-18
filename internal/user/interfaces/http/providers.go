@@ -14,12 +14,12 @@ var ProviderSet = wire.NewSet(
 )
 
 // ProvideUserHandler provides user HTTP handler
-func ProvideUserHandler(userService *application.UserServiceCQRS) *UserHandler {
-	return NewUserHandler(userService)
+func ProvideUserHandler(userService *application.UserServiceCQRS, metrics *monitoring.PrometheusMetrics) *UserHandler {
+	return NewUserHandler(userService, metrics)
 }
 
 // ProvideRouter provides configured Gin router
-func ProvideRouter(userService *application.UserServiceCQRS) *gin.Engine {
+func ProvideRouter(userService *application.UserServiceCQRS, metrics *monitoring.PrometheusMetrics, tracer *monitoring.JaegerTracer) *gin.Engine {
 	gin.SetMode(gin.ReleaseMode) // Can be overridden by environment
 	router := gin.Default()
 
@@ -27,7 +27,7 @@ func ProvideRouter(userService *application.UserServiceCQRS) *gin.Engine {
 	router.Use(CORSMiddleware())
 
 	// Setup routes
-	SetupRoutes(router, userService)
+	SetupRoutes(router, userService, metrics, tracer)
 
 	return router
 }

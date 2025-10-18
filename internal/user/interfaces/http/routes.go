@@ -1,20 +1,31 @@
 package http
 
 import (
+	"net/http"
+
 	"github.com/ddd-micro/internal/user/application"
 	"github.com/ddd-micro/internal/user/domain"
+	"github.com/ddd-micro/internal/user/infrastructure/monitoring"
 	"github.com/gin-gonic/gin"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
 )
 
 // SetupRoutes configures all user-related routes
-func SetupRoutes(router *gin.Engine, userService *application.UserServiceCQRS) {
+func SetupRoutes(router *gin.Engine, userService *application.UserServiceCQRS, metrics *monitoring.PrometheusMetrics, tracer *monitoring.JaegerTracer) {
+	// Add monitoring middlewares
+	router.Use(monitoring.PrometheusMiddleware(metrics))
+	router.Use(monitoring.JaegerMiddleware(tracer))
+
+	// Prometheus metrics endpoint
+	router.GET("/metrics", gin.WrapH(promhttp.Handler()))
+
 	// Swagger documentation
 	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
 	// Create handler
-	userHandler := NewUserHandler(userService)
+	userHandler := NewUserHandler(userService, metrics)
 
 	// API v1 group
 	v1 := router.Group("/api/v1")
