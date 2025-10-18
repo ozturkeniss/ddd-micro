@@ -7,6 +7,7 @@ import (
 	"github.com/ddd-micro/internal/user/application"
 	"github.com/ddd-micro/internal/user/infrastructure"
 	"github.com/ddd-micro/internal/user/infrastructure/database"
+	"github.com/ddd-micro/internal/user/infrastructure/monitoring"
 	usergrpc "github.com/ddd-micro/internal/user/interfaces/grpc"
 	userhttp "github.com/ddd-micro/internal/user/interfaces/http"
 	"github.com/gin-gonic/gin"
@@ -38,10 +39,11 @@ func InitializeApp() (*App, error) {
 
 // App holds all application dependencies
 type App struct {
-	HTTPRouter  *gin.Engine
-	GRPCServer  *grpc.Server
-	UserService *application.UserServiceCQRS
-	Database    *database.Database
+	HTTPRouter   *gin.Engine
+	GRPCServer   *grpc.Server
+	UserService  *application.UserServiceCQRS
+	Database     *database.Database
+	JaegerTracer *monitoring.JaegerTracer
 }
 
 // NewApp creates a new App instance
@@ -50,11 +52,13 @@ func NewApp(
 	grpcServer *grpc.Server,
 	userService *application.UserServiceCQRS,
 	db *database.Database,
+	jaegerTracer *monitoring.JaegerTracer,
 ) *App {
 	return &App{
-		HTTPRouter:  httpRouter,
-		GRPCServer:  grpcServer,
-		UserService: userService,
-		Database:    db,
+		HTTPRouter:   httpRouter,
+		GRPCServer:   grpcServer,
+		UserService:  userService,
+		Database:     db,
+		JaegerTracer: jaegerTracer,
 	}
 }
