@@ -12,6 +12,7 @@ import (
 	"github.com/ddd-micro/internal/user/application/query"
 	"github.com/ddd-micro/internal/user/infrastructure"
 	"github.com/ddd-micro/internal/user/infrastructure/database"
+	"github.com/ddd-micro/internal/user/infrastructure/monitoring"
 	"github.com/ddd-micro/internal/user/interfaces/grpc"
 	"github.com/ddd-micro/internal/user/interfaces/http"
 	"github.com/gin-gonic/gin"
@@ -43,11 +44,16 @@ func InitializeApp() (*App, error) {
 	listUsersHandler := query.NewListUsersHandler(userRepository)
 	jwtHelper := application.ProvideJWTHelper(string2, duration)
 	userServiceCQRS := application.ProvideUserServiceCQRS(createUserHandler, updateUserHandler, updateUserByAdminHandler, deleteUserHandler, changePasswordHandler, assignRoleHandler, loginHandler, getUserByIDHandler, getUserByEmailHandler, listUsersHandler, jwtHelper)
-	engine := http.ProvideRouter(userServiceCQRS)
+	prometheusMetrics := monitoring.NewPrometheusMetrics()
+	jaegerTracer, err := monitoring.ProvideJaegerTracer()
+	if err != nil {
+		return nil, err
+	}
+	engine := http.ProvideRouter(userServiceCQRS, prometheusMetrics, jaegerTracer)
 	userServer := grpc.NewUserServer(userServiceCQRS)
 	authInterceptor := grpc.NewAuthInterceptor(userServiceCQRS)
 	server := grpc.ProvideGRPCServer(userServer, authInterceptor)
-	app := NewApp(engine, server, userServiceCQRS, database)
+	app := NewApp(engine, server, userServiceCQRS, database, jaegerTracer)
 	return app, nil
 }
 
@@ -55,10 +61,11 @@ func InitializeApp() (*App, error) {
 
 // App holds all application dependencies
 type App struct {
-	HTTPRouter  *gin.Engine
-	GRPCServer  *grpc2.Server
-	UserService *application.UserServiceCQRS
-	Database    *database.Database
+	HTTPRouter   *gin.Engine
+	GRPCServer   *grpc2.Server
+	UserService  *application.UserServiceCQRS
+	Database     *database.Database
+	JaegerTracer *monitoring.JaegerTracer
 }
 
 // NewApp creates a new App instance
@@ -67,11 +74,13 @@ func NewApp(
 	grpcServer *grpc2.Server,
 	userService *application.UserServiceCQRS,
 	db *database.Database,
+	jaegerTracer *monitoring.JaegerTracer,
 ) *App {
 	return &App{
-		HTTPRouter:  httpRouter,
-		GRPCServer:  grpcServer,
-		UserService: userService,
-		Database:    db,
+		HTTPRouter:   httpRouter,
+		GRPCServer:   grpcServer,
+		UserService:  userService,
+		Database:     db,
+		JaegerTracer: jaegerTracer,
 	}
 }
