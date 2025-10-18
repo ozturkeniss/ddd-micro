@@ -28,10 +28,10 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/gin-gonic/gin"
-	ginSwagger "github.com/swaggo/gin-swagger"
-	swaggerFiles "github.com/swaggo/files"
 	_ "github.com/ddd-micro/cmd/payment/docs" // This is required for swagger docs
+	"github.com/gin-gonic/gin"
+	swaggerFiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
 )
 
 func main() {
@@ -82,15 +82,15 @@ type App struct {
 func InitializeApp() (*App, func(), error) {
 	// For now, create a basic router setup
 	router := gin.Default()
-	
+
 	// Add Swagger route
 	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
-	
+
 	// Add health check
 	router.GET("/health", func(c *gin.Context) {
 		c.JSON(200, gin.H{"status": "ok", "service": "payment-service"})
 	})
-	
+
 	// Add basic API routes for Swagger generation
 	api := router.Group("/api/v1")
 	{
@@ -113,7 +113,7 @@ func InitializeApp() (*App, func(), error) {
 				c.JSON(200, gin.H{"message": "Payment cancelled"})
 			})
 		}
-		
+
 		// Payment method routes
 		paymentMethods := api.Group("/payment-methods")
 		{
@@ -133,7 +133,7 @@ func InitializeApp() (*App, func(), error) {
 				c.JSON(200, gin.H{"message": "Payment method set as default"})
 			})
 		}
-		
+
 		// Admin routes
 		admin := api.Group("/admin")
 		{
@@ -149,7 +149,7 @@ func InitializeApp() (*App, func(), error) {
 					c.JSON(200, gin.H{"message": "Payment status updated"})
 				})
 			}
-			
+
 			adminRefunds := admin.Group("/refunds")
 			{
 				adminRefunds.GET("", func(c *gin.Context) {
@@ -165,7 +165,7 @@ func InitializeApp() (*App, func(), error) {
 					c.JSON(200, gin.H{"message": "Refund processed"})
 				})
 			}
-			
+
 			adminAnalytics := admin.Group("/analytics")
 			{
 				adminAnalytics.GET("/payments", func(c *gin.Context) {
@@ -174,10 +174,10 @@ func InitializeApp() (*App, func(), error) {
 			}
 		}
 	}
-	
+
 	return &App{
-		HTTPRouter: router,
-	}, func() {
-		// Cleanup function
-	}, nil
+			HTTPRouter: router,
+		}, func() {
+			// Cleanup function
+		}, nil
 }

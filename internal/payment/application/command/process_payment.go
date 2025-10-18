@@ -9,8 +9,8 @@ import (
 
 // ProcessPaymentCommand represents the command to process a payment
 type ProcessPaymentCommand struct {
-	PaymentID       string
-	PaymentMethodID string
+	PaymentID        string
+	PaymentMethodID  string
 	ConfirmationData map[string]interface{}
 }
 

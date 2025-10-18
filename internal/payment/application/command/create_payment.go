@@ -20,10 +20,10 @@ type CreatePaymentCommand struct {
 	ReturnURL       string
 	CancelURL       string
 	// Optional: Direct product purchase (without basket)
-	ProductID       *uint
-	Quantity        *int
+	ProductID *uint
+	Quantity  *int
 	// Optional: Basket-based purchase
-	BasketID        *string
+	BasketID *string
 }
 
 // CreatePaymentCommandHandler handles the create payment command

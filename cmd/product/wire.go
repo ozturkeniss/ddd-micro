@@ -37,12 +37,12 @@ func InitializeApp() (*App, error) {
 
 // App holds all application dependencies
 type App struct {
-	HTTPRouter    *gin.Engine
-	GRPCServer    *grpc.Server
+	HTTPRouter     *gin.Engine
+	GRPCServer     *grpc.Server
 	ProductService *application.ProductServiceCQRS
-	UserService   *application.UserService
-	Database      *database.Database
-	UserClient    interface{ Close() error }
+	UserService    *application.UserService
+	Database       *database.Database
+	UserClient     interface{ Close() error }
 }
 
 // NewApp creates a new App instance

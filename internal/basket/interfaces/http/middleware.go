@@ -82,7 +82,7 @@ func (m *AuthMiddleware) AdminRequired() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		// First check if user is authenticated
 		m.AuthRequired()(c)
-		
+
 		// Check if request was aborted by auth middleware
 		if c.IsAborted() {
 			return

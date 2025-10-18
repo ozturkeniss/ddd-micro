@@ -39,20 +39,20 @@ func SetupRoutes(
 		// Payment routes
 		payments := user.Group("/payments")
 		{
-			payments.POST("", paymentHandler.CreatePayment)                    // POST /api/v1/payments
-			payments.GET("", paymentHandler.ListPayments)                     // GET /api/v1/payments
-			payments.GET("/:id", paymentHandler.GetPayment)                   // GET /api/v1/payments/:id
-			payments.POST("/:id/process", paymentHandler.ProcessPayment)      // POST /api/v1/payments/:id/process
-			payments.POST("/:id/cancel", paymentHandler.CancelPayment)        // POST /api/v1/payments/:id/cancel
+			payments.POST("", paymentHandler.CreatePayment)              // POST /api/v1/payments
+			payments.GET("", paymentHandler.ListPayments)                // GET /api/v1/payments
+			payments.GET("/:id", paymentHandler.GetPayment)              // GET /api/v1/payments/:id
+			payments.POST("/:id/process", paymentHandler.ProcessPayment) // POST /api/v1/payments/:id/process
+			payments.POST("/:id/cancel", paymentHandler.CancelPayment)   // POST /api/v1/payments/:id/cancel
 		}
 
 		// Payment method routes
 		paymentMethods := user.Group("/payment-methods")
 		{
-			paymentMethods.GET("", paymentHandler.GetPaymentMethods)                    // GET /api/v1/payment-methods
-			paymentMethods.POST("", paymentHandler.AddPaymentMethod)                    // POST /api/v1/payment-methods
-			paymentMethods.PUT("/:id", paymentHandler.UpdatePaymentMethod)              // PUT /api/v1/payment-methods/:id
-			paymentMethods.DELETE("/:id", paymentHandler.DeletePaymentMethod)           // DELETE /api/v1/payment-methods/:id
+			paymentMethods.GET("", paymentHandler.GetPaymentMethods)                        // GET /api/v1/payment-methods
+			paymentMethods.POST("", paymentHandler.AddPaymentMethod)                        // POST /api/v1/payment-methods
+			paymentMethods.PUT("/:id", paymentHandler.UpdatePaymentMethod)                  // PUT /api/v1/payment-methods/:id
+			paymentMethods.DELETE("/:id", paymentHandler.DeletePaymentMethod)               // DELETE /api/v1/payment-methods/:id
 			paymentMethods.POST("/:id/set-default", paymentHandler.SetDefaultPaymentMethod) // POST /api/v1/payment-methods/:id/set-default
 		}
 	}
@@ -65,24 +65,24 @@ func SetupRoutes(
 		// Admin payment routes
 		adminPayments := admin.Group("/payments")
 		{
-			adminPayments.GET("", adminHandler.ListAllPayments)                    // GET /api/v1/admin/payments
-			adminPayments.GET("/:id", adminHandler.GetPaymentByID)                // GET /api/v1/admin/payments/:id
-			adminPayments.PUT("/:id/status", adminHandler.UpdatePaymentStatus)    // PUT /api/v1/admin/payments/:id/status
+			adminPayments.GET("", adminHandler.ListAllPayments)                // GET /api/v1/admin/payments
+			adminPayments.GET("/:id", adminHandler.GetPaymentByID)             // GET /api/v1/admin/payments/:id
+			adminPayments.PUT("/:id/status", adminHandler.UpdatePaymentStatus) // PUT /api/v1/admin/payments/:id/status
 		}
 
 		// Admin refund routes
 		adminRefunds := admin.Group("/refunds")
 		{
-			adminRefunds.GET("", adminHandler.ListRefunds)                    // GET /api/v1/admin/refunds
-			adminRefunds.POST("", adminHandler.CreateRefund)                  // POST /api/v1/admin/refunds
-			adminRefunds.GET("/:id", adminHandler.GetRefundByID)              // GET /api/v1/admin/refunds/:id
-			adminRefunds.POST("/:id/process", adminHandler.ProcessRefund)     // POST /api/v1/admin/refunds/:id/process
+			adminRefunds.GET("", adminHandler.ListRefunds)                // GET /api/v1/admin/refunds
+			adminRefunds.POST("", adminHandler.CreateRefund)              // POST /api/v1/admin/refunds
+			adminRefunds.GET("/:id", adminHandler.GetRefundByID)          // GET /api/v1/admin/refunds/:id
+			adminRefunds.POST("/:id/process", adminHandler.ProcessRefund) // POST /api/v1/admin/refunds/:id/process
 		}
 
 		// Admin analytics routes
 		adminAnalytics := admin.Group("/analytics")
 		{
-			adminAnalytics.GET("/payments", adminHandler.GetPaymentStats)     // GET /api/v1/admin/analytics/payments
+			adminAnalytics.GET("/payments", adminHandler.GetPaymentStats) // GET /api/v1/admin/analytics/payments
 		}
 	}
 

@@ -20,8 +20,8 @@ type AddItemCommand struct {
 
 // AddItemCommandHandler handles the AddItemCommand
 type AddItemCommandHandler struct {
-	basketRepo     domain.BasketRepository
-	productClient  client.ProductClient
+	basketRepo    domain.BasketRepository
+	productClient client.ProductClient
 }
 
 // NewAddItemCommandHandler creates a new AddItemCommandHandler
@@ -38,24 +38,24 @@ func (h *AddItemCommandHandler) Handle(ctx context.Context, cmd AddItemCommand) 
 	if err := h.productClient.ValidateProduct(ctx, cmd.ProductID); err != nil {
 		return nil, fmt.Errorf("product validation failed: %w", err)
 	}
-	
+
 	// Check stock availability
 	if err := h.productClient.CheckStock(ctx, cmd.ProductID, cmd.Quantity); err != nil {
 		return nil, fmt.Errorf("stock check failed: %w", err)
 	}
-	
+
 	// Get product to get current price
 	product, err := h.productClient.GetProduct(ctx, cmd.ProductID)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get product: %w", err)
 	}
-	
+
 	// Use current product price if not provided
 	unitPrice := cmd.UnitPrice
 	if unitPrice == 0 && product.Price != 0 {
 		unitPrice = float64(product.Price)
 	}
-	
+
 	// Get or create basket for user
 	basket, err := h.basketRepo.GetByUserID(ctx, cmd.UserID)
 	if err != nil {
@@ -67,7 +67,7 @@ func (h *AddItemCommandHandler) Handle(ctx context.Context, cmd AddItemCommand) 
 				Total:  0,
 			}
 			basket.SetExpiration(24 * time.Hour)
-			
+
 			if err := h.basketRepo.Create(ctx, basket); err != nil {
 				return nil, err
 			}
@@ -75,12 +75,12 @@ func (h *AddItemCommandHandler) Handle(ctx context.Context, cmd AddItemCommand) 
 			return nil, err
 		}
 	}
-	
+
 	// Check if basket is expired
 	if basket.IsExpired() {
 		return nil, domain.ErrBasketExpired
 	}
-	
+
 	// Create basket item
 	item := &domain.BasketItem{
 		BasketID:   basket.ID,
@@ -89,24 +89,24 @@ func (h *AddItemCommandHandler) Handle(ctx context.Context, cmd AddItemCommand) 
 		UnitPrice:  unitPrice,
 		TotalPrice: float64(cmd.Quantity) * unitPrice,
 	}
-	
+
 	// Validate item
 	if err := item.Validate(); err != nil {
 		return nil, err
 	}
-	
+
 	// Add item to basket
 	err = h.basketRepo.AddItem(ctx, basket.ID, item)
 	if err != nil {
 		return nil, err
 	}
-	
+
 	// Get updated basket
 	updatedBasket, err := h.basketRepo.GetByID(ctx, basket.ID)
 	if err != nil {
 		return nil, err
 	}
-	
+
 	return h.mapToResponse(updatedBasket), nil
 }
 
@@ -124,7 +124,7 @@ func (h *AddItemCommandHandler) mapToResponse(basket *domain.Basket) *dto.Basket
 			UpdatedAt:  item.UpdatedAt,
 		}
 	}
-	
+
 	return &dto.BasketResponse{
 		ID:        basket.ID,
 		UserID:    basket.UserID,

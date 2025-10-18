@@ -2,8 +2,8 @@ package http
 
 import (
 	"github.com/gin-gonic/gin"
-	ginSwagger "github.com/swaggo/gin-swagger"
 	swaggerFiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
 )
 
 // SetupRoutes configures all HTTP routes for the basket service
@@ -28,7 +28,7 @@ func SetupRoutes(router *gin.Engine, basketHandler *BasketHandler, userHandler *
 		{
 			// User profile
 			users.GET("/profile", userHandler.GetProfile)
-			
+
 			// Basket operations
 			users.POST("/basket", basketHandler.CreateBasket)
 			users.GET("/basket", basketHandler.GetBasket)

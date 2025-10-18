@@ -53,7 +53,7 @@ func NewPostgresDB(cfg *config.Config) (*gorm.DB, error) {
 func Migrate(db *gorm.DB) error {
 	// Import domain models for migration
 	// This will be done in the main function to avoid circular imports
-	
+
 	log.Println("Database migration completed")
 	return nil
 }

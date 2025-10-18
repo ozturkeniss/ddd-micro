@@ -31,24 +31,24 @@ func (h *ClearBasketCommandHandler) Handle(ctx context.Context, cmd ClearBasketC
 	if err != nil {
 		return nil, err
 	}
-	
+
 	// Check if basket is expired
 	if basket.IsExpired() {
 		return nil, domain.ErrBasketExpired
 	}
-	
+
 	// Clear all items from basket
 	err = h.basketRepo.ClearItems(ctx, basket.ID)
 	if err != nil {
 		return nil, err
 	}
-	
+
 	// Get updated basket
 	updatedBasket, err := h.basketRepo.GetByID(ctx, basket.ID)
 	if err != nil {
 		return nil, err
 	}
-	
+
 	return h.mapToResponse(updatedBasket), nil
 }
 
@@ -66,7 +66,7 @@ func (h *ClearBasketCommandHandler) mapToResponse(basket *domain.Basket) *dto.Ba
 			UpdatedAt:  item.UpdatedAt,
 		}
 	}
-	
+
 	return &dto.BasketResponse{
 		ID:        basket.ID,
 		UserID:    basket.UserID,

@@ -3,9 +3,6 @@ package application
 import (
 	"github.com/ddd-micro/internal/payment/application/command"
 	"github.com/ddd-micro/internal/payment/application/query"
-	"github.com/ddd-micro/internal/payment/domain"
-	"github.com/ddd-micro/internal/payment/infrastructure/client"
-	"github.com/ddd-micro/internal/payment/infrastructure/kafka"
 	"github.com/google/wire"
 )
 

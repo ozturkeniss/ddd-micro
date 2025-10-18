@@ -10,4 +10,3 @@ var ProviderSet = wire.NewSet(
 	NewProductServiceCQRS,
 	NewUserService,
 )
-

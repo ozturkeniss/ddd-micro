@@ -33,7 +33,7 @@ func (h *CreateBasketCommandHandler) Handle(ctx context.Context, cmd CreateBaske
 	if err != nil {
 		return nil, err
 	}
-	
+
 	if exists {
 		// Return existing basket
 		existingBasket, err := h.basketRepo.GetByUserID(ctx, cmd.UserID)
@@ -42,7 +42,7 @@ func (h *CreateBasketCommandHandler) Handle(ctx context.Context, cmd CreateBaske
 		}
 		return h.mapToResponse(existingBasket), nil
 	}
-	
+
 	// Create new basket
 	basket := &domain.Basket{
 		ID:        uuid.New().String(),
@@ -52,21 +52,21 @@ func (h *CreateBasketCommandHandler) Handle(ctx context.Context, cmd CreateBaske
 		CreatedAt: time.Now(),
 		UpdatedAt: time.Now(),
 	}
-	
+
 	// Set expiration time (24 hours)
 	basket.SetExpiration(24 * time.Hour)
-	
+
 	// Validate basket
 	if err := basket.Validate(); err != nil {
 		return nil, err
 	}
-	
+
 	// Save basket
 	err = h.basketRepo.Create(ctx, basket)
 	if err != nil {
 		return nil, err
 	}
-	
+
 	return h.mapToResponse(basket), nil
 }
 
@@ -84,7 +84,7 @@ func (h *CreateBasketCommandHandler) mapToResponse(basket *domain.Basket) *dto.B
 			UpdatedAt:  item.UpdatedAt,
 		}
 	}
-	
+
 	return &dto.BasketResponse{
 		ID:        basket.ID,
 		UserID:    basket.UserID,

@@ -8,23 +8,23 @@ import (
 
 // ProductVariant represents the product variant domain entity
 type ProductVariant struct {
-	ID          uint           `gorm:"primaryKey" json:"id"`
-	ProductID   uint           `gorm:"not null;index" json:"product_id"`
-	Product     *Product       `gorm:"foreignKey:ProductID" json:"product,omitempty"`
-	Name        string         `gorm:"not null;size:255" json:"name"`
-	SKU         string         `gorm:"uniqueIndex;not null;size:100" json:"sku"`
-	Price       float64        `gorm:"type:decimal(10,2)" json:"price"` // Override product price if set
-	Stock       int            `gorm:"not null;default:0" json:"stock"`
-	Weight      float64        `gorm:"type:decimal(8,3)" json:"weight"` // Override product weight if set
-	Color       string         `gorm:"size:50" json:"color"`
-	Size        string         `gorm:"size:50" json:"size"`
-	Material    string         `gorm:"size:100" json:"material"`
-	Image       string         `gorm:"size:500" json:"image"`
-	IsActive    bool           `gorm:"default:true" json:"is_active"`
-	SortOrder   int            `gorm:"default:0" json:"sort_order"`
-	CreatedAt   time.Time      `gorm:"autoCreateTime" json:"created_at"`
-	UpdatedAt   time.Time      `gorm:"autoUpdateTime" json:"updated_at"`
-	DeletedAt   gorm.DeletedAt `gorm:"index" json:"-"`
+	ID        uint           `gorm:"primaryKey" json:"id"`
+	ProductID uint           `gorm:"not null;index" json:"product_id"`
+	Product   *Product       `gorm:"foreignKey:ProductID" json:"product,omitempty"`
+	Name      string         `gorm:"not null;size:255" json:"name"`
+	SKU       string         `gorm:"uniqueIndex;not null;size:100" json:"sku"`
+	Price     float64        `gorm:"type:decimal(10,2)" json:"price"` // Override product price if set
+	Stock     int            `gorm:"not null;default:0" json:"stock"`
+	Weight    float64        `gorm:"type:decimal(8,3)" json:"weight"` // Override product weight if set
+	Color     string         `gorm:"size:50" json:"color"`
+	Size      string         `gorm:"size:50" json:"size"`
+	Material  string         `gorm:"size:100" json:"material"`
+	Image     string         `gorm:"size:500" json:"image"`
+	IsActive  bool           `gorm:"default:true" json:"is_active"`
+	SortOrder int            `gorm:"default:0" json:"sort_order"`
+	CreatedAt time.Time      `gorm:"autoCreateTime" json:"created_at"`
+	UpdatedAt time.Time      `gorm:"autoUpdateTime" json:"updated_at"`
+	DeletedAt gorm.DeletedAt `gorm:"index" json:"-"`
 }
 
 // TableName specifies the table name for ProductVariant entity

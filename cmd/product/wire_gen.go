@@ -22,39 +22,39 @@ import (
 func InitializeApp() (*App, error) {
 	// Load configuration
 	cfg := config.LoadConfig()
-	
+
 	// Create database connection
 	db, err := database.NewPostgresConnection(cfg.Database)
 	if err != nil {
 		return nil, err
 	}
-	
+
 	// Create product repository
 	productRepo := persistence.NewProductRepository(db.GetDB())
-	
+
 	// Create user client
 	userClient, err := client.NewUserClientFromConfig(&cfg.Client)
 	if err != nil {
 		return nil, err
 	}
-	
+
 	// Create application services
 	productService := application.NewProductServiceCQRS(productRepo)
 	userService := application.NewUserService(userClient)
-	
+
 	// Create HTTP handlers
 	productHandler := producthttp.NewProductHandler(productService)
 	userHandler := producthttp.NewUserHandler(userService)
 	authMiddleware := producthttp.NewAuthMiddleware(userService)
-	
+
 	// Create HTTP router
 	httpRouter := producthttp.NewHTTPRouter(productHandler, userHandler, authMiddleware)
-	
+
 	// Create gRPC server
 	productServer := productgrpc.NewProductServer(productService)
 	authInterceptor := productgrpc.NewAuthInterceptor(userService)
 	grpcServer := productgrpc.ProvideGRPCServer(productServer, authInterceptor)
-	
+
 	// Create app
 	app := &App{
 		HTTPRouter:     httpRouter,
@@ -64,7 +64,7 @@ func InitializeApp() (*App, error) {
 		Database:       db,
 		UserClient:     userClient,
 	}
-	
+
 	return app, nil
 }
 

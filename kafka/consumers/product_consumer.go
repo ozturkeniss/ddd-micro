@@ -2,6 +2,7 @@ package consumers
 
 import (
 	"context"
+	"fmt"
 	"log"
 
 	"github.com/ddd-micro/kafka"
@@ -46,7 +47,7 @@ func (c *ProductConsumer) HandlePaymentCompleted(ctx context.Context, event kafk
 			return fmt.Errorf("failed to publish stock updated event for product %d: %w", item.ProductID, err)
 		}
 
-		log.Printf("Stock updated for product %d: -%d units, new stock: %d", 
+		log.Printf("Stock updated for product %d: -%d units, new stock: %d",
 			item.ProductID, item.Quantity, newStock)
 	}
 
@@ -76,7 +77,7 @@ func (c *ProductConsumer) HandlePaymentCancelled(ctx context.Context, event kafk
 
 // HandleStockUpdated handles stock updated events (from other services)
 func (c *ProductConsumer) HandleStockUpdated(ctx context.Context, event kafka.StockUpdatedEvent) error {
-	log.Printf("Processing stock updated event for product %d: %+d units, new stock: %d", 
+	log.Printf("Processing stock updated event for product %d: %+d units, new stock: %d",
 		event.Data.ProductID, event.Data.Quantity, event.Data.NewStock)
 
 	// Here you would update the actual stock in your product database

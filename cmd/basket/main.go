@@ -51,7 +51,7 @@ func main() {
 		if grpcPort == "" {
 			grpcPort = "9093"
 		}
-		
+
 		lis, err := net.Listen("tcp", ":"+grpcPort)
 		if err != nil {
 			log.Fatalf("Failed to listen on gRPC port %s: %v", grpcPort, err)

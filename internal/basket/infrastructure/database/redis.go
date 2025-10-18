@@ -34,16 +34,16 @@ func NewRedisConnection(config Config) (*Database, error) {
 		Addr:     fmt.Sprintf("%s:%s", config.Host, config.Port),
 		Password: config.Password,
 		DB:       dbNum,
-		
+
 		// Connection pool settings
 		PoolSize:     10,
 		MinIdleConns: 5,
-		
+
 		// Timeouts
 		DialTimeout:  5 * time.Second,
 		ReadTimeout:  3 * time.Second,
 		WriteTimeout: 3 * time.Second,
-		
+
 		// Retry settings
 		MaxRetries:      3,
 		MinRetryBackoff: 8 * time.Millisecond,

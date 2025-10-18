@@ -70,9 +70,9 @@ func (g *stripeGateway) CreatePayment(ctx context.Context, payment *domain.Payme
 	}
 
 	return &domain.GatewayResponse{
-		TransactionID:   session.ID,
-		PaymentURL:      session.URL,
-		ClientSecret:    session.ClientSecret,
+		TransactionID: session.ID,
+		PaymentURL:    session.URL,
+		ClientSecret:  session.ClientSecret,
 		GatewayResponse: map[string]interface{}{
 			"session_id": session.ID,
 			"url":        session.URL,
@@ -123,8 +123,8 @@ func (g *stripeGateway) ProcessPayment(ctx context.Context, payment *domain.Paym
 	}
 
 	return &domain.GatewayResponse{
-		TransactionID:   confirmedPI.ID,
-		Status:          status,
+		TransactionID: confirmedPI.ID,
+		Status:        status,
 		GatewayResponse: map[string]interface{}{
 			"payment_intent_id": confirmedPI.ID,
 			"status":            confirmedPI.Status,
@@ -148,8 +148,8 @@ func (g *stripeGateway) CancelPayment(ctx context.Context, payment *domain.Payme
 	}
 
 	return &domain.GatewayResponse{
-		TransactionID:   pi.ID,
-		Status:          domain.PaymentStatusCancelled,
+		TransactionID: pi.ID,
+		Status:        domain.PaymentStatusCancelled,
 		GatewayResponse: map[string]interface{}{
 			"payment_intent_id": pi.ID,
 			"status":            pi.Status,
@@ -193,8 +193,8 @@ func (g *stripeGateway) RefundPayment(ctx context.Context, payment *domain.Payme
 	}
 
 	return &domain.GatewayResponse{
-		TransactionID:   ref.ID,
-		Status:          status,
+		TransactionID: ref.ID,
+		Status:        status,
 		GatewayResponse: map[string]interface{}{
 			"refund_id": ref.ID,
 			"status":    ref.Status,
@@ -246,7 +246,7 @@ func (g *stripeGateway) CreatePaymentMethod(ctx context.Context, userID uint, pa
 	paymentMethod.Token = attachedPM.ID
 
 	return &domain.GatewayResponse{
-		TransactionID:   attachedPM.ID,
+		TransactionID: attachedPM.ID,
 		GatewayResponse: map[string]interface{}{
 			"payment_method_id": attachedPM.ID,
 			"customer_id":       cust.ID,

@@ -2,7 +2,6 @@ package consumers
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"log"
 

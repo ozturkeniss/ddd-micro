@@ -11,8 +11,8 @@ type ClientConfig struct {
 
 // UserServiceConfig holds configuration for user service client
 type UserServiceConfig struct {
-	URL    string `json:"url"`
-	Timeout int   `json:"timeout"` // in seconds
+	URL     string `json:"url"`
+	Timeout int    `json:"timeout"` // in seconds
 }
 
 // LoadClientConfig loads client configuration from environment variables

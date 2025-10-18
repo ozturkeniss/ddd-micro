@@ -47,9 +47,9 @@ type PaymentCompletedData struct {
 
 // PaymentItem represents an item in the payment
 type PaymentItem struct {
-	ProductID uint    `json:"product_id"`
-	Quantity  int     `json:"quantity"`
-	UnitPrice float64 `json:"unit_price"`
+	ProductID  uint    `json:"product_id"`
+	Quantity   int     `json:"quantity"`
+	UnitPrice  float64 `json:"unit_price"`
 	TotalPrice float64 `json:"total_price"`
 }
 
@@ -61,13 +61,13 @@ type PaymentFailedEvent struct {
 
 // PaymentFailedData contains the payment failure data
 type PaymentFailedData struct {
-	PaymentID     string `json:"payment_id"`
-	UserID        uint   `json:"user_id"`
-	OrderID       string `json:"order_id"`
+	PaymentID     string  `json:"payment_id"`
+	UserID        uint    `json:"user_id"`
+	OrderID       string  `json:"order_id"`
 	Amount        float64 `json:"amount"`
-	Currency      string `json:"currency"`
-	PaymentMethod string `json:"payment_method"`
-	Reason        string `json:"reason"`
+	Currency      string  `json:"currency"`
+	PaymentMethod string  `json:"payment_method"`
+	Reason        string  `json:"reason"`
 	BasketID      *string `json:"basket_id,omitempty"`
 }
 
@@ -79,13 +79,13 @@ type PaymentCancelledEvent struct {
 
 // PaymentCancelledData contains the payment cancellation data
 type PaymentCancelledData struct {
-	PaymentID     string `json:"payment_id"`
-	UserID        uint   `json:"user_id"`
-	OrderID       string `json:"order_id"`
+	PaymentID     string  `json:"payment_id"`
+	UserID        uint    `json:"user_id"`
+	OrderID       string  `json:"order_id"`
 	Amount        float64 `json:"amount"`
-	Currency      string `json:"currency"`
-	PaymentMethod string `json:"payment_method"`
-	Reason        string `json:"reason"`
+	Currency      string  `json:"currency"`
+	PaymentMethod string  `json:"payment_method"`
+	Reason        string  `json:"reason"`
 	BasketID      *string `json:"basket_id,omitempty"`
 }
 
@@ -113,11 +113,11 @@ type BasketClearedEvent struct {
 
 // BasketClearedData contains the basket clearing data
 type BasketClearedData struct {
-	UserID   uint           `json:"user_id"`
-	BasketID string         `json:"basket_id"`
-	Items    []PaymentItem  `json:"items"`
-	Reason   string         `json:"reason"`
-	OrderID  *string        `json:"order_id,omitempty"`
+	UserID    uint          `json:"user_id"`
+	BasketID  string        `json:"basket_id"`
+	Items     []PaymentItem `json:"items"`
+	Reason    string        `json:"reason"`
+	OrderID   *string       `json:"order_id,omitempty"`
 	PaymentID *string       `json:"payment_id,omitempty"`
 }
 
@@ -129,14 +129,14 @@ type OrderCreatedEvent struct {
 
 // OrderCreatedData contains the order creation data
 type OrderCreatedData struct {
-	OrderID       string        `json:"order_id"`
-	UserID        uint          `json:"user_id"`
-	PaymentID     string        `json:"payment_id"`
-	Amount        float64       `json:"amount"`
-	Currency      string        `json:"currency"`
-	Items         []PaymentItem `json:"items"`
-	ShippingInfo  ShippingInfo  `json:"shipping_info"`
-	BillingInfo   BillingInfo   `json:"billing_info"`
+	OrderID      string        `json:"order_id"`
+	UserID       uint          `json:"user_id"`
+	PaymentID    string        `json:"payment_id"`
+	Amount       float64       `json:"amount"`
+	Currency     string        `json:"currency"`
+	Items        []PaymentItem `json:"items"`
+	ShippingInfo ShippingInfo  `json:"shipping_info"`
+	BillingInfo  BillingInfo   `json:"billing_info"`
 }
 
 // ShippingInfo represents shipping information

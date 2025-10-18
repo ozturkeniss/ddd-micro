@@ -59,7 +59,7 @@ func (r *paymentRepository) GetByUserID(ctx context.Context, userID uint, limit,
 	var total int64
 
 	query := r.db.WithContext(ctx).Model(&domain.Payment{}).Where("user_id = ?", userID)
-	
+
 	// Apply status filter if provided
 	if status != "" {
 		query = query.Where("status = ?", status)
@@ -232,7 +232,7 @@ func (r *paymentRepository) GetExpiredPayments(ctx context.Context) ([]*domain.P
 func (r *paymentRepository) CleanupExpiredPayments(ctx context.Context) (int, error) {
 	now := time.Now()
 	result := r.db.WithContext(ctx).Where("status = ? AND expires_at < ?", domain.PaymentStatusPending, now).Delete(&domain.Payment{})
-	
+
 	if result.Error != nil {
 		return 0, fmt.Errorf("failed to cleanup expired payments: %w", result.Error)
 	}

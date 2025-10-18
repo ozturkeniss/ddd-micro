@@ -23,24 +23,24 @@ type UpdateItemRequest struct {
 
 // BasketResponse represents the response for basket operations
 type BasketResponse struct {
-	ID        string             `json:"id"`
-	UserID    uint               `json:"user_id"`
+	ID        string               `json:"id"`
+	UserID    uint                 `json:"user_id"`
 	Items     []BasketItemResponse `json:"items"`
-	Total     float64            `json:"total"`
-	ItemCount int                `json:"item_count"`
-	CreatedAt time.Time          `json:"created_at"`
-	UpdatedAt time.Time          `json:"updated_at"`
-	ExpiresAt time.Time          `json:"expires_at"`
-	IsExpired bool               `json:"is_expired"`
+	Total     float64              `json:"total"`
+	ItemCount int                  `json:"item_count"`
+	CreatedAt time.Time            `json:"created_at"`
+	UpdatedAt time.Time            `json:"updated_at"`
+	ExpiresAt time.Time            `json:"expires_at"`
+	IsExpired bool                 `json:"is_expired"`
 }
 
 // BasketItemResponse represents the response for basket item operations
 type BasketItemResponse struct {
-	ID         uint    `json:"id"`
-	ProductID  uint    `json:"product_id"`
-	Quantity   int     `json:"quantity"`
-	UnitPrice  float64 `json:"unit_price"`
-	TotalPrice float64 `json:"total_price"`
+	ID         uint      `json:"id"`
+	ProductID  uint      `json:"product_id"`
+	Quantity   int       `json:"quantity"`
+	UnitPrice  float64   `json:"unit_price"`
+	TotalPrice float64   `json:"total_price"`
 	CreatedAt  time.Time `json:"created_at"`
 	UpdatedAt  time.Time `json:"updated_at"`
 }

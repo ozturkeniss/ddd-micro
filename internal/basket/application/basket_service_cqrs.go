@@ -13,29 +13,29 @@ import (
 // BasketServiceCQRS represents the main basket service using CQRS pattern
 type BasketServiceCQRS struct {
 	// Command handlers
-	createBasketHandler  *command.CreateBasketCommandHandler
-	addItemHandler       *command.AddItemCommandHandler
-	updateItemHandler    *command.UpdateItemCommandHandler
-	removeItemHandler    *command.RemoveItemCommandHandler
-	clearBasketHandler   *command.ClearBasketCommandHandler
-	
+	createBasketHandler *command.CreateBasketCommandHandler
+	addItemHandler      *command.AddItemCommandHandler
+	updateItemHandler   *command.UpdateItemCommandHandler
+	removeItemHandler   *command.RemoveItemCommandHandler
+	clearBasketHandler  *command.ClearBasketCommandHandler
+
 	// Query handlers
-	getBasketHandler     *query.GetBasketQueryHandler
-	
+	getBasketHandler *query.GetBasketQueryHandler
+
 	// Repository
-	basketRepo           domain.BasketRepository
+	basketRepo domain.BasketRepository
 }
 
 // NewBasketServiceCQRS creates a new BasketServiceCQRS
 func NewBasketServiceCQRS(basketRepo domain.BasketRepository, userClient client.UserClient, productClient client.ProductClient) *BasketServiceCQRS {
 	return &BasketServiceCQRS{
-		createBasketHandler:  command.NewCreateBasketCommandHandler(basketRepo),
-		addItemHandler:       command.NewAddItemCommandHandler(basketRepo, productClient),
-		updateItemHandler:    command.NewUpdateItemCommandHandler(basketRepo),
-		removeItemHandler:    command.NewRemoveItemCommandHandler(basketRepo),
-		clearBasketHandler:   command.NewClearBasketCommandHandler(basketRepo),
-		getBasketHandler:     query.NewGetBasketQueryHandler(basketRepo),
-		basketRepo:           basketRepo,
+		createBasketHandler: command.NewCreateBasketCommandHandler(basketRepo),
+		addItemHandler:      command.NewAddItemCommandHandler(basketRepo, productClient),
+		updateItemHandler:   command.NewUpdateItemCommandHandler(basketRepo),
+		removeItemHandler:   command.NewRemoveItemCommandHandler(basketRepo),
+		clearBasketHandler:  command.NewClearBasketCommandHandler(basketRepo),
+		getBasketHandler:    query.NewGetBasketQueryHandler(basketRepo),
+		basketRepo:          basketRepo,
 	}
 }
 
@@ -44,7 +44,7 @@ func (s *BasketServiceCQRS) CreateBasket(ctx context.Context, req dto.CreateBask
 	cmd := command.CreateBasketCommand{
 		UserID: req.UserID,
 	}
-	
+
 	return s.createBasketHandler.Handle(ctx, cmd)
 }
 
@@ -56,7 +56,7 @@ func (s *BasketServiceCQRS) AddItemHTTP(ctx context.Context, userID uint, req dt
 		Quantity:  req.Quantity,
 		UnitPrice: req.UnitPrice,
 	}
-	
+
 	return s.addItemHandler.Handle(ctx, cmd)
 }
 
@@ -67,7 +67,7 @@ func (s *BasketServiceCQRS) UpdateItemHTTP(ctx context.Context, userID uint, pro
 		ProductID: productID,
 		Quantity:  req.Quantity,
 	}
-	
+
 	return s.updateItemHandler.Handle(ctx, cmd)
 }
 
@@ -77,7 +77,7 @@ func (s *BasketServiceCQRS) RemoveItemHTTP(ctx context.Context, userID uint, pro
 		UserID:    userID,
 		ProductID: productID,
 	}
-	
+
 	return s.removeItemHandler.Handle(ctx, cmd)
 }
 
@@ -86,7 +86,7 @@ func (s *BasketServiceCQRS) ClearBasketHTTP(ctx context.Context, userID uint) (*
 	cmd := command.ClearBasketCommand{
 		UserID: userID,
 	}
-	
+
 	return s.clearBasketHandler.Handle(ctx, cmd)
 }
 
@@ -95,7 +95,7 @@ func (s *BasketServiceCQRS) GetBasketHTTP(ctx context.Context, userID uint) (*dt
 	query := query.GetBasketQuery{
 		UserID: userID,
 	}
-	
+
 	return s.getBasketHandler.Handle(ctx, query)
 }
 
@@ -118,7 +118,7 @@ func (s *BasketServiceCQRS) AddItem(ctx context.Context, req dto.AddItemRequest)
 		Quantity:  req.Quantity,
 		UnitPrice: req.UnitPrice,
 	}
-	
+
 	return s.addItemHandler.Handle(ctx, cmd)
 }
 
@@ -129,7 +129,7 @@ func (s *BasketServiceCQRS) UpdateItem(ctx context.Context, productID uint, req 
 		ProductID: productID,
 		Quantity:  req.Quantity,
 	}
-	
+
 	return s.updateItemHandler.Handle(ctx, cmd)
 }
 
@@ -139,7 +139,7 @@ func (s *BasketServiceCQRS) RemoveItem(ctx context.Context, req dto.RemoveItemRe
 		UserID:    req.UserID,
 		ProductID: req.ProductID,
 	}
-	
+
 	return s.removeItemHandler.Handle(ctx, cmd)
 }
 
@@ -148,7 +148,7 @@ func (s *BasketServiceCQRS) ClearBasket(ctx context.Context, req dto.ClearBasket
 	cmd := command.ClearBasketCommand{
 		UserID: req.UserID,
 	}
-	
+
 	_, err := s.clearBasketHandler.Handle(ctx, cmd)
 	return err
 }
@@ -158,7 +158,7 @@ func (s *BasketServiceCQRS) GetBasket(ctx context.Context, req dto.GetBasketRequ
 	query := query.GetBasketQuery{
 		UserID: req.UserID,
 	}
-	
+
 	return s.getBasketHandler.Handle(ctx, query)
 }
 

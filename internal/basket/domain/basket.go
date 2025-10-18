@@ -6,25 +6,25 @@ import (
 
 // Basket represents a shopping basket/cart
 type Basket struct {
-	ID        string    `json:"id" gorm:"primaryKey;type:varchar(36)"`
-	UserID    uint      `json:"user_id" gorm:"not null;index"`
+	ID        string       `json:"id" gorm:"primaryKey;type:varchar(36)"`
+	UserID    uint         `json:"user_id" gorm:"not null;index"`
 	Items     []BasketItem `json:"items" gorm:"foreignKey:BasketID;constraint:OnDelete:CASCADE"`
-	Total     float64   `json:"total" gorm:"type:decimal(10,2);default:0"`
-	CreatedAt time.Time `json:"created_at"`
-	UpdatedAt time.Time `json:"updated_at"`
-	ExpiresAt time.Time `json:"expires_at" gorm:"index"`
+	Total     float64      `json:"total" gorm:"type:decimal(10,2);default:0"`
+	CreatedAt time.Time    `json:"created_at"`
+	UpdatedAt time.Time    `json:"updated_at"`
+	ExpiresAt time.Time    `json:"expires_at" gorm:"index"`
 }
 
 // BasketItem represents an item in the basket
 type BasketItem struct {
-	ID        uint    `json:"id" gorm:"primaryKey;autoIncrement"`
-	BasketID  string  `json:"basket_id" gorm:"not null;index;type:varchar(36)"`
-	ProductID uint    `json:"product_id" gorm:"not null;index"`
-	Quantity  int     `json:"quantity" gorm:"not null;default:1"`
-	UnitPrice float64 `json:"unit_price" gorm:"type:decimal(10,2);not null"`
-	TotalPrice float64 `json:"total_price" gorm:"type:decimal(10,2);not null"`
-	CreatedAt time.Time `json:"created_at"`
-	UpdatedAt time.Time `json:"updated_at"`
+	ID         uint      `json:"id" gorm:"primaryKey;autoIncrement"`
+	BasketID   string    `json:"basket_id" gorm:"not null;index;type:varchar(36)"`
+	ProductID  uint      `json:"product_id" gorm:"not null;index"`
+	Quantity   int       `json:"quantity" gorm:"not null;default:1"`
+	UnitPrice  float64   `json:"unit_price" gorm:"type:decimal(10,2);not null"`
+	TotalPrice float64   `json:"total_price" gorm:"type:decimal(10,2);not null"`
+	CreatedAt  time.Time `json:"created_at"`
+	UpdatedAt  time.Time `json:"updated_at"`
 }
 
 // TableName returns the table name for Basket
@@ -58,7 +58,7 @@ func (b *Basket) AddItem(productID uint, quantity int, unitPrice float64) {
 			return
 		}
 	}
-	
+
 	// Add new item
 	newItem := BasketItem{
 		BasketID:   b.ID,
@@ -88,7 +88,7 @@ func (b *Basket) UpdateItemQuantity(productID uint, quantity int) error {
 	if quantity <= 0 {
 		return ErrInvalidQuantity
 	}
-	
+
 	for i, item := range b.Items {
 		if item.ProductID == productID {
 			b.Items[i].Quantity = quantity
@@ -97,7 +97,7 @@ func (b *Basket) UpdateItemQuantity(productID uint, quantity int) error {
 			return nil
 		}
 	}
-	
+
 	return ErrItemNotFound
 }
 
@@ -146,17 +146,17 @@ func (b *Basket) Validate() error {
 	if b.UserID == 0 {
 		return ErrInvalidUserID
 	}
-	
+
 	if b.ID == "" {
 		return ErrInvalidBasketID
 	}
-	
+
 	for _, item := range b.Items {
 		if err := item.Validate(); err != nil {
 			return err
 		}
 	}
-	
+
 	return nil
 }
 
@@ -165,18 +165,18 @@ func (bi *BasketItem) Validate() error {
 	if bi.ProductID == 0 {
 		return ErrInvalidProductID
 	}
-	
+
 	if bi.Quantity <= 0 {
 		return ErrInvalidQuantity
 	}
-	
+
 	if bi.UnitPrice < 0 {
 		return ErrInvalidPrice
 	}
-	
+
 	if bi.BasketID == "" {
 		return ErrInvalidBasketID
 	}
-	
+
 	return nil
 }

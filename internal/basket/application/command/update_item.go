@@ -33,31 +33,31 @@ func (h *UpdateItemCommandHandler) Handle(ctx context.Context, cmd UpdateItemCom
 	if err != nil {
 		return nil, err
 	}
-	
+
 	// Check if basket is expired
 	if basket.IsExpired() {
 		return nil, domain.ErrBasketExpired
 	}
-	
+
 	// Create basket item with updated quantity
 	item := &domain.BasketItem{
 		BasketID:  basket.ID,
 		ProductID: cmd.ProductID,
 		Quantity:  cmd.Quantity,
 	}
-	
+
 	// Update item in basket
 	err = h.basketRepo.UpdateItem(ctx, basket.ID, item)
 	if err != nil {
 		return nil, err
 	}
-	
+
 	// Get updated basket
 	updatedBasket, err := h.basketRepo.GetByID(ctx, basket.ID)
 	if err != nil {
 		return nil, err
 	}
-	
+
 	return h.mapToResponse(updatedBasket), nil
 }
 
@@ -75,7 +75,7 @@ func (h *UpdateItemCommandHandler) mapToResponse(basket *domain.Basket) *dto.Bas
 			UpdatedAt:  item.UpdatedAt,
 		}
 	}
-	
+
 	return &dto.BasketResponse{
 		ID:        basket.ID,
 		UserID:    basket.UserID,

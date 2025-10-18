@@ -113,17 +113,17 @@ type ListProductsResponse struct {
 
 // SearchProductsRequest represents the request to search products
 type SearchProductsRequest struct {
-	Query    string `json:"query"`
-	Category string `json:"category"`
-	Brand    string `json:"brand"`
-	MinPrice float64 `json:"min_price"`
-	MaxPrice float64 `json:"max_price"`
-	IsActive *bool  `json:"is_active"`
-	IsDigital *bool `json:"is_digital"`
-	IsFeatured *bool `json:"is_featured"`
-	IsOnSale  *bool `json:"is_on_sale"`
-	Offset   int    `json:"offset"`
-	Limit    int    `json:"limit"`
+	Query      string  `json:"query"`
+	Category   string  `json:"category"`
+	Brand      string  `json:"brand"`
+	MinPrice   float64 `json:"min_price"`
+	MaxPrice   float64 `json:"max_price"`
+	IsActive   *bool   `json:"is_active"`
+	IsDigital  *bool   `json:"is_digital"`
+	IsFeatured *bool   `json:"is_featured"`
+	IsOnSale   *bool   `json:"is_on_sale"`
+	Offset     int     `json:"offset"`
+	Limit      int     `json:"limit"`
 }
 
 // ========== CATEGORY DTOs ==========
@@ -153,19 +153,19 @@ type UpdateCategoryRequest struct {
 
 // CategoryResponse represents the category response
 type CategoryResponse struct {
-	ID          uint                `json:"id"`
-	Name        string              `json:"name"`
-	Description string              `json:"description"`
-	Slug        string              `json:"slug"`
-	ParentID    *uint               `json:"parent_id"`
-	Parent      *CategoryResponse   `json:"parent,omitempty"`
-	Children    []CategoryResponse  `json:"children,omitempty"`
-	Image       string              `json:"image"`
-	Icon        string              `json:"icon"`
-	SortOrder   int                 `json:"sort_order"`
-	IsActive    bool                `json:"is_active"`
-	CreatedAt   time.Time           `json:"created_at"`
-	UpdatedAt   time.Time           `json:"updated_at"`
+	ID          uint               `json:"id"`
+	Name        string             `json:"name"`
+	Description string             `json:"description"`
+	Slug        string             `json:"slug"`
+	ParentID    *uint              `json:"parent_id"`
+	Parent      *CategoryResponse  `json:"parent,omitempty"`
+	Children    []CategoryResponse `json:"children,omitempty"`
+	Image       string             `json:"image"`
+	Icon        string             `json:"icon"`
+	SortOrder   int                `json:"sort_order"`
+	IsActive    bool               `json:"is_active"`
+	CreatedAt   time.Time          `json:"created_at"`
+	UpdatedAt   time.Time          `json:"updated_at"`
 }
 
 // ListCategoriesResponse represents the paginated list of categories

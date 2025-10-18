@@ -34,21 +34,21 @@ func (r *BasketRepository) Create(ctx context.Context, basket *domain.Basket) er
 	if basket.ID == "" {
 		basket.ID = uuid.New().String()
 	}
-	
+
 	// Set expiration time if not set
 	if basket.ExpiresAt.IsZero() {
 		basket.SetExpiration(24 * time.Hour) // Default 24 hours
 	}
-	
+
 	basket.CreatedAt = time.Now()
 	basket.UpdatedAt = time.Now()
-	
+
 	// Serialize basket to JSON
 	basketData, err := json.Marshal(basket)
 	if err != nil {
 		return fmt.Errorf("failed to marshal basket: %w", err)
 	}
-	
+
 	// Store basket with expiration
 	expiration := time.Until(basket.ExpiresAt)
 	key := r.getBasketKey(basket.ID)
@@ -56,14 +56,14 @@ func (r *BasketRepository) Create(ctx context.Context, basket *domain.Basket) er
 	if err != nil {
 		return fmt.Errorf("failed to store basket: %w", err)
 	}
-	
+
 	// Store user basket mapping
 	userBasketKey := r.getUserBasketKey(basket.UserID)
 	err = r.client.Set(ctx, userBasketKey, basket.ID, expiration).Err()
 	if err != nil {
 		return fmt.Errorf("failed to store user basket mapping: %w", err)
 	}
-	
+
 	return nil
 }
 
@@ -77,13 +77,13 @@ func (r *BasketRepository) GetByID(ctx context.Context, basketID string) (*domai
 		}
 		return nil, fmt.Errorf("failed to get basket: %w", err)
 	}
-	
+
 	var basket domain.Basket
 	err = json.Unmarshal([]byte(data), &basket)
 	if err != nil {
 		return nil, fmt.Errorf("failed to unmarshal basket: %w", err)
 	}
-	
+
 	return &basket, nil
 }
 
@@ -98,7 +98,7 @@ func (r *BasketRepository) GetByUserID(ctx context.Context, userID uint) (*domai
 		}
 		return nil, fmt.Errorf("failed to get user basket mapping: %w", err)
 	}
-	
+
 	// Get basket by ID
 	return r.GetByID(ctx, basketID)
 }
@@ -106,13 +106,13 @@ func (r *BasketRepository) GetByUserID(ctx context.Context, userID uint) (*domai
 // Update updates an existing basket
 func (r *BasketRepository) Update(ctx context.Context, basket *domain.Basket) error {
 	basket.UpdatedAt = time.Now()
-	
+
 	// Serialize basket to JSON
 	basketData, err := json.Marshal(basket)
 	if err != nil {
 		return fmt.Errorf("failed to marshal basket: %w", err)
 	}
-	
+
 	// Update basket with expiration
 	expiration := time.Until(basket.ExpiresAt)
 	key := r.getBasketKey(basket.ID)
@@ -120,14 +120,14 @@ func (r *BasketRepository) Update(ctx context.Context, basket *domain.Basket) er
 	if err != nil {
 		return fmt.Errorf("failed to update basket: %w", err)
 	}
-	
+
 	// Update user basket mapping expiration
 	userBasketKey := r.getUserBasketKey(basket.UserID)
 	err = r.client.Set(ctx, userBasketKey, basket.ID, expiration).Err()
 	if err != nil {
 		return fmt.Errorf("failed to update user basket mapping: %w", err)
 	}
-	
+
 	return nil
 }
 
@@ -138,21 +138,21 @@ func (r *BasketRepository) Delete(ctx context.Context, basketID string) error {
 	if err != nil {
 		return err
 	}
-	
+
 	// Delete basket
 	key := r.getBasketKey(basketID)
 	err = r.client.Del(ctx, key).Err()
 	if err != nil {
 		return fmt.Errorf("failed to delete basket: %w", err)
 	}
-	
+
 	// Delete user basket mapping
 	userBasketKey := r.getUserBasketKey(basket.UserID)
 	err = r.client.Del(ctx, userBasketKey).Err()
 	if err != nil {
 		return fmt.Errorf("failed to delete user basket mapping: %w", err)
 	}
-	
+
 	return nil
 }
 
@@ -167,7 +167,7 @@ func (r *BasketRepository) DeleteByUserID(ctx context.Context, userID uint) erro
 		}
 		return fmt.Errorf("failed to get user basket mapping: %w", err)
 	}
-	
+
 	return r.Delete(ctx, basketID)
 }
 
@@ -177,9 +177,9 @@ func (r *BasketRepository) AddItem(ctx context.Context, basketID string, item *d
 	if err != nil {
 		return err
 	}
-	
+
 	basket.AddItem(item.ProductID, item.Quantity, item.UnitPrice)
-	
+
 	return r.Update(ctx, basket)
 }
 
@@ -189,12 +189,12 @@ func (r *BasketRepository) UpdateItem(ctx context.Context, basketID string, item
 	if err != nil {
 		return err
 	}
-	
+
 	err = basket.UpdateItemQuantity(item.ProductID, item.Quantity)
 	if err != nil {
 		return err
 	}
-	
+
 	return r.Update(ctx, basket)
 }
 
@@ -204,9 +204,9 @@ func (r *BasketRepository) RemoveItem(ctx context.Context, basketID string, prod
 	if err != nil {
 		return err
 	}
-	
+
 	basket.RemoveItem(productID)
-	
+
 	return r.Update(ctx, basket)
 }
 
@@ -216,9 +216,9 @@ func (r *BasketRepository) ClearItems(ctx context.Context, basketID string) erro
 	if err != nil {
 		return err
 	}
-	
+
 	basket.Clear()
-	
+
 	return r.Update(ctx, basket)
 }
 
@@ -251,7 +251,7 @@ func (r *BasketRepository) CleanupExpired(ctx context.Context) (int, error) {
 	if err != nil {
 		return 0, fmt.Errorf("failed to get basket keys: %w", err)
 	}
-	
+
 	var expiredCount int
 	for _, key := range keys {
 		ttl := r.client.TTL(ctx, key).Val()
@@ -263,11 +263,11 @@ func (r *BasketRepository) CleanupExpired(ctx context.Context) (int, error) {
 			expiredCount++
 		}
 	}
-	
+
 	if expiredCount > 0 {
 		fmt.Printf("Cleaned up %d expired baskets\n", expiredCount)
 	}
-	
+
 	return expiredCount, nil
 }
 
@@ -281,30 +281,30 @@ func (r *BasketRepository) GetExpiredBaskets(ctx context.Context) ([]*domain.Bas
 	if err != nil {
 		return nil, fmt.Errorf("failed to get basket keys: %w", err)
 	}
-	
+
 	var baskets []*domain.Basket
 	for _, key := range keys {
 		ttl := r.client.TTL(ctx, key).Val()
 		if ttl == -2 { // Key doesn't exist (expired)
 			continue
 		}
-		
+
 		data, err := r.client.Get(ctx, key).Result()
 		if err != nil {
 			continue // Skip if can't retrieve
 		}
-		
+
 		var basket domain.Basket
 		err = json.Unmarshal([]byte(data), &basket)
 		if err != nil {
 			continue // Skip if can't unmarshal
 		}
-		
+
 		if basket.IsExpired() {
 			baskets = append(baskets, &basket)
 		}
 	}
-	
+
 	return baskets, nil
 }
 

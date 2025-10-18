@@ -35,7 +35,7 @@ func NewBasketHandler(basketService *application.BasketServiceCQRS) *BasketHandl
 // @Router /users/basket [post]
 func (h *BasketHandler) CreateBasket(c *gin.Context) {
 	var req dto.CreateBasketRequest
-	
+
 	// Get user ID from context (set by auth middleware)
 	userID, exists := c.Get("userID")
 	if !exists {
@@ -92,7 +92,7 @@ func (h *BasketHandler) GetBasket(c *gin.Context) {
 			})
 			return
 		}
-		
+
 		c.JSON(http.StatusInternalServerError, dto.ErrorResponse{
 			Error:   "Internal Server Error",
 			Message: err.Error(),
@@ -326,7 +326,7 @@ func (h *BasketHandler) AdminGetBasket(c *gin.Context) {
 			})
 			return
 		}
-		
+
 		c.JSON(http.StatusInternalServerError, dto.ErrorResponse{
 			Error:   "Internal Server Error",
 			Message: err.Error(),

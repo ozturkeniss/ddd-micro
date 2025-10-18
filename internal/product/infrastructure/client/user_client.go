@@ -14,13 +14,13 @@ import (
 type UserClient interface {
 	// GetUserByID retrieves a user by ID
 	GetUserByID(ctx context.Context, userID uint) (*userpb.User, error)
-	
+
 	// GetUserByEmail retrieves a user by email
 	GetUserByEmail(ctx context.Context, email string) (*userpb.User, error)
-	
+
 	// ValidateToken validates a JWT token
 	ValidateToken(ctx context.Context, token string) (*userpb.User, error)
-	
+
 	// Close closes the client connection
 	Close() error
 }

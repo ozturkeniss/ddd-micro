@@ -22,5 +22,3 @@ func NewHTTPRouter(productHandler *ProductHandler, userHandler *UserHandler, aut
 
 	return router
 }
-
-

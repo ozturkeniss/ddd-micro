@@ -14,10 +14,10 @@ var ProviderSet = wire.NewSet(
 	command.NewUpdateItemCommandHandler,
 	command.NewRemoveItemCommandHandler,
 	command.NewClearBasketCommandHandler,
-	
+
 	// Query handlers
 	query.NewGetBasketQueryHandler,
-	
+
 	// Main service
 	NewBasketServiceCQRS,
 )

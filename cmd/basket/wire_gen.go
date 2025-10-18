@@ -38,18 +38,18 @@ func InitializeApp() (*App, func(), error) {
 	userClient := infrastructure.NewUserClient(config)
 	productClient := infrastructure.NewProductClient(config)
 	basketRepository := infrastructure.NewBasketRepository(redisClient)
-	
+
 	// Application layer
 	basketServiceCQRS := application.NewBasketServiceCQRS(basketRepository, userClient, productClient)
-	
+
 	// HTTP interface layer
 	httpRouter := http.NewHTTPRouter(basketServiceCQRS, userClient)
-	
+
 	// gRPC interface layer
 	basketServer := basketgrpc.NewBasketServer(basketServiceCQRS)
 	authInterceptor := basketgrpc.NewAuthInterceptor(&userClient)
 	grpcServer := basketgrpc.NewGRPCServer(basketServer, authInterceptor)
-	
+
 	// Main app
 	app := NewApp(httpRouter, grpcServer)
 	return app, func() {

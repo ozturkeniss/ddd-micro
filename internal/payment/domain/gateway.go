@@ -9,14 +9,14 @@ type PaymentGateway interface {
 	ProcessPayment(ctx context.Context, payment *Payment, paymentMethodID string) (*PaymentGatewayResponse, error)
 	CancelPayment(ctx context.Context, payment *Payment) (*PaymentGatewayResponse, error)
 	RefundPayment(ctx context.Context, payment *Payment, amount float64, reason string) (*PaymentGatewayResponse, error)
-	
+
 	// Payment method operations
 	CreatePaymentMethod(ctx context.Context, userID uint, paymentMethod *PaymentMethodInfo) (*PaymentGatewayResponse, error)
 	DeletePaymentMethod(ctx context.Context, paymentMethodID string) (*PaymentGatewayResponse, error)
-	
+
 	// Webhook operations
 	ProcessWebhook(ctx context.Context, payload []byte, signature string) (*WebhookEvent, error)
-	
+
 	// Health check
 	HealthCheck(ctx context.Context) error
 }
@@ -53,13 +53,13 @@ type WebhookEvent struct {
 
 // PaymentGatewayConfig represents configuration for payment gateway
 type PaymentGatewayConfig struct {
-	Provider     string `json:"provider"`
-	APIKey       string `json:"api_key"`
-	SecretKey    string `json:"secret_key"`
+	Provider      string `json:"provider"`
+	APIKey        string `json:"api_key"`
+	SecretKey     string `json:"secret_key"`
 	WebhookSecret string `json:"webhook_secret"`
-	Environment  string `json:"environment"` // sandbox, production
-	BaseURL      string `json:"base_url"`
-	Timeout      int    `json:"timeout"` // in seconds
+	Environment   string `json:"environment"` // sandbox, production
+	BaseURL       string `json:"base_url"`
+	Timeout       int    `json:"timeout"` // in seconds
 }
 
 // PaymentGatewayFactory creates payment gateway instances
@@ -70,9 +70,9 @@ type PaymentGatewayFactory interface {
 
 // Supported payment gateway providers
 const (
-	ProviderStripe = "stripe"
-	ProviderPayPal = "paypal"
-	ProviderSquare = "square"
+	ProviderStripe   = "stripe"
+	ProviderPayPal   = "paypal"
+	ProviderSquare   = "square"
 	ProviderRazorpay = "razorpay"
 )
 

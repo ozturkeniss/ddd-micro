@@ -26,9 +26,9 @@ func (g *mockGateway) CreatePayment(ctx context.Context, payment *domain.Payment
 	paymentURL := fmt.Sprintf("https://mock-payment.com/checkout/%s", transactionID)
 
 	return &domain.GatewayResponse{
-		TransactionID:   transactionID,
-		PaymentURL:      paymentURL,
-		ClientSecret:    "mock_client_secret_" + transactionID,
+		TransactionID: transactionID,
+		PaymentURL:    paymentURL,
+		ClientSecret:  "mock_client_secret_" + transactionID,
 		GatewayResponse: map[string]interface{}{
 			"transaction_id": transactionID,
 			"payment_url":    paymentURL,
@@ -58,8 +58,8 @@ func (g *mockGateway) ProcessPayment(ctx context.Context, payment *domain.Paymen
 	}
 
 	return &domain.GatewayResponse{
-		TransactionID:   transactionID,
-		Status:          status,
+		TransactionID: transactionID,
+		Status:        status,
 		GatewayResponse: map[string]interface{}{
 			"transaction_id": transactionID,
 			"status":         string(status),
@@ -79,8 +79,8 @@ func (g *mockGateway) CancelPayment(ctx context.Context, payment *domain.Payment
 	}
 
 	return &domain.GatewayResponse{
-		TransactionID:   transactionID,
-		Status:          domain.PaymentStatusCancelled,
+		TransactionID: transactionID,
+		Status:        domain.PaymentStatusCancelled,
 		GatewayResponse: map[string]interface{}{
 			"transaction_id": transactionID,
 			"status":         "cancelled",
@@ -106,8 +106,8 @@ func (g *mockGateway) RefundPayment(ctx context.Context, payment *domain.Payment
 	refundID := uuid.New().String()
 
 	return &domain.GatewayResponse{
-		TransactionID:   refundID,
-		Status:          status,
+		TransactionID: refundID,
+		Status:        status,
 		GatewayResponse: map[string]interface{}{
 			"refund_id": refundID,
 			"status":    string(status),
@@ -134,7 +134,7 @@ func (g *mockGateway) CreatePaymentMethod(ctx context.Context, userID uint, paym
 	paymentMethod.ExpiryYear = intPtr(2025)
 
 	return &domain.GatewayResponse{
-		TransactionID:   paymentMethodID,
+		TransactionID: paymentMethodID,
 		GatewayResponse: map[string]interface{}{
 			"payment_method_id": paymentMethodID,
 			"customer_id":       customerID,

@@ -2,6 +2,7 @@ package application
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/ddd-micro/internal/payment/application/command"
 	"github.com/ddd-micro/internal/payment/application/dto"
@@ -15,28 +16,28 @@ import (
 // PaymentServiceCQRS represents the main payment service using CQRS pattern
 type PaymentServiceCQRS struct {
 	// Command handlers
-	createPaymentHandler      *command.CreatePaymentCommandHandler
-	processPaymentHandler     *command.ProcessPaymentCommandHandler
-	cancelPaymentHandler      *command.CancelPaymentCommandHandler
-	addPaymentMethodHandler   *command.AddPaymentMethodCommandHandler
+	createPaymentHandler       *command.CreatePaymentCommandHandler
+	processPaymentHandler      *command.ProcessPaymentCommandHandler
+	cancelPaymentHandler       *command.CancelPaymentCommandHandler
+	addPaymentMethodHandler    *command.AddPaymentMethodCommandHandler
 	updatePaymentMethodHandler *command.UpdatePaymentMethodCommandHandler
 	deletePaymentMethodHandler *command.DeletePaymentMethodCommandHandler
-	
+
 	// Query handlers
 	getPaymentHandler         *query.GetPaymentQueryHandler
 	listPaymentsHandler       *query.ListPaymentsQueryHandler
 	getPaymentMethodHandler   *query.GetPaymentMethodQueryHandler
 	listPaymentMethodsHandler *query.ListPaymentMethodsQueryHandler
-	
+
 	// Repositories
 	paymentRepo       domain.PaymentRepository
 	paymentMethodRepo domain.PaymentMethodRepository
-	
+
 	// External service clients
 	userClient    client.UserClient
 	productClient client.ProductClient
 	basketClient  client.BasketClient
-	
+
 	// Kafka event publisher
 	eventPublisher *kafka.PaymentEventPublisher
 }
@@ -61,22 +62,22 @@ func NewPaymentServiceCQRS(
 	eventPublisher *kafka.PaymentEventPublisher,
 ) *PaymentServiceCQRS {
 	return &PaymentServiceCQRS{
-		createPaymentHandler:      createPaymentHandler,
-		processPaymentHandler:     processPaymentHandler,
-		cancelPaymentHandler:      cancelPaymentHandler,
-		addPaymentMethodHandler:   addPaymentMethodHandler,
+		createPaymentHandler:       createPaymentHandler,
+		processPaymentHandler:      processPaymentHandler,
+		cancelPaymentHandler:       cancelPaymentHandler,
+		addPaymentMethodHandler:    addPaymentMethodHandler,
 		updatePaymentMethodHandler: updatePaymentMethodHandler,
 		deletePaymentMethodHandler: deletePaymentMethodHandler,
-		getPaymentHandler:         getPaymentHandler,
-		listPaymentsHandler:       listPaymentsHandler,
-		getPaymentMethodHandler:   getPaymentMethodHandler,
-		listPaymentMethodsHandler: listPaymentMethodsHandler,
-		paymentRepo:               paymentRepo,
-		paymentMethodRepo:         paymentMethodRepo,
-		userClient:                userClient,
-		productClient:             productClient,
-		basketClient:              basketClient,
-		eventPublisher:            eventPublisher,
+		getPaymentHandler:          getPaymentHandler,
+		listPaymentsHandler:        listPaymentsHandler,
+		getPaymentMethodHandler:    getPaymentMethodHandler,
+		listPaymentMethodsHandler:  listPaymentMethodsHandler,
+		paymentRepo:                paymentRepo,
+		paymentMethodRepo:          paymentMethodRepo,
+		userClient:                 userClient,
+		productClient:              productClient,
+		basketClient:               basketClient,
+		eventPublisher:             eventPublisher,
 	}
 }
 
@@ -91,48 +92,48 @@ func (s *PaymentServiceCQRS) CreatePayment(ctx context.Context, userID uint, req
 		if err != nil {
 			return nil, fmt.Errorf("basket validation failed: %w", err)
 		}
-		
+
 		// Calculate total amount from basket
 		var totalAmount float64
 		for _, item := range basket.Items {
 			totalAmount += float64(item.Quantity) * item.UnitPrice
 		}
-		
+
 		// Validate amount matches basket total
 		if req.Amount != totalAmount {
 			return nil, fmt.Errorf("payment amount does not match basket total")
 		}
-		
+
 		// Reserve items in basket
 		if err := s.basketClient.ReserveItems(ctx, userID, basket.Items); err != nil {
 			return nil, fmt.Errorf("failed to reserve basket items: %w", err)
 		}
-		
+
 	} else if req.ProductID != nil && req.Quantity != nil {
 		// Direct product payment: validate product
 		product, err := s.productClient.GetProduct(ctx, *req.ProductID)
 		if err != nil {
 			return nil, fmt.Errorf("product validation failed: %w", err)
 		}
-		
+
 		// Validate quantity
 		if *req.Quantity <= 0 {
 			return nil, fmt.Errorf("invalid quantity")
 		}
-		
+
 		// Calculate total amount
 		totalAmount := float64(*req.Quantity) * product.Price
-		
+
 		// Validate amount matches product total
 		if req.Amount != totalAmount {
 			return nil, fmt.Errorf("payment amount does not match product total")
 		}
-		
+
 		// Check stock availability
 		if product.Stock < int32(*req.Quantity) {
 			return nil, fmt.Errorf("insufficient stock")
 		}
-		
+
 	} else {
 		return nil, fmt.Errorf("either basket_id or product_id with quantity must be provided")
 	}
@@ -178,8 +179,8 @@ func (s *PaymentServiceCQRS) ProcessPayment(ctx context.Context, userID uint, pa
 	}
 
 	cmd := command.ProcessPaymentCommand{
-		PaymentID:       paymentID,
-		PaymentMethodID: req.PaymentMethodID,
+		PaymentID:        paymentID,
+		PaymentMethodID:  req.PaymentMethodID,
 		ConfirmationData: req.ConfirmationData,
 	}
 
@@ -219,7 +220,7 @@ func (s *PaymentServiceCQRS) ProcessPayment(ctx context.Context, userID uint, pa
 		}
 
 		// Publish payment completed event
-		if err := s.eventPublisher.PublishPaymentCompleted(ctx, paymentID, userID, payment.OrderID, 
+		if err := s.eventPublisher.PublishPaymentCompleted(ctx, paymentID, userID, payment.OrderID,
 			payment.Amount, payment.Currency, string(payment.PaymentMethod), items, payment.BasketID); err != nil {
 			// Log error but don't fail the payment
 			// In production, you might want to implement compensation logic

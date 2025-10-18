@@ -194,8 +194,8 @@ func (s *ProductServer) ListProductsByCategory(ctx context.Context, req *product
 	return &productpb.ListProductsResponse{
 		Products: products,
 		Total:    int32(listResp.Total),
-		Offset:    int32(listResp.Offset),
-		Limit:     int32(listResp.Limit),
+		Offset:   int32(listResp.Offset),
+		Limit:    int32(listResp.Limit),
 	}, nil
 }
 

@@ -11,48 +11,48 @@ import (
 // ProductServiceCQRS handles product business logic using CQRS pattern
 type ProductServiceCQRS struct {
 	// Command handlers
-	createProductHandler        *command.CreateProductHandler
-	updateProductHandler        *command.UpdateProductHandler
-	deleteProductHandler        *command.DeleteProductHandler
-	updateStockHandler          *command.UpdateStockHandler
-	reduceStockHandler          *command.ReduceStockHandler
-	increaseStockHandler        *command.IncreaseStockHandler
-	activateProductHandler      *command.ActivateProductHandler
-	deactivateProductHandler    *command.DeactivateProductHandler
-	markAsFeaturedHandler       *command.MarkAsFeaturedHandler
-	unmarkAsFeaturedHandler     *command.UnmarkAsFeaturedHandler
-	incrementViewCountHandler   *command.IncrementViewCountHandler
+	createProductHandler      *command.CreateProductHandler
+	updateProductHandler      *command.UpdateProductHandler
+	deleteProductHandler      *command.DeleteProductHandler
+	updateStockHandler        *command.UpdateStockHandler
+	reduceStockHandler        *command.ReduceStockHandler
+	increaseStockHandler      *command.IncreaseStockHandler
+	activateProductHandler    *command.ActivateProductHandler
+	deactivateProductHandler  *command.DeactivateProductHandler
+	markAsFeaturedHandler     *command.MarkAsFeaturedHandler
+	unmarkAsFeaturedHandler   *command.UnmarkAsFeaturedHandler
+	incrementViewCountHandler *command.IncrementViewCountHandler
 
 	// Query handlers
-	getProductByIDHandler       *query.GetProductByIDHandler
-	getProductBySKUHandler      *query.GetProductBySKUHandler
-	listProductsHandler         *query.ListProductsHandler
+	getProductByIDHandler         *query.GetProductByIDHandler
+	getProductBySKUHandler        *query.GetProductBySKUHandler
+	listProductsHandler           *query.ListProductsHandler
 	listProductsByCategoryHandler *query.ListProductsByCategoryHandler
-	searchProductsHandler       *query.SearchProductsHandler
+	searchProductsHandler         *query.SearchProductsHandler
 }
 
 // NewProductServiceCQRS creates a new CQRS-based product service
 func NewProductServiceCQRS(repo domain.ProductRepository) *ProductServiceCQRS {
 	return &ProductServiceCQRS{
 		// Initialize command handlers
-		createProductHandler:        command.NewCreateProductHandler(repo),
-		updateProductHandler:        command.NewUpdateProductHandler(repo),
-		deleteProductHandler:        command.NewDeleteProductHandler(repo),
-		updateStockHandler:          command.NewUpdateStockHandler(repo),
-		reduceStockHandler:          command.NewReduceStockHandler(repo),
-		increaseStockHandler:        command.NewIncreaseStockHandler(repo),
-		activateProductHandler:      command.NewActivateProductHandler(repo),
-		deactivateProductHandler:    command.NewDeactivateProductHandler(repo),
-		markAsFeaturedHandler:       command.NewMarkAsFeaturedHandler(repo),
-		unmarkAsFeaturedHandler:     command.NewUnmarkAsFeaturedHandler(repo),
-		incrementViewCountHandler:   command.NewIncrementViewCountHandler(repo),
+		createProductHandler:      command.NewCreateProductHandler(repo),
+		updateProductHandler:      command.NewUpdateProductHandler(repo),
+		deleteProductHandler:      command.NewDeleteProductHandler(repo),
+		updateStockHandler:        command.NewUpdateStockHandler(repo),
+		reduceStockHandler:        command.NewReduceStockHandler(repo),
+		increaseStockHandler:      command.NewIncreaseStockHandler(repo),
+		activateProductHandler:    command.NewActivateProductHandler(repo),
+		deactivateProductHandler:  command.NewDeactivateProductHandler(repo),
+		markAsFeaturedHandler:     command.NewMarkAsFeaturedHandler(repo),
+		unmarkAsFeaturedHandler:   command.NewUnmarkAsFeaturedHandler(repo),
+		incrementViewCountHandler: command.NewIncrementViewCountHandler(repo),
 
 		// Initialize query handlers
-		getProductByIDHandler:       query.NewGetProductByIDHandler(repo),
-		getProductBySKUHandler:      query.NewGetProductBySKUHandler(repo),
-		listProductsHandler:         query.NewListProductsHandler(repo),
+		getProductByIDHandler:         query.NewGetProductByIDHandler(repo),
+		getProductBySKUHandler:        query.NewGetProductBySKUHandler(repo),
+		listProductsHandler:           query.NewListProductsHandler(repo),
 		listProductsByCategoryHandler: query.NewListProductsByCategoryHandler(repo),
-		searchProductsHandler:       query.NewSearchProductsHandler(repo),
+		searchProductsHandler:         query.NewSearchProductsHandler(repo),
 	}
 }
 

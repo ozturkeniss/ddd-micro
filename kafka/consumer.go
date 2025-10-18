@@ -231,7 +231,7 @@ func (c *kafkaConsumer) processMessage(handler func([]byte) error, data []byte) 
 		if err := handler(data); err != nil {
 			lastErr = err
 			if attempt < c.config.RetryAttempts-1 {
-				log.Printf("Handler failed (attempt %d/%d): %v, retrying in %v", 
+				log.Printf("Handler failed (attempt %d/%d): %v, retrying in %v",
 					attempt+1, c.config.RetryAttempts, err, c.config.RetryDelay)
 				time.Sleep(c.config.RetryDelay)
 			}

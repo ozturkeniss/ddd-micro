@@ -14,24 +14,24 @@ import (
 var ProviderSet = wire.NewSet(
 	// Configuration
 	config.LoadConfig,
-	
+
 	// Database
 	database.NewPostgresDB,
-	
+
 	// Repositories
 	persistence.NewPaymentRepository,
 	persistence.NewPaymentMethodRepository,
 	persistence.NewRefundRepository,
-	
+
 	// External service clients
 	client.NewUserClient,
 	client.NewProductClient,
 	client.NewBasketClient,
-	
+
 	// Payment gateways
 	gateway.NewStripeGateway,
 	gateway.NewMockGateway,
-	
+
 	// Kafka
 	kafka.LoadConfig,
 	kafka.NewKafkaPublisher,

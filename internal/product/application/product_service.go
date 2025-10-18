@@ -8,11 +8,11 @@ import (
 )
 
 var (
-	ErrProductNotFound        = errors.New("product not found")
-	ErrProductAlreadyExists   = errors.New("product with this SKU already exists")
-	ErrInvalidProductData     = errors.New("invalid product data")
-	ErrInsufficientStock      = errors.New("insufficient stock")
-	ErrInvalidStockAmount     = errors.New("invalid stock amount")
+	ErrProductNotFound      = errors.New("product not found")
+	ErrProductAlreadyExists = errors.New("product with this SKU already exists")
+	ErrInvalidProductData   = errors.New("invalid product data")
+	ErrInsufficientStock    = errors.New("insufficient stock")
+	ErrInvalidStockAmount   = errors.New("invalid stock amount")
 )
 
 // ProductService handles product business logic

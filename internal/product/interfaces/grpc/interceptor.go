@@ -4,8 +4,8 @@ import (
 	"context"
 	"strings"
 
-	"github.com/ddd-micro/internal/product/application"
 	userpb "github.com/ddd-micro/api/proto/user"
+	"github.com/ddd-micro/internal/product/application"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/metadata"

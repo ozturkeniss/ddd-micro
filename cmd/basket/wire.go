@@ -24,20 +24,20 @@ func InitializeApp() (*App, func(), error) {
 	wire.Build(
 		// Infrastructure layer
 		infrastructure.ProviderSet,
-		
+
 		// Application layer
 		application.ProviderSet,
-		
+
 		// HTTP interface layer
 		http.ProviderSet,
-		
+
 		// gRPC interface layer
 		grpc.ProviderSet,
-		
+
 		// Main app
 		NewApp,
 	)
-	
+
 	return &App{}, nil, nil
 }
 

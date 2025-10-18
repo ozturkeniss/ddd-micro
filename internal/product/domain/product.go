@@ -8,37 +8,37 @@ import (
 
 // Product represents the product domain entity
 type Product struct {
-	ID              uint           `gorm:"primaryKey" json:"id"`
-	Name            string         `gorm:"not null;size:255" json:"name"`
-	Description     string         `gorm:"type:text" json:"description"`
-	ShortDescription string        `gorm:"size:500" json:"short_description"`
-	Price           float64        `gorm:"not null;type:decimal(10,2)" json:"price"`
-	ComparePrice    float64        `gorm:"type:decimal(10,2)" json:"compare_price"` // Original price for discount display
-	CostPrice       float64        `gorm:"type:decimal(10,2)" json:"cost_price"`    // Cost price for profit calculation
-	Stock           int            `gorm:"not null;default:0" json:"stock"`
-	MinStock        int            `gorm:"default:0" json:"min_stock"` // Minimum stock alert
-	MaxStock        int            `gorm:"default:0" json:"max_stock"` // Maximum stock limit
-	Category        string         `gorm:"size:100" json:"category"`
-	SubCategory     string         `gorm:"size:100" json:"sub_category"`
-	Brand           string         `gorm:"size:100" json:"brand"`
-	SKU             string         `gorm:"uniqueIndex;not null;size:100" json:"sku"`
-	Barcode         string         `gorm:"size:50" json:"barcode"`
-	Weight          float64        `gorm:"type:decimal(8,3)" json:"weight"` // Weight in kg
-	Dimensions      string         `gorm:"size:100" json:"dimensions"`      // LxWxH format
-	Color           string         `gorm:"size:50" json:"color"`
-	Size            string         `gorm:"size:50" json:"size"`
-	Material        string         `gorm:"size:100" json:"material"`
-	Tags            string         `gorm:"type:text" json:"tags"` // Comma-separated tags
-	Images          string         `gorm:"type:text" json:"images"` // JSON array of image URLs
-	IsActive        bool           `gorm:"default:true" json:"is_active"`
-	IsDigital       bool           `gorm:"default:false" json:"is_digital"` // Digital product flag
-	IsFeatured      bool           `gorm:"default:false" json:"is_featured"` // Featured product flag
-	IsOnSale        bool           `gorm:"default:false" json:"is_on_sale"` // On sale flag
-	SortOrder       int            `gorm:"default:0" json:"sort_order"` // For custom sorting
-	ViewCount       int            `gorm:"default:0" json:"view_count"` // Product view counter
-	CreatedAt       time.Time      `gorm:"autoCreateTime" json:"created_at"`
-	UpdatedAt       time.Time      `gorm:"autoUpdateTime" json:"updated_at"`
-	DeletedAt       gorm.DeletedAt `gorm:"index" json:"-"`
+	ID               uint           `gorm:"primaryKey" json:"id"`
+	Name             string         `gorm:"not null;size:255" json:"name"`
+	Description      string         `gorm:"type:text" json:"description"`
+	ShortDescription string         `gorm:"size:500" json:"short_description"`
+	Price            float64        `gorm:"not null;type:decimal(10,2)" json:"price"`
+	ComparePrice     float64        `gorm:"type:decimal(10,2)" json:"compare_price"` // Original price for discount display
+	CostPrice        float64        `gorm:"type:decimal(10,2)" json:"cost_price"`    // Cost price for profit calculation
+	Stock            int            `gorm:"not null;default:0" json:"stock"`
+	MinStock         int            `gorm:"default:0" json:"min_stock"` // Minimum stock alert
+	MaxStock         int            `gorm:"default:0" json:"max_stock"` // Maximum stock limit
+	Category         string         `gorm:"size:100" json:"category"`
+	SubCategory      string         `gorm:"size:100" json:"sub_category"`
+	Brand            string         `gorm:"size:100" json:"brand"`
+	SKU              string         `gorm:"uniqueIndex;not null;size:100" json:"sku"`
+	Barcode          string         `gorm:"size:50" json:"barcode"`
+	Weight           float64        `gorm:"type:decimal(8,3)" json:"weight"` // Weight in kg
+	Dimensions       string         `gorm:"size:100" json:"dimensions"`      // LxWxH format
+	Color            string         `gorm:"size:50" json:"color"`
+	Size             string         `gorm:"size:50" json:"size"`
+	Material         string         `gorm:"size:100" json:"material"`
+	Tags             string         `gorm:"type:text" json:"tags"`   // Comma-separated tags
+	Images           string         `gorm:"type:text" json:"images"` // JSON array of image URLs
+	IsActive         bool           `gorm:"default:true" json:"is_active"`
+	IsDigital        bool           `gorm:"default:false" json:"is_digital"`  // Digital product flag
+	IsFeatured       bool           `gorm:"default:false" json:"is_featured"` // Featured product flag
+	IsOnSale         bool           `gorm:"default:false" json:"is_on_sale"`  // On sale flag
+	SortOrder        int            `gorm:"default:0" json:"sort_order"`      // For custom sorting
+	ViewCount        int            `gorm:"default:0" json:"view_count"`      // Product view counter
+	CreatedAt        time.Time      `gorm:"autoCreateTime" json:"created_at"`
+	UpdatedAt        time.Time      `gorm:"autoUpdateTime" json:"updated_at"`
+	DeletedAt        gorm.DeletedAt `gorm:"index" json:"-"`
 }
 
 // TableName specifies the table name for Product entity

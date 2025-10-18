@@ -31,7 +31,7 @@ func (h *GetBasketQueryHandler) Handle(ctx context.Context, query GetBasketQuery
 	if err != nil {
 		return nil, err
 	}
-	
+
 	return h.mapToResponse(basket), nil
 }
 
@@ -49,7 +49,7 @@ func (h *GetBasketQueryHandler) mapToResponse(basket *domain.Basket) *dto.Basket
 			UpdatedAt:  item.UpdatedAt,
 		}
 	}
-	
+
 	return &dto.BasketResponse{
 		ID:        basket.ID,
 		UserID:    basket.UserID,

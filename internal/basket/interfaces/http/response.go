@@ -33,10 +33,10 @@ func SendSuccess(c *gin.Context, statusCode int, message string, data interface{
 	response := SuccessResponse{
 		Message: message,
 	}
-	
+
 	if data != nil {
 		response.Data = data
 	}
-	
+
 	c.JSON(statusCode, response)
 }

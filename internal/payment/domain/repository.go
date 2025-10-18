@@ -12,15 +12,15 @@ type PaymentRepository interface {
 	GetByTransactionID(ctx context.Context, transactionID string) (*Payment, error)
 	Update(ctx context.Context, payment *Payment) error
 	Delete(ctx context.Context, paymentID string) error
-	
+
 	// Payment status operations
 	UpdateStatus(ctx context.Context, paymentID string, status PaymentStatus) error
 	GetByStatus(ctx context.Context, status PaymentStatus, offset, limit int) ([]*Payment, int, error)
-	
+
 	// Payment statistics
 	GetPaymentStats(ctx context.Context, userID *uint, startDate, endDate *string) (*PaymentStats, error)
 	GetTotalAmountByStatus(ctx context.Context, status PaymentStatus, startDate, endDate *string) (float64, error)
-	
+
 	// Expired payments
 	GetExpiredPayments(ctx context.Context) ([]*Payment, error)
 	CleanupExpiredPayments(ctx context.Context) (int, error)
@@ -35,7 +35,7 @@ type PaymentMethodRepository interface {
 	GetDefaultByUserID(ctx context.Context, userID uint) (*PaymentMethodInfo, error)
 	Update(ctx context.Context, paymentMethod *PaymentMethodInfo) error
 	Delete(ctx context.Context, paymentMethodID string) error
-	
+
 	// Payment method status operations
 	SetDefault(ctx context.Context, userID uint, paymentMethodID string) error
 	SetActive(ctx context.Context, paymentMethodID string, isActive bool) error
@@ -51,11 +51,11 @@ type RefundRepository interface {
 	GetByUserID(ctx context.Context, userID uint, offset, limit int) ([]*Refund, int, error)
 	Update(ctx context.Context, refund *Refund) error
 	Delete(ctx context.Context, refundID string) error
-	
+
 	// Refund status operations
 	UpdateStatus(ctx context.Context, refundID string, status string) error
 	GetByStatus(ctx context.Context, status string, offset, limit int) ([]*Refund, int, error)
-	
+
 	// Refund statistics
 	GetRefundStats(ctx context.Context, userID *uint, startDate, endDate *string) (*RefundStats, error)
 	GetTotalRefundAmount(ctx context.Context, userID *uint, startDate, endDate *string) (float64, error)
@@ -74,10 +74,10 @@ type PaymentStats struct {
 
 // RefundStats represents refund statistics
 type RefundStats struct {
-	TotalRefunds       int     `json:"total_refunds"`
-	TotalAmount        float64 `json:"total_amount"`
-	CompletedRefunds   int     `json:"completed_refunds"`
-	PendingRefunds     int     `json:"pending_refunds"`
-	FailedRefunds      int     `json:"failed_refunds"`
-	AverageAmount      float64 `json:"average_amount"`
+	TotalRefunds     int     `json:"total_refunds"`
+	TotalAmount      float64 `json:"total_amount"`
+	CompletedRefunds int     `json:"completed_refunds"`
+	PendingRefunds   int     `json:"pending_refunds"`
+	FailedRefunds    int     `json:"failed_refunds"`
+	AverageAmount    float64 `json:"average_amount"`
 }

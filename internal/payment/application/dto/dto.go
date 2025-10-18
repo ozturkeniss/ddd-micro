@@ -14,15 +14,15 @@ type CreatePaymentRequest struct {
 	ReturnURL       string  `json:"return_url,omitempty"`
 	CancelURL       string  `json:"cancel_url,omitempty"`
 	// Optional: Direct product purchase (without basket)
-	ProductID       *uint   `json:"product_id,omitempty"`
-	Quantity        *int    `json:"quantity,omitempty"`
+	ProductID *uint `json:"product_id,omitempty"`
+	Quantity  *int  `json:"quantity,omitempty"`
 	// Optional: Basket-based purchase
-	BasketID        *string `json:"basket_id,omitempty"`
+	BasketID *string `json:"basket_id,omitempty"`
 }
 
 // ProcessPaymentRequest represents the request to process a payment
 type ProcessPaymentRequest struct {
-	PaymentMethodID string                 `json:"payment_method_id" binding:"required"`
+	PaymentMethodID  string                 `json:"payment_method_id" binding:"required"`
 	ConfirmationData map[string]interface{} `json:"confirmation_data,omitempty"`
 }
 
@@ -69,10 +69,10 @@ type PaymentListResponse struct {
 
 // AddPaymentMethodRequest represents the request to add a payment method
 type AddPaymentMethodRequest struct {
-	Type            string `json:"type" binding:"required"`
-	Provider        string `json:"provider" binding:"required"`
-	Token           string `json:"token" binding:"required"`
-	IsDefault       bool   `json:"is_default"`
+	Type      string `json:"type" binding:"required"`
+	Provider  string `json:"provider" binding:"required"`
+	Token     string `json:"token" binding:"required"`
+	IsDefault bool   `json:"is_default"`
 }
 
 // UpdatePaymentMethodRequest represents the request to update a payment method
@@ -125,10 +125,10 @@ type RefundResponse struct {
 
 // AdminListPaymentsRequest represents the request for admin listing payments
 type AdminListPaymentsRequest struct {
-	Page   int     `json:"page"`
-	Limit  int     `json:"limit"`
-	UserID *uint   `json:"user_id,omitempty"`
-	Status string  `json:"status,omitempty"`
+	Page   int    `json:"page"`
+	Limit  int    `json:"limit"`
+	UserID *uint  `json:"user_id,omitempty"`
+	Status string `json:"status,omitempty"`
 }
 
 // UpdatePaymentStatusRequest represents the request to update payment status

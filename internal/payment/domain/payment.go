@@ -20,63 +20,63 @@ const (
 type PaymentMethod string
 
 const (
-	PaymentMethodCreditCard PaymentMethod = "credit_card"
-	PaymentMethodDebitCard  PaymentMethod = "debit_card"
+	PaymentMethodCreditCard   PaymentMethod = "credit_card"
+	PaymentMethodDebitCard    PaymentMethod = "debit_card"
 	PaymentMethodBankTransfer PaymentMethod = "bank_transfer"
-	PaymentMethodPayPal     PaymentMethod = "paypal"
-	PaymentMethodStripe     PaymentMethod = "stripe"
+	PaymentMethodPayPal       PaymentMethod = "paypal"
+	PaymentMethodStripe       PaymentMethod = "stripe"
 )
 
 // Payment represents a payment transaction
 type Payment struct {
-	ID               string                 `json:"id" gorm:"primaryKey;type:varchar(36)"`
-	UserID           uint                   `json:"user_id" gorm:"not null;index"`
-	OrderID          string                 `json:"order_id" gorm:"not null;index;type:varchar(36)"`
-	Amount           float64                `json:"amount" gorm:"type:decimal(10,2);not null"`
-	Currency         string                 `json:"currency" gorm:"type:varchar(3);not null;default:'USD'"`
-	Status           PaymentStatus          `json:"status" gorm:"type:varchar(20);not null;default:'pending'"`
-	PaymentMethod    PaymentMethod          `json:"payment_method" gorm:"type:varchar(20);not null"`
-	PaymentProvider  string                 `json:"payment_provider" gorm:"type:varchar(50);not null"`
-	TransactionID    *string                `json:"transaction_id" gorm:"type:varchar(100);index"`
-	GatewayResponse  map[string]interface{} `json:"gateway_response" gorm:"type:jsonb"`
-	ReturnURL        *string                `json:"return_url" gorm:"type:text"`
-	CancelURL        *string                `json:"cancel_url" gorm:"type:text"`
+	ID              string                 `json:"id" gorm:"primaryKey;type:varchar(36)"`
+	UserID          uint                   `json:"user_id" gorm:"not null;index"`
+	OrderID         string                 `json:"order_id" gorm:"not null;index;type:varchar(36)"`
+	Amount          float64                `json:"amount" gorm:"type:decimal(10,2);not null"`
+	Currency        string                 `json:"currency" gorm:"type:varchar(3);not null;default:'USD'"`
+	Status          PaymentStatus          `json:"status" gorm:"type:varchar(20);not null;default:'pending'"`
+	PaymentMethod   PaymentMethod          `json:"payment_method" gorm:"type:varchar(20);not null"`
+	PaymentProvider string                 `json:"payment_provider" gorm:"type:varchar(50);not null"`
+	TransactionID   *string                `json:"transaction_id" gorm:"type:varchar(100);index"`
+	GatewayResponse map[string]interface{} `json:"gateway_response" gorm:"type:jsonb"`
+	ReturnURL       *string                `json:"return_url" gorm:"type:text"`
+	CancelURL       *string                `json:"cancel_url" gorm:"type:text"`
 	// Optional: Direct product purchase (without basket)
-	ProductID        *uint                  `json:"product_id" gorm:"index"`
-	Quantity         *int                   `json:"quantity"`
+	ProductID *uint `json:"product_id" gorm:"index"`
+	Quantity  *int  `json:"quantity"`
 	// Optional: Basket-based purchase
-	BasketID         *string                `json:"basket_id" gorm:"type:varchar(36);index"`
-	CreatedAt        time.Time              `json:"created_at"`
-	UpdatedAt        time.Time              `json:"updated_at"`
-	CompletedAt      *time.Time             `json:"completed_at"`
-	ExpiresAt        *time.Time             `json:"expires_at" gorm:"index"`
+	BasketID    *string    `json:"basket_id" gorm:"type:varchar(36);index"`
+	CreatedAt   time.Time  `json:"created_at"`
+	UpdatedAt   time.Time  `json:"updated_at"`
+	CompletedAt *time.Time `json:"completed_at"`
+	ExpiresAt   *time.Time `json:"expires_at" gorm:"index"`
 }
 
 // PaymentMethodInfo represents a user's payment method
 type PaymentMethodInfo struct {
-	ID              string    `json:"id" gorm:"primaryKey;type:varchar(36)"`
-	UserID          uint      `json:"user_id" gorm:"not null;index"`
-	Type            string    `json:"type" gorm:"type:varchar(20);not null"`
-	Provider        string    `json:"provider" gorm:"type:varchar(50);not null"`
-	Token           string    `json:"token" gorm:"type:varchar(100);not null"`
-	LastFourDigits  *string   `json:"last_four_digits" gorm:"type:varchar(4)"`
-	ExpiryMonth     *int      `json:"expiry_month" gorm:"type:smallint"`
-	ExpiryYear      *int      `json:"expiry_year" gorm:"type:smallint"`
-	IsDefault       bool      `json:"is_default" gorm:"default:false"`
-	IsActive        bool      `json:"is_active" gorm:"default:true"`
-	CreatedAt       time.Time `json:"created_at"`
-	UpdatedAt       time.Time `json:"updated_at"`
+	ID             string    `json:"id" gorm:"primaryKey;type:varchar(36)"`
+	UserID         uint      `json:"user_id" gorm:"not null;index"`
+	Type           string    `json:"type" gorm:"type:varchar(20);not null"`
+	Provider       string    `json:"provider" gorm:"type:varchar(50);not null"`
+	Token          string    `json:"token" gorm:"type:varchar(100);not null"`
+	LastFourDigits *string   `json:"last_four_digits" gorm:"type:varchar(4)"`
+	ExpiryMonth    *int      `json:"expiry_month" gorm:"type:smallint"`
+	ExpiryYear     *int      `json:"expiry_year" gorm:"type:smallint"`
+	IsDefault      bool      `json:"is_default" gorm:"default:false"`
+	IsActive       bool      `json:"is_active" gorm:"default:true"`
+	CreatedAt      time.Time `json:"created_at"`
+	UpdatedAt      time.Time `json:"updated_at"`
 }
 
 // Refund represents a refund transaction
 type Refund struct {
-	ID          string    `json:"id" gorm:"primaryKey;type:varchar(36)"`
-	PaymentID   string    `json:"payment_id" gorm:"not null;index;type:varchar(36)"`
-	Amount      float64   `json:"amount" gorm:"type:decimal(10,2);not null"`
-	Reason      string    `json:"reason" gorm:"type:text;not null"`
-	Status      string    `json:"status" gorm:"type:varchar(20);not null;default:'pending'"`
-	CreatedAt   time.Time `json:"created_at"`
-	UpdatedAt   time.Time `json:"updated_at"`
+	ID          string     `json:"id" gorm:"primaryKey;type:varchar(36)"`
+	PaymentID   string     `json:"payment_id" gorm:"not null;index;type:varchar(36)"`
+	Amount      float64    `json:"amount" gorm:"type:decimal(10,2);not null"`
+	Reason      string     `json:"reason" gorm:"type:text;not null"`
+	Status      string     `json:"status" gorm:"type:varchar(20);not null;default:'pending'"`
+	CreatedAt   time.Time  `json:"created_at"`
+	UpdatedAt   time.Time  `json:"updated_at"`
 	CompletedAt *time.Time `json:"completed_at"`
 }
 
@@ -181,27 +181,27 @@ func (p *Payment) Validate() error {
 	if p.UserID == 0 {
 		return ErrInvalidUserID
 	}
-	
+
 	if p.OrderID == "" {
 		return ErrInvalidOrderID
 	}
-	
+
 	if p.Amount <= 0 {
 		return ErrInvalidAmount
 	}
-	
+
 	if p.Currency == "" {
 		return ErrInvalidCurrency
 	}
-	
+
 	if p.PaymentMethod == "" {
 		return ErrInvalidPaymentMethod
 	}
-	
+
 	if p.PaymentProvider == "" {
 		return ErrInvalidPaymentProvider
 	}
-	
+
 	return nil
 }
 
@@ -210,15 +210,15 @@ func (pm *PaymentMethodInfo) Validate() error {
 	if pm.UserID == 0 {
 		return ErrInvalidUserID
 	}
-	
+
 	if pm.Type == "" {
 		return ErrInvalidPaymentMethodType
 	}
-	
+
 	if pm.Provider == "" {
 		return ErrInvalidPaymentProvider
 	}
-	
+
 	return nil
 }
 
@@ -227,14 +227,14 @@ func (r *Refund) Validate() error {
 	if r.PaymentID == "" {
 		return ErrInvalidPaymentID
 	}
-	
+
 	if r.Amount <= 0 {
 		return ErrInvalidAmount
 	}
-	
+
 	if r.Reason == "" {
 		return ErrInvalidRefundReason
 	}
-	
+
 	return nil
 }

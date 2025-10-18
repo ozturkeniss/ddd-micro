@@ -8,10 +8,11 @@ package main
 
 import (
 	"github.com/ddd-micro/internal/payment/application"
+	"github.com/ddd-micro/internal/payment/application/command"
+	"github.com/ddd-micro/internal/payment/application/query"
 	"github.com/ddd-micro/internal/payment/infrastructure"
 	"github.com/ddd-micro/internal/payment/infrastructure/kafka"
 	"github.com/ddd-micro/internal/payment/interfaces/http"
-	"github.com/gin-gonic/gin"
 )
 
 // Injectors from wire.go:
