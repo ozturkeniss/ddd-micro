@@ -7,5 +7,10 @@ import (
 // ProviderSet is a provider set for monitoring infrastructure
 var ProviderSet = wire.NewSet(
 	NewPrometheusMetrics,
-	NewJaegerTracer,
+	ProvideJaegerTracer,
 )
+
+// ProvideJaegerTracer provides Jaeger tracer for user service
+func ProvideJaegerTracer() (*JaegerTracer, error) {
+	return NewJaegerTracer("user-service")
+}

@@ -1,8 +1,6 @@
 package http
 
 import (
-	"net/http"
-
 	"github.com/ddd-micro/internal/user/application"
 	"github.com/ddd-micro/internal/user/domain"
 	"github.com/ddd-micro/internal/user/infrastructure/monitoring"
