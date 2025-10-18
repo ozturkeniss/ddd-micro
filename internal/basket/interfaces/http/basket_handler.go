@@ -76,10 +76,10 @@ func (h *BasketHandler) CreateBasket(c *gin.Context) {
 	// Record successful basket creation
 	h.metrics.RecordBasketCreation()
 	monitoring.SetSpanTags(span, map[string]interface{}{
-		"user.id":      userID.(uint),
-		"basket.id":    basket.ID,
-		"operation":    "create_basket",
-		"success":      true,
+		"user.id":   userID.(uint),
+		"basket.id": basket.ID,
+		"operation": "create_basket",
+		"success":   true,
 	})
 
 	c.JSON(http.StatusCreated, basket)
@@ -140,10 +140,10 @@ func (h *BasketHandler) GetBasket(c *gin.Context) {
 	// Record successful basket retrieval
 	h.metrics.RecordBasketRetrieval()
 	monitoring.SetSpanTags(span, map[string]interface{}{
-		"user.id":      userID.(uint),
-		"basket.id":    basket.ID,
-		"operation":    "get_basket",
-		"success":      true,
+		"user.id":   userID.(uint),
+		"basket.id": basket.ID,
+		"operation": "get_basket",
+		"success":   true,
 	})
 
 	c.JSON(http.StatusOK, basket)
@@ -209,12 +209,12 @@ func (h *BasketHandler) AddItem(c *gin.Context) {
 	// Record successful item addition
 	h.metrics.RecordItemAddition()
 	monitoring.SetSpanTags(span, map[string]interface{}{
-		"user.id":      userID.(uint),
-		"basket.id":    basket.ID,
-		"product.id":   req.ProductID,
-		"quantity":     req.Quantity,
-		"operation":    "add_item",
-		"success":      true,
+		"user.id":    userID.(uint),
+		"basket.id":  basket.ID,
+		"product.id": req.ProductID,
+		"quantity":   req.Quantity,
+		"operation":  "add_item",
+		"success":    true,
 	})
 
 	c.JSON(http.StatusOK, basket)
