@@ -10,28 +10,28 @@ import (
 
 // PrometheusMetrics holds all the prometheus metrics for basket service
 type PrometheusMetrics struct {
-	HTTPRequestsTotal       *prometheus.CounterVec
-	HTTPRequestDuration     *prometheus.HistogramVec
-	HTTPRequestsInFlight    *prometheus.GaugeVec
-	BasketCreations         prometheus.Counter
-	BasketRetrievals        prometheus.Counter
-	BasketUpdates           prometheus.Counter
-	BasketDeletions         prometheus.Counter
-	BasketClearings         prometheus.Counter
-	ItemAdditions           prometheus.Counter
-	ItemUpdates             prometheus.Counter
-	ItemRemovals            prometheus.Counter
-	BasketViews             prometheus.Counter
-	ActiveBaskets           prometheus.Gauge
-	TotalItemsInBaskets     prometheus.Gauge
-	BasketExpirations       prometheus.Counter
-	BasketCleanups          prometheus.Counter
-	RedisOperations         *prometheus.CounterVec
-	RedisOperationDuration  *prometheus.HistogramVec
-	ExternalAPICalls        *prometheus.CounterVec
-	ExternalAPIDuration     *prometheus.HistogramVec
-	CacheHits               prometheus.Counter
-	CacheMisses             prometheus.Counter
+	HTTPRequestsTotal      *prometheus.CounterVec
+	HTTPRequestDuration    *prometheus.HistogramVec
+	HTTPRequestsInFlight   *prometheus.GaugeVec
+	BasketCreations        prometheus.Counter
+	BasketRetrievals       prometheus.Counter
+	BasketUpdates          prometheus.Counter
+	BasketDeletions        prometheus.Counter
+	BasketClearings        prometheus.Counter
+	ItemAdditions          prometheus.Counter
+	ItemUpdates            prometheus.Counter
+	ItemRemovals           prometheus.Counter
+	BasketViews            prometheus.Counter
+	ActiveBaskets          prometheus.Gauge
+	TotalItemsInBaskets    prometheus.Gauge
+	BasketExpirations      prometheus.Counter
+	BasketCleanups         prometheus.Counter
+	RedisOperations        *prometheus.CounterVec
+	RedisOperationDuration *prometheus.HistogramVec
+	ExternalAPICalls       *prometheus.CounterVec
+	ExternalAPIDuration    *prometheus.HistogramVec
+	CacheHits              prometheus.Counter
+	CacheMisses            prometheus.Counter
 }
 
 // NewPrometheusMetrics creates a new instance of PrometheusMetrics
@@ -186,7 +186,7 @@ func NewPrometheusMetrics() *PrometheusMetrics {
 func PrometheusMiddleware(metrics *PrometheusMetrics) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		start := time.Now()
-		
+
 		// Increment requests in flight
 		metrics.HTTPRequestsInFlight.WithLabelValues(c.Request.Method, c.FullPath()).Inc()
 		defer metrics.HTTPRequestsInFlight.WithLabelValues(c.Request.Method, c.FullPath()).Dec()
@@ -197,13 +197,13 @@ func PrometheusMiddleware(metrics *PrometheusMetrics) gin.HandlerFunc {
 		// Record metrics
 		duration := time.Since(start).Seconds()
 		status := c.Writer.Status()
-		
+
 		metrics.HTTPRequestsTotal.WithLabelValues(
 			c.Request.Method,
 			c.FullPath(),
 			string(rune(status)),
 		).Inc()
-		
+
 		metrics.HTTPRequestDuration.WithLabelValues(
 			c.Request.Method,
 			c.FullPath(),
