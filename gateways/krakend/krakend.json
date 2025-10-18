@@ -940,6 +940,528 @@
           }
         }
       ]
+    },
+    {
+      "endpoint": "/payments",
+      "method": "POST",
+      "input_headers": [
+        "Authorization",
+        "Content-Type"
+      ],
+      "output_encoding": "json",
+      "backend": [
+        {
+          "url_pattern": "/api/v1/payments",
+          "encoding": "json",
+          "sd": "static",
+          "host": [
+            "http://payment-service:8084"
+          ],
+          "extra_config": {
+            "proxy/headers": {
+              "request": {
+                "pass": [
+                  "Authorization",
+                  "Content-Type"
+                ]
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "endpoint": "/payments",
+      "method": "GET",
+      "input_headers": [
+        "Authorization",
+        "Content-Type"
+      ],
+      "output_encoding": "json",
+      "backend": [
+        {
+          "url_pattern": "/api/v1/payments",
+          "encoding": "json",
+          "sd": "static",
+          "host": [
+            "http://payment-service:8084"
+          ],
+          "extra_config": {
+            "proxy/headers": {
+              "request": {
+                "pass": [
+                  "Authorization",
+                  "Content-Type"
+                ]
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "endpoint": "/payments/{id}",
+      "method": "GET",
+      "input_headers": [
+        "Authorization",
+        "Content-Type"
+      ],
+      "output_encoding": "json",
+      "backend": [
+        {
+          "url_pattern": "/api/v1/payments/{id}",
+          "encoding": "json",
+          "sd": "static",
+          "host": [
+            "http://payment-service:8084"
+          ],
+          "extra_config": {
+            "proxy/headers": {
+              "request": {
+                "pass": [
+                  "Authorization",
+                  "Content-Type"
+                ]
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "endpoint": "/payments/{id}/process",
+      "method": "POST",
+      "input_headers": [
+        "Authorization",
+        "Content-Type"
+      ],
+      "output_encoding": "json",
+      "backend": [
+        {
+          "url_pattern": "/api/v1/payments/{id}/process",
+          "encoding": "json",
+          "sd": "static",
+          "host": [
+            "http://payment-service:8084"
+          ],
+          "extra_config": {
+            "proxy/headers": {
+              "request": {
+                "pass": [
+                  "Authorization",
+                  "Content-Type"
+                ]
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "endpoint": "/payments/{id}/cancel",
+      "method": "POST",
+      "input_headers": [
+        "Authorization",
+        "Content-Type"
+      ],
+      "output_encoding": "json",
+      "backend": [
+        {
+          "url_pattern": "/api/v1/payments/{id}/cancel",
+          "encoding": "json",
+          "sd": "static",
+          "host": [
+            "http://payment-service:8084"
+          ],
+          "extra_config": {
+            "proxy/headers": {
+              "request": {
+                "pass": [
+                  "Authorization",
+                  "Content-Type"
+                ]
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "endpoint": "/payment-methods",
+      "method": "GET",
+      "input_headers": [
+        "Authorization",
+        "Content-Type"
+      ],
+      "output_encoding": "json",
+      "backend": [
+        {
+          "url_pattern": "/api/v1/payment-methods",
+          "encoding": "json",
+          "sd": "static",
+          "host": [
+            "http://payment-service:8084"
+          ],
+          "extra_config": {
+            "proxy/headers": {
+              "request": {
+                "pass": [
+                  "Authorization",
+                  "Content-Type"
+                ]
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "endpoint": "/payment-methods",
+      "method": "POST",
+      "input_headers": [
+        "Authorization",
+        "Content-Type"
+      ],
+      "output_encoding": "json",
+      "backend": [
+        {
+          "url_pattern": "/api/v1/payment-methods",
+          "encoding": "json",
+          "sd": "static",
+          "host": [
+            "http://payment-service:8084"
+          ],
+          "extra_config": {
+            "proxy/headers": {
+              "request": {
+                "pass": [
+                  "Authorization",
+                  "Content-Type"
+                ]
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "endpoint": "/payment-methods/{id}",
+      "method": "PUT",
+      "input_headers": [
+        "Authorization",
+        "Content-Type"
+      ],
+      "output_encoding": "json",
+      "backend": [
+        {
+          "url_pattern": "/api/v1/payment-methods/{id}",
+          "encoding": "json",
+          "sd": "static",
+          "host": [
+            "http://payment-service:8084"
+          ],
+          "extra_config": {
+            "proxy/headers": {
+              "request": {
+                "pass": [
+                  "Authorization",
+                  "Content-Type"
+                ]
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "endpoint": "/payment-methods/{id}",
+      "method": "DELETE",
+      "input_headers": [
+        "Authorization",
+        "Content-Type"
+      ],
+      "output_encoding": "json",
+      "backend": [
+        {
+          "url_pattern": "/api/v1/payment-methods/{id}",
+          "encoding": "json",
+          "sd": "static",
+          "host": [
+            "http://payment-service:8084"
+          ],
+          "extra_config": {
+            "proxy/headers": {
+              "request": {
+                "pass": [
+                  "Authorization",
+                  "Content-Type"
+                ]
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "endpoint": "/payment-methods/{id}/set-default",
+      "method": "POST",
+      "input_headers": [
+        "Authorization",
+        "Content-Type"
+      ],
+      "output_encoding": "json",
+      "backend": [
+        {
+          "url_pattern": "/api/v1/payment-methods/{id}/set-default",
+          "encoding": "json",
+          "sd": "static",
+          "host": [
+            "http://payment-service:8084"
+          ],
+          "extra_config": {
+            "proxy/headers": {
+              "request": {
+                "pass": [
+                  "Authorization",
+                  "Content-Type"
+                ]
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "endpoint": "/admin/payments",
+      "method": "GET",
+      "input_headers": [
+        "Authorization",
+        "Content-Type"
+      ],
+      "output_encoding": "json",
+      "backend": [
+        {
+          "url_pattern": "/api/v1/admin/payments",
+          "encoding": "json",
+          "sd": "static",
+          "host": [
+            "http://payment-service:8084"
+          ],
+          "extra_config": {
+            "proxy/headers": {
+              "request": {
+                "pass": [
+                  "Authorization",
+                  "Content-Type"
+                ]
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "endpoint": "/admin/payments/{id}",
+      "method": "GET",
+      "input_headers": [
+        "Authorization",
+        "Content-Type"
+      ],
+      "output_encoding": "json",
+      "backend": [
+        {
+          "url_pattern": "/api/v1/admin/payments/{id}",
+          "encoding": "json",
+          "sd": "static",
+          "host": [
+            "http://payment-service:8084"
+          ],
+          "extra_config": {
+            "proxy/headers": {
+              "request": {
+                "pass": [
+                  "Authorization",
+                  "Content-Type"
+                ]
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "endpoint": "/admin/payments/{id}/status",
+      "method": "PUT",
+      "input_headers": [
+        "Authorization",
+        "Content-Type"
+      ],
+      "output_encoding": "json",
+      "backend": [
+        {
+          "url_pattern": "/api/v1/admin/payments/{id}/status",
+          "encoding": "json",
+          "sd": "static",
+          "host": [
+            "http://payment-service:8084"
+          ],
+          "extra_config": {
+            "proxy/headers": {
+              "request": {
+                "pass": [
+                  "Authorization",
+                  "Content-Type"
+                ]
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "endpoint": "/admin/refunds",
+      "method": "GET",
+      "input_headers": [
+        "Authorization",
+        "Content-Type"
+      ],
+      "output_encoding": "json",
+      "backend": [
+        {
+          "url_pattern": "/api/v1/admin/refunds",
+          "encoding": "json",
+          "sd": "static",
+          "host": [
+            "http://payment-service:8084"
+          ],
+          "extra_config": {
+            "proxy/headers": {
+              "request": {
+                "pass": [
+                  "Authorization",
+                  "Content-Type"
+                ]
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "endpoint": "/admin/refunds",
+      "method": "POST",
+      "input_headers": [
+        "Authorization",
+        "Content-Type"
+      ],
+      "output_encoding": "json",
+      "backend": [
+        {
+          "url_pattern": "/api/v1/admin/refunds",
+          "encoding": "json",
+          "sd": "static",
+          "host": [
+            "http://payment-service:8084"
+          ],
+          "extra_config": {
+            "proxy/headers": {
+              "request": {
+                "pass": [
+                  "Authorization",
+                  "Content-Type"
+                ]
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "endpoint": "/admin/refunds/{id}",
+      "method": "GET",
+      "input_headers": [
+        "Authorization",
+        "Content-Type"
+      ],
+      "output_encoding": "json",
+      "backend": [
+        {
+          "url_pattern": "/api/v1/admin/refunds/{id}",
+          "encoding": "json",
+          "sd": "static",
+          "host": [
+            "http://payment-service:8084"
+          ],
+          "extra_config": {
+            "proxy/headers": {
+              "request": {
+                "pass": [
+                  "Authorization",
+                  "Content-Type"
+                ]
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "endpoint": "/admin/refunds/{id}/process",
+      "method": "POST",
+      "input_headers": [
+        "Authorization",
+        "Content-Type"
+      ],
+      "output_encoding": "json",
+      "backend": [
+        {
+          "url_pattern": "/api/v1/admin/refunds/{id}/process",
+          "encoding": "json",
+          "sd": "static",
+          "host": [
+            "http://payment-service:8084"
+          ],
+          "extra_config": {
+            "proxy/headers": {
+              "request": {
+                "pass": [
+                  "Authorization",
+                  "Content-Type"
+                ]
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "endpoint": "/admin/analytics/payments",
+      "method": "GET",
+      "input_headers": [
+        "Authorization",
+        "Content-Type"
+      ],
+      "output_encoding": "json",
+      "backend": [
+        {
+          "url_pattern": "/api/v1/admin/analytics/payments",
+          "encoding": "json",
+          "sd": "static",
+          "host": [
+            "http://payment-service:8084"
+          ],
+          "extra_config": {
+            "proxy/headers": {
+              "request": {
+                "pass": [
+                  "Authorization",
+                  "Content-Type"
+                ]
+              }
+            }
+          }
+        }
+      ]
     }
   ]
 }
