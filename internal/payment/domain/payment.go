@@ -58,6 +58,7 @@ type PaymentMethodInfo struct {
 	UserID          uint      `json:"user_id" gorm:"not null;index"`
 	Type            string    `json:"type" gorm:"type:varchar(20);not null"`
 	Provider        string    `json:"provider" gorm:"type:varchar(50);not null"`
+	Token           string    `json:"token" gorm:"type:varchar(100);not null"`
 	LastFourDigits  *string   `json:"last_four_digits" gorm:"type:varchar(4)"`
 	ExpiryMonth     *int      `json:"expiry_month" gorm:"type:smallint"`
 	ExpiryYear      *int      `json:"expiry_year" gorm:"type:smallint"`
