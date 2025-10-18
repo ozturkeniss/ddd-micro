@@ -11,6 +11,7 @@ import (
 	"github.com/ddd-micro/internal/product/infrastructure/client"
 	"github.com/ddd-micro/internal/product/infrastructure/config"
 	"github.com/ddd-micro/internal/product/infrastructure/database"
+	"github.com/ddd-micro/internal/product/infrastructure/monitoring"
 	"github.com/ddd-micro/internal/product/infrastructure/persistence"
 	productgrpc "github.com/ddd-micro/internal/product/interfaces/grpc"
 	producthttp "github.com/ddd-micro/internal/product/interfaces/http"
@@ -42,13 +43,20 @@ func InitializeApp() (*App, error) {
 	productService := application.NewProductServiceCQRS(productRepo)
 	userService := application.NewUserService(userClient)
 
+	// Create monitoring components
+	prometheusMetrics := monitoring.NewPrometheusMetrics()
+	jaegerTracer, err := monitoring.ProvideJaegerTracer()
+	if err != nil {
+		return nil, err
+	}
+
 	// Create HTTP handlers
-	productHandler := producthttp.NewProductHandler(productService)
+	productHandler := producthttp.NewProductHandler(productService, prometheusMetrics)
 	userHandler := producthttp.NewUserHandler(userService)
 	authMiddleware := producthttp.NewAuthMiddleware(userService)
 
 	// Create HTTP router
-	httpRouter := producthttp.NewHTTPRouter(productHandler, userHandler, authMiddleware)
+	httpRouter := producthttp.NewHTTPRouter(productHandler, userHandler, authMiddleware, prometheusMetrics, jaegerTracer)
 
 	// Create gRPC server
 	productServer := productgrpc.NewProductServer(productService)
@@ -63,6 +71,7 @@ func InitializeApp() (*App, error) {
 		UserService:    userService,
 		Database:       db,
 		UserClient:     userClient,
+		JaegerTracer:   jaegerTracer,
 	}
 
 	return app, nil
@@ -76,4 +85,5 @@ type App struct {
 	UserService    *application.UserService
 	Database       *database.Database
 	UserClient     interface{ Close() error }
+	JaegerTracer   *monitoring.JaegerTracer
 }

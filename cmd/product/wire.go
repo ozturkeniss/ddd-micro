@@ -7,6 +7,7 @@ import (
 	"github.com/ddd-micro/internal/product/application"
 	"github.com/ddd-micro/internal/product/infrastructure"
 	"github.com/ddd-micro/internal/product/infrastructure/database"
+	"github.com/ddd-micro/internal/product/infrastructure/monitoring"
 	productgrpc "github.com/ddd-micro/internal/product/interfaces/grpc"
 	producthttp "github.com/ddd-micro/internal/product/interfaces/http"
 	"github.com/gin-gonic/gin"
@@ -43,6 +44,7 @@ type App struct {
 	UserService    *application.UserService
 	Database       *database.Database
 	UserClient     interface{ Close() error }
+	JaegerTracer   *monitoring.JaegerTracer
 }
 
 // NewApp creates a new App instance
@@ -53,6 +55,7 @@ func NewApp(
 	userService *application.UserService,
 	db *database.Database,
 	userClient interface{ Close() error },
+	jaegerTracer *monitoring.JaegerTracer,
 ) *App {
 	return &App{
 		HTTPRouter:     httpRouter,
@@ -61,5 +64,6 @@ func NewApp(
 		UserService:    userService,
 		Database:       db,
 		UserClient:     userClient,
+		JaegerTracer:   jaegerTracer,
 	}
 }

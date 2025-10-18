@@ -45,6 +45,7 @@ func main() {
 	}
 	defer app.Database.Close()
 	defer app.UserClient.Close()
+	defer app.JaegerTracer.Close()
 
 	// Health check endpoint
 	app.HTTPRouter.GET("/health", func(c *gin.Context) {
