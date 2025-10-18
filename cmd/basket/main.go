@@ -32,6 +32,7 @@ func main() {
 		log.Fatalf("Failed to initialize application: %v", err)
 	}
 	defer cleanup()
+	defer app.JaegerTracer.Close()
 
 	// Setup graceful shutdown
 	_, cancel := context.WithCancel(context.Background())
