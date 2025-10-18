@@ -9,6 +9,7 @@ package main
 import (
 	"github.com/ddd-micro/internal/basket/application"
 	"github.com/ddd-micro/internal/basket/infrastructure"
+	"github.com/ddd-micro/internal/basket/infrastructure/monitoring"
 	basketgrpc "github.com/ddd-micro/internal/basket/interfaces/grpc"
 	"github.com/ddd-micro/internal/basket/interfaces/http"
 	"github.com/gin-gonic/gin"
@@ -17,15 +18,17 @@ import (
 
 // App represents the application dependencies
 type App struct {
-	HTTPRouter *gin.Engine
-	GRPCServer *grpc.Server
+	HTTPRouter   *gin.Engine
+	GRPCServer   *grpc.Server
+	JaegerTracer *monitoring.JaegerTracer
 }
 
 // NewApp creates a new App instance
-func NewApp(httpRouter *gin.Engine, grpcServer *grpc.Server) *App {
+func NewApp(httpRouter *gin.Engine, grpcServer *grpc.Server, jaegerTracer *monitoring.JaegerTracer) *App {
 	return &App{
-		HTTPRouter: httpRouter,
-		GRPCServer: grpcServer,
+		HTTPRouter:   httpRouter,
+		GRPCServer:   grpcServer,
+		JaegerTracer: jaegerTracer,
 	}
 }
 
@@ -39,11 +42,18 @@ func InitializeApp() (*App, func(), error) {
 	productClient := infrastructure.NewProductClient(config)
 	basketRepository := infrastructure.NewBasketRepository(redisClient)
 
+	// Monitoring components
+	prometheusMetrics := monitoring.NewPrometheusMetrics()
+	jaegerTracer, err := monitoring.ProvideJaegerTracer()
+	if err != nil {
+		return nil, nil, err
+	}
+
 	// Application layer
 	basketServiceCQRS := application.NewBasketServiceCQRS(basketRepository, userClient, productClient)
 
 	// HTTP interface layer
-	httpRouter := http.NewHTTPRouter(basketServiceCQRS, userClient)
+	httpRouter := http.NewHTTPRouter(basketServiceCQRS, userClient, prometheusMetrics, jaegerTracer)
 
 	// gRPC interface layer
 	basketServer := basketgrpc.NewBasketServer(basketServiceCQRS)
@@ -51,7 +61,8 @@ func InitializeApp() (*App, func(), error) {
 	grpcServer := basketgrpc.NewGRPCServer(basketServer, authInterceptor)
 
 	// Main app
-	app := NewApp(httpRouter, grpcServer)
+	app := NewApp(httpRouter, grpcServer, jaegerTracer)
 	return app, func() {
+		jaegerTracer.Close()
 	}, nil
 }

@@ -6,6 +6,7 @@ package main
 import (
 	"github.com/ddd-micro/internal/basket/application"
 	"github.com/ddd-micro/internal/basket/infrastructure"
+	"github.com/ddd-micro/internal/basket/infrastructure/monitoring"
 	"github.com/ddd-micro/internal/basket/interfaces/grpc"
 	"github.com/ddd-micro/internal/basket/interfaces/http"
 	"github.com/gin-gonic/gin"
@@ -15,8 +16,9 @@ import (
 
 // App represents the application dependencies
 type App struct {
-	HTTPRouter *gin.Engine
-	GRPCServer *grpc.Server
+	HTTPRouter   *gin.Engine
+	GRPCServer   *grpc.Server
+	JaegerTracer *monitoring.JaegerTracer
 }
 
 // InitializeApp initializes all application dependencies using Wire
@@ -42,9 +44,10 @@ func InitializeApp() (*App, func(), error) {
 }
 
 // NewApp creates a new App instance
-func NewApp(httpRouter *gin.Engine, grpcServer *grpc.Server) *App {
+func NewApp(httpRouter *gin.Engine, grpcServer *grpc.Server, jaegerTracer *monitoring.JaegerTracer) *App {
 	return &App{
-		HTTPRouter: httpRouter,
-		GRPCServer: grpcServer,
+		HTTPRouter:   httpRouter,
+		GRPCServer:   grpcServer,
+		JaegerTracer: jaegerTracer,
 	}
 }
