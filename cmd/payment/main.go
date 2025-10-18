@@ -63,7 +63,7 @@ func main() {
 	log.Println("Shutting down server...")
 
 	// Create a deadline to wait for
-	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+	_, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
 
 	// Shutdown HTTP server
