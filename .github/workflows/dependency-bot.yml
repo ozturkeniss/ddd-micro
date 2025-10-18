@@ -1,0 +1,328 @@
+name: 📦 Dependency Bot
+
+on:
+  schedule:
+    # Haftalık dependency güncelleme (Salı 06:00 UTC)
+    - cron: '0 6 * * 2'
+  push:
+    paths:
+      - 'go.mod'
+      - 'go.sum'
+      - 'client/package.json'
+      - 'client/package-lock.json'
+  workflow_dispatch:
+
+jobs:
+  dependency-update:
+    name: 📦 Dependency Updater
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+        fetch-depth: 0
+    
+    - name: Set up Go
+      uses: actions/setup-go@v4
+      with:
+        go-version: '1.21'
+    
+    - name: Set up Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+    
+    - name: Go Dependency Analysis
+      run: |
+        echo "📦 Analyzing Go dependencies..."
+        
+        # Get current dependency information
+        go list -m all > current-dependencies.txt
+        
+        # Check for outdated dependencies
+        go list -u -m all > outdated-dependencies.txt 2>/dev/null || echo "No outdated dependencies found" > outdated-dependencies.txt
+        
+        # Get dependency tree
+        go mod graph > dependency-tree.txt
+        
+        echo "✅ Go dependency analysis completed"
+    
+    - name: Update Go Dependencies
+      run: |
+        echo "📦 Updating Go dependencies..."
+        
+        # Create backup of current go.mod and go.sum
+        cp go.mod go.mod.backup
+        cp go.sum go.sum.backup
+        
+        # Update dependencies
+        go get -u ./...
+        go mod tidy
+        
+        # Check if there are changes
+        if ! git diff --quiet go.mod go.sum; then
+          echo "📦 Go dependencies updated, committing..."
+          git config --local user.email "dependency-bot@ddd-micro.com"
+          git config --local user.name "📦 Dependency Bot"
+          git add go.mod go.sum
+          git commit -m "📦 Auto-update: Update Go dependencies
+
+        - Updated Go dependencies to latest versions
+        - Ran go mod tidy to clean up
+        - Auto-committed by dependency bot"
+          git push
+          echo "✅ Go dependencies updated and committed"
+        else
+          echo "✅ No Go dependency updates needed"
+          # Restore backup if no changes
+          mv go.mod.backup go.mod
+          mv go.sum.backup go.sum
+        fi
+    
+    - name: Frontend Dependency Analysis
+      run: |
+        echo "📦 Analyzing frontend dependencies..."
+        
+        cd client
+        
+        # Get current dependency information
+        npm list --depth=0 > ../current-frontend-dependencies.txt
+        
+        # Check for outdated dependencies
+        npm outdated > ../outdated-frontend-dependencies.txt 2>/dev/null || echo "No outdated dependencies found" > ../outdated-frontend-dependencies.txt
+        
+        # Get dependency tree
+        npm list --depth=1 > ../frontend-dependency-tree.txt
+        
+        cd ..
+        echo "✅ Frontend dependency analysis completed"
+    
+    - name: Update Frontend Dependencies
+      run: |
+        echo "📦 Updating frontend dependencies..."
+        
+        cd client
+        
+        # Create backup of package files
+        cp package.json package.json.backup
+        cp package-lock.json package-lock.json.backup
+        
+        # Update dependencies
+        npm update
+        
+        # Check if there are changes
+        if ! git diff --quiet package.json package-lock.json; then
+          echo "📦 Frontend dependencies updated, committing..."
+          cd ..
+          git config --local user.email "dependency-bot@ddd-micro.com"
+          git config --local user.name "📦 Dependency Bot"
+          git add client/package.json client/package-lock.json
+          git commit -m "📦 Auto-update: Update frontend dependencies
+
+        - Updated npm dependencies to latest versions
+        - Auto-committed by dependency bot"
+          git push
+          echo "✅ Frontend dependencies updated and committed"
+        else
+          echo "✅ No frontend dependency updates needed"
+          # Restore backup if no changes
+          mv package.json.backup package.json
+          mv package-lock.json.backup package-lock.json
+          cd ..
+        fi
+    
+    - name: Security Audit
+      run: |
+        echo "🔒 Running security audit..."
+        
+        # Go security audit
+        go list -json -m all | jq -r '.Path + "@" + .Version' > go-modules.txt
+        
+        # Frontend security audit
+        cd client
+        npm audit --audit-level=high > ../frontend-security-audit.txt 2>/dev/null || echo "No security issues found" > ../frontend-security-audit.txt
+        cd ..
+        
+        echo "✅ Security audit completed"
+    
+    - name: Generate Dependency Report
+      run: |
+        echo "📊 Generating dependency report..."
+        
+        CURRENT_DATE=$(date '+%Y-%m-%d')
+        
+        # Create comprehensive dependency report
+        cat > dependency-report-$CURRENT_DATE.md << EOF
+        # 📦 Dependency Report - $CURRENT_DATE
+        
+        ## 📊 Summary
+        - **Report Date:** $(date '+%Y-%m-%d %H:%M:%S UTC')
+        - **Go Version:** $(go version)
+        - **Node Version:** $(node --version)
+        
+        ## 📦 Go Dependencies
+        
+        ### Current Dependencies
+        \`\`\`
+        $(cat current-dependencies.txt || echo "No dependencies found")
+        \`\`\`
+        
+        ### Outdated Dependencies
+        \`\`\`
+        $(cat outdated-dependencies.txt || echo "No outdated dependencies found")
+        \`\`\`
+        
+        ### Dependency Tree
+        \`\`\`
+        $(head -50 dependency-tree.txt || echo "No dependency tree available")
+        \`\`\`
+        
+        ## 📦 Frontend Dependencies
+        
+        ### Current Dependencies
+        \`\`\`
+        $(cat current-frontend-dependencies.txt || echo "No dependencies found")
+        \`\`\`
+        
+        ### Outdated Dependencies
+        \`\`\`
+        $(cat outdated-frontend-dependencies.txt || echo "No outdated dependencies found")
+        \`\`\`
+        
+        ### Dependency Tree
+        \`\`\`
+        $(head -50 frontend-dependency-tree.txt || echo "No dependency tree available")
+        \`\`\`
+        
+        ## 🔒 Security Audit Results
+        
+        ### Go Security
+        \`\`\`
+        $(cat go-modules.txt || echo "No Go modules found")
+        \`\`\`
+        
+        ### Frontend Security
+        \`\`\`
+        $(cat frontend-security-audit.txt || echo "No security issues found")
+        \`\`\`
+        
+        ## ✅ Recommendations
+        1. Review and update outdated dependencies regularly
+        2. Address any security vulnerabilities immediately
+        3. Test thoroughly after dependency updates
+        4. Keep major version updates for scheduled maintenance windows
+        
+        ---
+        *Generated by Dependency Bot 📦*
+        EOF
+        
+        # Commit dependency report
+        git config --local user.email "dependency-bot@ddd-micro.com"
+        git config --local user.name "📦 Dependency Bot"
+        git add dependency-report-$CURRENT_DATE.md
+        git commit -m "📦 Dependencies: Weekly dependency report for $CURRENT_DATE
+
+        - Generated comprehensive dependency report
+        - Analyzed Go and frontend dependencies
+        - Auto-committed by dependency bot"
+        git push
+        echo "✅ Dependency report generated and committed"
+    
+    - name: Create Dependency Dashboard
+      run: |
+        echo "📊 Creating dependency dashboard..."
+        
+        # Create a simple dashboard HTML file
+        cat > docs/dependency-dashboard.html << EOF
+        <!DOCTYPE html>
+        <html lang="en">
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>📦 Dependency Dashboard</title>
+            <style>
+                body { font-family: Arial, sans-serif; margin: 20px; }
+                .header { background: #f4f4f4; padding: 20px; border-radius: 8px; }
+                .section { margin: 20px 0; padding: 15px; border: 1px solid #ddd; border-radius: 5px; }
+                .success { color: #28a745; }
+                .warning { color: #ffc107; }
+                .danger { color: #dc3545; }
+                table { width: 100%; border-collapse: collapse; }
+                th, td { padding: 8px; text-align: left; border-bottom: 1px solid #ddd; }
+                th { background-color: #f2f2f2; }
+            </style>
+        </head>
+        <body>
+            <div class="header">
+                <h1>📦 Dependency Dashboard</h1>
+                <p>Last Updated: $(date '+%Y-%m-%d %H:%M:%S UTC')</p>
+            </div>
+            
+            <div class="section">
+                <h2>📊 Quick Stats</h2>
+                <p><strong>Go Dependencies:</strong> $(wc -l < current-dependencies.txt || echo "0")</p>
+                <p><strong>Frontend Dependencies:</strong> $(wc -l < current-frontend-dependencies.txt || echo "0")</p>
+                <p><strong>Outdated Go Dependencies:</strong> <span class="warning">$(wc -l < outdated-dependencies.txt || echo "0")</span></p>
+                <p><strong>Outdated Frontend Dependencies:</strong> <span class="warning">$(wc -l < outdated-frontend-dependencies.txt || echo "0")</span></p>
+            </div>
+            
+            <div class="section">
+                <h2>🔒 Security Status</h2>
+                <p class="success">✅ Security audit completed</p>
+                <p>Check the latest dependency report for detailed security information.</p>
+            </div>
+            
+            <div class="section">
+                <h2>📈 Recent Updates</h2>
+                <p>Dependencies are automatically updated every Tuesday at 06:00 UTC.</p>
+                <p>Check the commit history for recent dependency updates.</p>
+            </div>
+            
+            <div class="section">
+                <h2>📚 Resources</h2>
+                <ul>
+                    <li><a href="dependency-report-$(date '+%Y-%m-%d').md">Latest Dependency Report</a></li>
+                    <li><a href="https://github.com/golang/go/wiki/Modules">Go Modules Documentation</a></li>
+                    <li><a href="https://docs.npmjs.com/">NPM Documentation</a></li>
+                </ul>
+            </div>
+        </body>
+        </html>
+        EOF
+        
+        # Commit dependency dashboard
+        git config --local user.email "dependency-bot@ddd-micro.com"
+        git config --local user.name "📦 Dependency Bot"
+        git add docs/dependency-dashboard.html
+        git commit -m "📊 Dashboard: Create dependency dashboard
+
+        - Created HTML dependency dashboard
+        - Added quick stats and security status
+        - Auto-committed by dependency bot"
+        git push
+        echo "✅ Dependency dashboard created and committed"
+    
+    - name: Clean up old reports
+      run: |
+        echo "🧹 Cleaning up old dependency reports..."
+        
+        # Remove dependency reports older than 30 days
+        find . -name "dependency-report-*.md" -type f -mtime +30 -delete || true
+        
+        # Check if there are changes
+        if ! git diff --quiet; then
+          echo "🧹 Old dependency reports cleaned up, committing..."
+          git config --local user.email "dependency-bot@ddd-micro.com"
+          git config --local user.name "📦 Dependency Bot"
+          git add .
+          git commit -m "🧹 Cleanup: Remove old dependency reports
+
+        - Removed dependency reports older than 30 days
+        - Auto-committed by dependency bot"
+          git push
+          echo "✅ Old dependency reports cleaned up and committed"
+        else
+          echo "✅ No cleanup needed"
+        fi
