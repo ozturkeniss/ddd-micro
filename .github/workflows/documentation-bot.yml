@@ -15,6 +15,11 @@ jobs:
   documentation-update:
     name: 📚 Documentation Updater
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+      issues: write
+      checks: write
     
     steps:
     - name: Checkout code

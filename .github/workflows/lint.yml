@@ -14,6 +14,11 @@ jobs:
   lint-go:
     name: Lint Go Code
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+      issues: write
+      checks: write
     
     steps:
     - uses: actions/checkout@v4
@@ -71,6 +76,11 @@ jobs:
   lint-frontend:
     name: Lint Frontend Code
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+      issues: write
+      checks: write
     
     steps:
     - uses: actions/checkout@v4
@@ -131,6 +141,11 @@ jobs:
   test-go:
     name: Test Go Code
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+      issues: write
+      checks: write
     
     services:
       postgres:
