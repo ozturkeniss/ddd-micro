@@ -47,7 +47,7 @@ func (h *BasketHandler) CreateBasket(c *gin.Context) {
 	// Get user ID from context (set by auth middleware)
 	userID, exists := c.Get("userID")
 	if !exists {
-		monitoring.LogSpanError(span, err)
+		monitoring.LogSpanEvent(span, "User ID not found in context")
 		c.JSON(http.StatusUnauthorized, dto.ErrorResponse{
 			Error:   "Unauthorized",
 			Message: "User ID not found in context",
@@ -65,7 +65,7 @@ func (h *BasketHandler) CreateBasket(c *gin.Context) {
 	h.metrics.RecordRedisOperationDuration("create_basket", duration)
 
 	if err != nil {
-		monitoring.LogSpanError(span, err)
+		monitoring.LogSpanEvent(span, "User ID not found in context")
 		c.JSON(http.StatusInternalServerError, dto.ErrorResponse{
 			Error:   "Internal Server Error",
 			Message: err.Error(),
@@ -105,7 +105,7 @@ func (h *BasketHandler) GetBasket(c *gin.Context) {
 	// Get user ID from context (set by auth middleware)
 	userID, exists := c.Get("userID")
 	if !exists {
-		monitoring.LogSpanError(span, err)
+		monitoring.LogSpanEvent(span, "User ID not found in context")
 		c.JSON(http.StatusUnauthorized, dto.ErrorResponse{
 			Error:   "Unauthorized",
 			Message: "User ID not found in context",
@@ -121,7 +121,7 @@ func (h *BasketHandler) GetBasket(c *gin.Context) {
 	h.metrics.RecordRedisOperationDuration("get_basket", duration)
 
 	if err != nil {
-		monitoring.LogSpanError(span, err)
+		monitoring.LogSpanEvent(span, "User ID not found in context")
 		if err.Error() == "basket not found" {
 			c.JSON(http.StatusNotFound, dto.ErrorResponse{
 				Error:   "Not Found",
@@ -169,7 +169,7 @@ func (h *BasketHandler) AddItem(c *gin.Context) {
 
 	var req dto.AddItemRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		monitoring.LogSpanError(span, err)
+		monitoring.LogSpanEvent(span, "User ID not found in context")
 		c.JSON(http.StatusBadRequest, dto.ErrorResponse{
 			Error:   "Bad Request",
 			Message: err.Error(),
@@ -180,7 +180,7 @@ func (h *BasketHandler) AddItem(c *gin.Context) {
 	// Get user ID from context (set by auth middleware)
 	userID, exists := c.Get("userID")
 	if !exists {
-		monitoring.LogSpanError(span, err)
+		monitoring.LogSpanEvent(span, "User ID not found in context")
 		c.JSON(http.StatusUnauthorized, dto.ErrorResponse{
 			Error:   "Unauthorized",
 			Message: "User ID not found in context",
@@ -198,7 +198,7 @@ func (h *BasketHandler) AddItem(c *gin.Context) {
 	h.metrics.RecordRedisOperationDuration("add_item", duration)
 
 	if err != nil {
-		monitoring.LogSpanError(span, err)
+		monitoring.LogSpanEvent(span, "User ID not found in context")
 		c.JSON(http.StatusInternalServerError, dto.ErrorResponse{
 			Error:   "Internal Server Error",
 			Message: err.Error(),
