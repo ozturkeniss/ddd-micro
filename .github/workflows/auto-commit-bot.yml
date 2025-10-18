@@ -1,0 +1,179 @@
+name: 🤖 Auto-Commit Bot
+
+on:
+  schedule:
+    # Her gün saat 02:00'da çalış (UTC)
+    - cron: '0 2 * * *'
+  workflow_dispatch:
+
+jobs:
+  auto-commit:
+    name: 🤖 Auto-Commit Bot
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+        fetch-depth: 0
+    
+    - name: Set up Go
+      uses: actions/setup-go@v4
+      with:
+        go-version: '1.21'
+    
+    - name: Auto-update dependencies
+      run: |
+        echo "🔍 Checking for dependency updates..."
+        go get -u ./...
+        go mod tidy
+        
+        # Check if there are changes
+        if ! git diff --quiet; then
+          echo "📦 Dependencies updated, committing..."
+          git config --local user.email "bot@ddd-micro.com"
+          git config --local user.name "🤖 Dependency Bot"
+          git add go.mod go.sum
+          git commit -m "🤖 Auto-update: Update Go dependencies
+
+        - Updated dependencies to latest versions
+        - Ran go mod tidy to clean up
+        - Auto-committed by dependency bot"
+          git push
+          echo "✅ Dependencies updated and committed"
+        else
+          echo "✅ No dependency updates needed"
+        fi
+    
+    - name: Auto-generate Swagger docs
+      run: |
+        echo "📚 Generating Swagger documentation..."
+        
+        # Install swag
+        go install github.com/swaggo/swag/cmd/swag@latest
+        
+        # Generate swagger for all services
+        swag init -g cmd/user/main.go -o cmd/user/docs
+        swag init -g cmd/product/main.go -o cmd/product/docs
+        swag init -g cmd/basket/main.go -o cmd/basket/docs
+        swag init -g cmd/payment/main.go -o cmd/payment/docs
+        
+        # Check if there are changes
+        if ! git diff --quiet; then
+          echo "📚 Swagger docs updated, committing..."
+          git config --local user.email "bot@ddd-micro.com"
+          git config --local user.name "📚 Swagger Bot"
+          git add cmd/*/docs/
+          git commit -m "📚 Auto-update: Regenerate Swagger documentation
+
+        - Updated API documentation for all services
+        - Auto-committed by Swagger bot"
+          git push
+          echo "✅ Swagger docs updated and committed"
+        else
+          echo "✅ No Swagger updates needed"
+        fi
+    
+    - name: Auto-format code
+      run: |
+        echo "🎨 Auto-formatting code..."
+        
+        # Install tools
+        go install golang.org/x/tools/cmd/goimports@latest
+        
+        # Format Go code
+        gofmt -w .
+        $(go env GOPATH)/bin/goimports -w .
+        
+        # Check if there are changes
+        if ! git diff --quiet; then
+          echo "🎨 Code formatted, committing..."
+          git config --local user.email "bot@ddd-micro.com"
+          git config --local user.name "🎨 Format Bot"
+          git add .
+          git commit -m "🎨 Auto-format: Format Go code
+
+        - Applied gofmt formatting
+        - Applied goimports formatting
+        - Auto-committed by format bot"
+          git push
+          echo "✅ Code formatted and committed"
+        else
+          echo "✅ No formatting changes needed"
+        fi
+    
+    - name: Auto-update README
+      run: |
+        echo "📝 Updating README with latest info..."
+        
+        # Get current date
+        CURRENT_DATE=$(date '+%Y-%m-%d')
+        CURRENT_TIME=$(date '+%H:%M:%S UTC')
+        
+        # Update README if it has a last updated section
+        if grep -q "Last Updated:" README.md; then
+          sed -i "s/Last Updated:.*/Last Updated: $CURRENT_DATE at $CURRENT_TIME/" README.md
+          
+          # Check if there are changes
+          if ! git diff --quiet; then
+            echo "📝 README updated, committing..."
+            git config --local user.email "bot@ddd-micro.com"
+            git config --local user.name "📝 README Bot"
+            git add README.md
+            git commit -m "📝 Auto-update: Update README timestamp
+
+        - Updated last modified timestamp
+        - Auto-committed by README bot"
+            git push
+            echo "✅ README updated and committed"
+          else
+            echo "✅ No README updates needed"
+          fi
+        fi
+    
+    - name: Create daily summary
+      run: |
+        echo "📊 Creating daily summary..."
+        
+        # Get git stats for today
+        TODAY=$(date '+%Y-%m-%d')
+        COMMITS_TODAY=$(git log --since="$TODAY 00:00:00" --until="$TODAY 23:59:59" --oneline | wc -l)
+        FILES_CHANGED=$(git log --since="$TODAY 00:00:00" --until="$TODAY 23:59:59" --name-only --pretty=format: | sort | uniq | wc -l)
+        
+        # Create summary file
+        cat > daily-summary-$TODAY.md << EOF
+        # 📊 Daily Summary - $TODAY
+        
+        ## 📈 Statistics
+        - **Commits Today:** $COMMITS_TODAY
+        - **Files Changed:** $FILES_CHANGED
+        - **Generated At:** $(date '+%Y-%m-%d %H:%M:%S UTC')
+        
+        ## 🤖 Auto-Bot Activities
+        - ✅ Dependency updates checked
+        - ✅ Swagger documentation regenerated
+        - ✅ Code formatting applied
+        - ✅ README timestamp updated
+        
+        ## 📝 Recent Commits
+        \`\`\`
+        $(git log --since="$TODAY 00:00:00" --until="$TODAY 23:59:59" --oneline | head -10)
+        \`\`\`
+        
+        ---
+        *Generated by Auto-Commit Bot 🤖*
+        EOF
+        
+        # Commit summary
+        git config --local user.email "bot@ddd-micro.com"
+        git config --local user.name "📊 Summary Bot"
+        git add daily-summary-$TODAY.md
+        git commit -m "📊 Auto-summary: Daily project summary for $TODAY
+
+        - Generated daily statistics
+        - Commits today: $COMMITS_TODAY
+        - Files changed: $FILES_CHANGED
+        - Auto-committed by summary bot"
+        git push
+        echo "✅ Daily summary created and committed"
