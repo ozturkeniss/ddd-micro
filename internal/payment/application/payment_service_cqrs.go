@@ -7,6 +7,7 @@ import (
 	"github.com/ddd-micro/internal/payment/application/dto"
 	"github.com/ddd-micro/internal/payment/application/query"
 	"github.com/ddd-micro/internal/payment/domain"
+	"github.com/ddd-micro/internal/payment/infrastructure/client"
 )
 
 // PaymentServiceCQRS represents the main payment service using CQRS pattern
@@ -28,6 +29,11 @@ type PaymentServiceCQRS struct {
 	// Repositories
 	paymentRepo       domain.PaymentRepository
 	paymentMethodRepo domain.PaymentMethodRepository
+	
+	// External service clients
+	userClient    client.UserClient
+	productClient client.ProductClient
+	basketClient  client.BasketClient
 }
 
 // NewPaymentServiceCQRS creates a new PaymentServiceCQRS
@@ -44,6 +50,9 @@ func NewPaymentServiceCQRS(
 	listPaymentMethodsHandler *query.ListPaymentMethodsQueryHandler,
 	paymentRepo domain.PaymentRepository,
 	paymentMethodRepo domain.PaymentMethodRepository,
+	userClient client.UserClient,
+	productClient client.ProductClient,
+	basketClient client.BasketClient,
 ) *PaymentServiceCQRS {
 	return &PaymentServiceCQRS{
 		createPaymentHandler:      createPaymentHandler,
@@ -58,6 +67,9 @@ func NewPaymentServiceCQRS(
 		listPaymentMethodsHandler: listPaymentMethodsHandler,
 		paymentRepo:               paymentRepo,
 		paymentMethodRepo:         paymentMethodRepo,
+		userClient:                userClient,
+		productClient:             productClient,
+		basketClient:              basketClient,
 	}
 }
 
@@ -65,6 +77,59 @@ func NewPaymentServiceCQRS(
 
 // CreatePayment creates a new payment
 func (s *PaymentServiceCQRS) CreatePayment(ctx context.Context, userID uint, req dto.CreatePaymentRequest) (*dto.PaymentResponse, error) {
+	// Validate payment based on type
+	if req.BasketID != nil {
+		// Basket-based payment: validate basket
+		basket, err := s.basketClient.ValidateBasket(ctx, userID)
+		if err != nil {
+			return nil, fmt.Errorf("basket validation failed: %w", err)
+		}
+		
+		// Calculate total amount from basket
+		var totalAmount float64
+		for _, item := range basket.Items {
+			totalAmount += float64(item.Quantity) * item.UnitPrice
+		}
+		
+		// Validate amount matches basket total
+		if req.Amount != totalAmount {
+			return nil, fmt.Errorf("payment amount does not match basket total")
+		}
+		
+		// Reserve items in basket
+		if err := s.basketClient.ReserveItems(ctx, userID, basket.Items); err != nil {
+			return nil, fmt.Errorf("failed to reserve basket items: %w", err)
+		}
+		
+	} else if req.ProductID != nil && req.Quantity != nil {
+		// Direct product payment: validate product
+		product, err := s.productClient.GetProduct(ctx, *req.ProductID)
+		if err != nil {
+			return nil, fmt.Errorf("product validation failed: %w", err)
+		}
+		
+		// Validate quantity
+		if *req.Quantity <= 0 {
+			return nil, fmt.Errorf("invalid quantity")
+		}
+		
+		// Calculate total amount
+		totalAmount := float64(*req.Quantity) * product.Price
+		
+		// Validate amount matches product total
+		if req.Amount != totalAmount {
+			return nil, fmt.Errorf("payment amount does not match product total")
+		}
+		
+		// Check stock availability
+		if product.Stock < int32(*req.Quantity) {
+			return nil, fmt.Errorf("insufficient stock")
+		}
+		
+	} else {
+		return nil, fmt.Errorf("either basket_id or product_id with quantity must be provided")
+	}
+
 	cmd := command.CreatePaymentCommand{
 		UserID:          userID,
 		OrderID:         req.OrderID,
@@ -74,6 +139,9 @@ func (s *PaymentServiceCQRS) CreatePayment(ctx context.Context, userID uint, req
 		PaymentMethodID: req.PaymentMethodID,
 		ReturnURL:       req.ReturnURL,
 		CancelURL:       req.CancelURL,
+		ProductID:       req.ProductID,
+		Quantity:        req.Quantity,
+		BasketID:        req.BasketID,
 	}
 
 	return s.createPaymentHandler.Handle(ctx, cmd)
@@ -91,22 +159,85 @@ func (s *PaymentServiceCQRS) GetPayment(ctx context.Context, userID uint, paymen
 
 // ProcessPayment processes a payment
 func (s *PaymentServiceCQRS) ProcessPayment(ctx context.Context, userID uint, paymentID string, req dto.ProcessPaymentRequest) (*dto.PaymentResponse, error) {
+	// Get payment to check type
+	payment, err := s.paymentRepo.GetByID(ctx, paymentID)
+	if err != nil {
+		return nil, err
+	}
+
+	// Check if user owns the payment
+	if payment.UserID != userID {
+		return nil, domain.ErrPaymentNotFound
+	}
+
 	cmd := command.ProcessPaymentCommand{
 		PaymentID:       paymentID,
 		PaymentMethodID: req.PaymentMethodID,
 		ConfirmationData: req.ConfirmationData,
 	}
 
-	return s.processPaymentHandler.Handle(ctx, cmd)
+	// Process payment
+	paymentResp, err := s.processPaymentHandler.Handle(ctx, cmd)
+	if err != nil {
+		return nil, err
+	}
+
+	// If payment is successful, update stock and clear basket
+	if paymentResp.Status == "completed" {
+		// Update product stock if it was a direct product purchase
+		if payment.ProductID != nil && payment.Quantity != nil {
+			if err := s.productClient.UpdateStock(ctx, *payment.ProductID, -*payment.Quantity); err != nil {
+				// Log error but don't fail the payment
+				// In production, you might want to implement compensation logic
+			}
+		}
+		
+		// Clear basket if it was a basket-based purchase
+		if payment.BasketID != nil {
+			if err := s.basketClient.ClearBasket(ctx, userID); err != nil {
+				// Log error but don't fail the payment
+				// In production, you might want to implement compensation logic
+			}
+		}
+	}
+
+	return paymentResp, nil
 }
 
 // CancelPayment cancels a payment
 func (s *PaymentServiceCQRS) CancelPayment(ctx context.Context, userID uint, paymentID string) (*dto.PaymentResponse, error) {
+	// Get payment to check type
+	payment, err := s.paymentRepo.GetByID(ctx, paymentID)
+	if err != nil {
+		return nil, err
+	}
+
+	// Check if user owns the payment
+	if payment.UserID != userID {
+		return nil, domain.ErrPaymentNotFound
+	}
+
 	cmd := command.CancelPaymentCommand{
 		PaymentID: paymentID,
 	}
 
-	return s.cancelPaymentHandler.Handle(ctx, cmd)
+	// Cancel payment
+	paymentResp, err := s.cancelPaymentHandler.Handle(ctx, cmd)
+	if err != nil {
+		return nil, err
+	}
+
+	// Release reservations if payment was cancelled
+	if paymentResp.Status == "cancelled" {
+		// Release basket reservation if it was a basket-based purchase
+		if payment.BasketID != nil {
+			if err := s.basketClient.ReleaseReservation(ctx, userID); err != nil {
+				// Log error but don't fail the cancellation
+			}
+		}
+	}
+
+	return paymentResp, nil
 }
 
 // ListPayments lists user's payments
