@@ -6,6 +6,7 @@ import (
 	"github.com/ddd-micro/internal/payment/infrastructure/database"
 	"github.com/ddd-micro/internal/payment/infrastructure/gateway"
 	"github.com/ddd-micro/internal/payment/infrastructure/persistence"
+	"github.com/ddd-micro/kafka"
 	"github.com/google/wire"
 )
 
@@ -30,4 +31,8 @@ var ProviderSet = wire.NewSet(
 	// Payment gateways
 	gateway.NewStripeGateway,
 	gateway.NewMockGateway,
+	
+	// Kafka
+	kafka.LoadConfig,
+	kafka.NewKafkaPublisher,
 )

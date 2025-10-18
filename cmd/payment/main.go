@@ -3,17 +3,14 @@ package main
 import (
 	"context"
 	"log"
-	"net"
 	"os"
 	"os/signal"
 	"syscall"
 	"time"
 
 	"github.com/ddd-micro/internal/payment/infrastructure/database"
-	"github.com/ddd-micro/internal/payment/interfaces/grpc"
 	"github.com/ddd-micro/internal/payment/interfaces/http"
 	"github.com/gin-gonic/gin"
-	"google.golang.org/grpc"
 )
 
 func main() {
@@ -28,61 +25,36 @@ func main() {
 	gin.SetMode(gin.ReleaseMode)
 
 	// Start HTTP server
-	go func() {
-		httpPort := os.Getenv("HTTP_PORT")
-		if httpPort == "" {
-			httpPort = "8084"
-		}
+	httpPort := os.Getenv("HTTP_PORT")
+	if httpPort == "" {
+		httpPort = "8084"
+	}
 
-		log.Printf("Starting HTTP Server on port %s...", httpPort)
-		if err := app.HTTPRouter.Run(":" + httpPort); err != nil {
-			log.Fatalf("HTTP server failed to start: %v", err)
-		}
-	}()
+	log.Printf("Starting HTTP Server on port %s...", httpPort)
+	if err := app.HTTPRouter.Run(":" + httpPort); err != nil {
+		log.Fatalf("HTTP server failed to start: %v", err)
+	}
 
-	// Start gRPC server
-	go func() {
-		grpcPort := os.Getenv("GRPC_PORT")
-		if grpcPort == "" {
-			grpcPort = "9094"
-		}
-
-		lis, err := net.Listen("tcp", ":"+grpcPort)
-		if err != nil {
-			log.Fatalf("Failed to listen on gRPC port %s: %v", grpcPort, err)
-		}
-
-		log.Printf("Starting gRPC Server on port %s...", grpcPort)
-		if err := app.GRPCServer.Serve(lis); err != nil {
-			log.Fatalf("gRPC server failed to start: %v", err)
-		}
-	}()
-
-	// Wait for interrupt signal to gracefully shutdown the servers
+	// Wait for interrupt signal to gracefully shutdown the server
 	quit := make(chan os.Signal, 1)
 	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
 	<-quit
-	log.Println("Shutting down servers...")
+	log.Println("Shutting down server...")
 
 	// Create a deadline to wait for
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
 
-	// Shutdown gRPC server
-	log.Println("Stopping gRPC server...")
-	app.GRPCServer.GracefulStop()
-
 	// Shutdown HTTP server
 	log.Println("Stopping HTTP server...")
 	// Note: Gin doesn't have built-in graceful shutdown, but we can add it if needed
 
-	log.Println("Servers stopped")
+	log.Println("Server stopped")
 }
 
 // App represents the application dependencies
 type App struct {
 	HTTPRouter *gin.Engine
-	GRPCServer *grpc.Server
 }
 
 // InitializeApp initializes all application dependencies using Wire
