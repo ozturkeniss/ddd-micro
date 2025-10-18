@@ -1,6 +1,7 @@
 package http
 
 import (
+	"github.com/ddd-micro/internal/product/infrastructure/monitoring"
 	"github.com/gin-gonic/gin"
 	"github.com/google/wire"
 )
@@ -14,11 +15,11 @@ var ProviderSet = wire.NewSet(
 )
 
 // NewHTTPRouter creates a new HTTP router with all routes
-func NewHTTPRouter(productHandler *ProductHandler, userHandler *UserHandler, authMiddleware *AuthMiddleware) *gin.Engine {
+func NewHTTPRouter(productHandler *ProductHandler, userHandler *UserHandler, authMiddleware *AuthMiddleware, metrics *monitoring.PrometheusMetrics, tracer *monitoring.JaegerTracer) *gin.Engine {
 	router := gin.Default()
 
 	// Setup routes
-	SetupRoutes(router, productHandler, userHandler, authMiddleware)
+	SetupRoutes(router, productHandler, userHandler, authMiddleware, metrics, tracer)
 
 	return router
 }

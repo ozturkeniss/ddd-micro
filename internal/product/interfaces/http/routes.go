@@ -1,11 +1,19 @@
 package http
 
 import (
+	"github.com/ddd-micro/internal/product/infrastructure/monitoring"
 	"github.com/gin-gonic/gin"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
 
 // SetupRoutes sets up all HTTP routes with RBAC
-func SetupRoutes(router *gin.Engine, productHandler *ProductHandler, userHandler *UserHandler, authMiddleware *AuthMiddleware) {
+func SetupRoutes(router *gin.Engine, productHandler *ProductHandler, userHandler *UserHandler, authMiddleware *AuthMiddleware, metrics *monitoring.PrometheusMetrics, tracer *monitoring.JaegerTracer) {
+	// Add monitoring middlewares
+	router.Use(monitoring.PrometheusMiddleware(metrics))
+	router.Use(monitoring.JaegerMiddleware(tracer))
+
+	// Prometheus metrics endpoint
+	router.GET("/metrics", gin.WrapH(promhttp.Handler()))
 	// API v1 group
 	v1 := router.Group("/api/v1")
 	{
