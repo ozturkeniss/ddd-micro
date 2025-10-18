@@ -85,6 +85,35 @@ services:
     networks:
       - monitoring-network
 
+  # Basket Service
+  basket-service:
+    build:
+      context: .
+      dockerfile: dockerfiles/basket.dockerfile
+    container_name: basket-service
+    ports:
+      - "8083:8083"
+      - "9093:9093"
+    environment:
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - REDIS_PASSWORD=
+      - REDIS_DB=0
+      - USER_SERVICE_URL=user-service:9090
+      - PRODUCT_SERVICE_URL=product-service:9091
+      - HTTP_PORT=8083
+      - GRPC_PORT=9093
+      - GIN_MODE=release
+      - JAEGER_AGENT_HOST=jaeger
+      - JAEGER_AGENT_PORT=6831
+    depends_on:
+      - redis
+      - user-service
+      - product-service
+      - jaeger
+    networks:
+      - monitoring-network
+
   # Jaeger
   jaeger:
     image: jaegertracing/all-in-one:1.51
