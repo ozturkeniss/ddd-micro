@@ -11,7 +11,6 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/ddd-micro/internal/user/infrastructure/monitoring"
 	"github.com/gin-gonic/gin"
 )
 
