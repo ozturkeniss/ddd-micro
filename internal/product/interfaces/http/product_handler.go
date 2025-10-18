@@ -38,7 +38,7 @@ func NewProductHandler(productService interface{}, metrics *monitoring.Prometheu
 // @Router /admin/products [post]
 func (h *ProductHandler) CreateProduct(c *gin.Context) {
 	// Start tracing span
-	span, ctx := monitoring.StartSpanFromGinContext(c, "product.create")
+	span, _ := monitoring.StartSpanFromGinContext(c, "product.create")
 	defer span.Finish()
 
 	start := time.Now()
@@ -74,7 +74,7 @@ func (h *ProductHandler) CreateProduct(c *gin.Context) {
 // @Router /products/{id} [get]
 func (h *ProductHandler) GetProduct(c *gin.Context) {
 	// Start tracing span
-	span, ctx := monitoring.StartSpanFromGinContext(c, "product.get")
+	span, _ := monitoring.StartSpanFromGinContext(c, "product.get")
 	defer span.Finish()
 
 	idStr := c.Param("id")
@@ -360,7 +360,7 @@ func (h *ProductHandler) UnmarkAsFeatured(c *gin.Context) {
 // IncrementViewCount increments product view count
 func (h *ProductHandler) IncrementViewCount(c *gin.Context) {
 	// Start tracing span
-	span, ctx := monitoring.StartSpanFromGinContext(c, "product.increment_view")
+	span, _ := monitoring.StartSpanFromGinContext(c, "product.increment_view")
 	defer span.Finish()
 
 	idStr := c.Param("id")

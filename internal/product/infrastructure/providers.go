@@ -4,6 +4,7 @@ import (
 	"github.com/ddd-micro/internal/product/infrastructure/client"
 	"github.com/ddd-micro/internal/product/infrastructure/config"
 	"github.com/ddd-micro/internal/product/infrastructure/database"
+	"github.com/ddd-micro/internal/product/infrastructure/monitoring"
 	"github.com/ddd-micro/internal/product/infrastructure/persistence"
 	"github.com/google/wire"
 )
@@ -22,4 +23,7 @@ var ProviderSet = wire.NewSet(
 
 	// Client providers
 	client.ProviderSet,
+
+	// Monitoring providers
+	monitoring.ProviderSet,
 )
