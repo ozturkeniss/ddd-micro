@@ -56,6 +56,35 @@ services:
     networks:
       - monitoring-network
 
+  # Product Service
+  product-service:
+    build:
+      context: .
+      dockerfile: dockerfiles/product.dockerfile
+    container_name: product-service
+    ports:
+      - "8081:8081"
+      - "9091:9091"
+    environment:
+      - DATABASE_HOST=postgres
+      - DATABASE_PORT=5432
+      - DATABASE_USER=user
+      - DATABASE_PASSWORD=password
+      - DATABASE_NAME=productdb
+      - DATABASE_SSL_MODE=disable
+      - USER_SERVICE_URL=http://user-service:8080
+      - HTTP_PORT=8081
+      - GRPC_PORT=9091
+      - GIN_MODE=release
+      - JAEGER_AGENT_HOST=jaeger
+      - JAEGER_AGENT_PORT=6831
+    depends_on:
+      - postgres
+      - user-service
+      - jaeger
+    networks:
+      - monitoring-network
+
   # Jaeger
   jaeger:
     image: jaegertracing/all-in-one:1.51
