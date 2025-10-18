@@ -41,6 +41,11 @@ type Payment struct {
 	GatewayResponse  map[string]interface{} `json:"gateway_response" gorm:"type:jsonb"`
 	ReturnURL        *string                `json:"return_url" gorm:"type:text"`
 	CancelURL        *string                `json:"cancel_url" gorm:"type:text"`
+	// Optional: Direct product purchase (without basket)
+	ProductID        *uint                  `json:"product_id" gorm:"index"`
+	Quantity         *int                   `json:"quantity"`
+	// Optional: Basket-based purchase
+	BasketID         *string                `json:"basket_id" gorm:"type:varchar(36);index"`
 	CreatedAt        time.Time              `json:"created_at"`
 	UpdatedAt        time.Time              `json:"updated_at"`
 	CompletedAt      *time.Time             `json:"completed_at"`

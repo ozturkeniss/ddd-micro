@@ -13,6 +13,11 @@ type CreatePaymentRequest struct {
 	PaymentMethodID string  `json:"payment_method_id,omitempty"`
 	ReturnURL       string  `json:"return_url,omitempty"`
 	CancelURL       string  `json:"cancel_url,omitempty"`
+	// Optional: Direct product purchase (without basket)
+	ProductID       *uint   `json:"product_id,omitempty"`
+	Quantity        *int    `json:"quantity,omitempty"`
+	// Optional: Basket-based purchase
+	BasketID        *string `json:"basket_id,omitempty"`
 }
 
 // ProcessPaymentRequest represents the request to process a payment

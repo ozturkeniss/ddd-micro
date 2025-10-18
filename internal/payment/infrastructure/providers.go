@@ -10,4 +10,6 @@ import (
 var ProviderSet = wire.NewSet(
 	config.LoadConfig,
 	client.NewUserClient,
+	client.NewProductClient,
+	client.NewBasketClient,
 )

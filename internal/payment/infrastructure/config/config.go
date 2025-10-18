@@ -19,6 +19,7 @@ type Config struct {
 	// External services
 	UserServiceURL    string
 	ProductServiceURL string
+	BasketServiceURL  string
 
 	// Payment gateway configuration
 	Stripe StripeConfig
@@ -78,6 +79,7 @@ func LoadConfig() (*Config, error) {
 
 		UserServiceURL:    getEnv("USER_SERVICE_URL", "user-service:9091"),
 		ProductServiceURL: getEnv("PRODUCT_SERVICE_URL", "product-service:9092"),
+		BasketServiceURL:  getEnv("BASKET_SERVICE_URL", "basket-service:9093"),
 
 		Stripe: StripeConfig{
 			SecretKey:      getEnv("STRIPE_SECRET_KEY", ""),
