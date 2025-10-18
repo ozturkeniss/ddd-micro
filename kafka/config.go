@@ -5,6 +5,8 @@ import (
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/IBM/sarama"
 )
 
 // Config holds Kafka configuration

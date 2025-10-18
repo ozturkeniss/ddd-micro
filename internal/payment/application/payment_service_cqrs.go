@@ -8,6 +8,8 @@ import (
 	"github.com/ddd-micro/internal/payment/application/query"
 	"github.com/ddd-micro/internal/payment/domain"
 	"github.com/ddd-micro/internal/payment/infrastructure/client"
+	"github.com/ddd-micro/internal/payment/infrastructure/kafka"
+	"github.com/ddd-micro/kafka"
 )
 
 // PaymentServiceCQRS represents the main payment service using CQRS pattern
@@ -34,6 +36,9 @@ type PaymentServiceCQRS struct {
 	userClient    client.UserClient
 	productClient client.ProductClient
 	basketClient  client.BasketClient
+	
+	// Kafka event publisher
+	eventPublisher *kafka.PaymentEventPublisher
 }
 
 // NewPaymentServiceCQRS creates a new PaymentServiceCQRS
@@ -53,6 +58,7 @@ func NewPaymentServiceCQRS(
 	userClient client.UserClient,
 	productClient client.ProductClient,
 	basketClient client.BasketClient,
+	eventPublisher *kafka.PaymentEventPublisher,
 ) *PaymentServiceCQRS {
 	return &PaymentServiceCQRS{
 		createPaymentHandler:      createPaymentHandler,
@@ -70,6 +76,7 @@ func NewPaymentServiceCQRS(
 		userClient:                userClient,
 		productClient:             productClient,
 		basketClient:              basketClient,
+		eventPublisher:            eventPublisher,
 	}
 }
 
@@ -182,22 +189,40 @@ func (s *PaymentServiceCQRS) ProcessPayment(ctx context.Context, userID uint, pa
 		return nil, err
 	}
 
-	// If payment is successful, update stock and clear basket
+	// If payment is successful, publish events for stock update and basket clearing
 	if paymentResp.Status == "completed" {
-		// Update product stock if it was a direct product purchase
+		// Convert payment items for Kafka events
+		var items []kafka.PaymentItem
 		if payment.ProductID != nil && payment.Quantity != nil {
-			if err := s.productClient.UpdateStock(ctx, *payment.ProductID, -*payment.Quantity); err != nil {
-				// Log error but don't fail the payment
-				// In production, you might want to implement compensation logic
+			// Direct product purchase
+			items = []kafka.PaymentItem{
+				{
+					ProductID:  *payment.ProductID,
+					Quantity:   *payment.Quantity,
+					UnitPrice:  payment.Amount / float64(*payment.Quantity),
+					TotalPrice: payment.Amount,
+				},
+			}
+		} else if payment.BasketID != nil {
+			// Basket-based purchase - get items from basket
+			basket, err := s.basketClient.GetBasket(ctx, userID)
+			if err == nil {
+				for _, item := range basket.Items {
+					items = append(items, kafka.PaymentItem{
+						ProductID:  uint(item.ProductId),
+						Quantity:   int(item.Quantity),
+						UnitPrice:  item.UnitPrice,
+						TotalPrice: float64(item.Quantity) * item.UnitPrice,
+					})
+				}
 			}
 		}
-		
-		// Clear basket if it was a basket-based purchase
-		if payment.BasketID != nil {
-			if err := s.basketClient.ClearBasket(ctx, userID); err != nil {
-				// Log error but don't fail the payment
-				// In production, you might want to implement compensation logic
-			}
+
+		// Publish payment completed event
+		if err := s.eventPublisher.PublishPaymentCompleted(ctx, paymentID, userID, payment.OrderID, 
+			payment.Amount, payment.Currency, string(payment.PaymentMethod), items, payment.BasketID); err != nil {
+			// Log error but don't fail the payment
+			// In production, you might want to implement compensation logic
 		}
 	}
 
