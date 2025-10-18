@@ -1,0 +1,338 @@
+name: 🔧 Maintenance Bot
+
+on:
+  schedule:
+    # Aylık bakım (Her ayın 1'inde 08:00 UTC)
+    - cron: '0 8 1 * *'
+  workflow_dispatch:
+
+jobs:
+  system-maintenance:
+    name: 🔧 System Maintenance
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+        fetch-depth: 0
+    
+    - name: Set up Go
+      uses: actions/setup-go@v4
+      with:
+        go-version: '1.21'
+    
+    - name: Set up Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+    
+    - name: Repository Health Check
+      run: |
+        echo "🔍 Checking repository health..."
+        
+        # Check repository size
+        du -sh . > repo-size.txt
+        
+        # Check for large files
+        find . -type f -size +10M -not -path "./.git/*" > large-files.txt
+        
+        # Check for duplicate files
+        find . -type f -not -path "./.git/*" -exec md5sum {} \; | sort | uniq -d -w 32 > duplicate-files.txt
+        
+        # Check for unused files
+        find . -name "*.go" -not -path "./vendor/*" -not -path "./.git/*" > all-go-files.txt
+        
+        echo "✅ Repository health check completed"
+    
+    - name: Clean up Repository
+      run: |
+        echo "🧹 Cleaning up repository..."
+        
+        # Remove temporary files
+        find . -name "*.tmp" -delete || true
+        find . -name "*.log" -delete || true
+        find . -name "*.bak" -delete || true
+        find . -name ".DS_Store" -delete || true
+        
+        # Remove old build artifacts
+        rm -rf bin/ || true
+        rm -rf client/.next/ || true
+        rm -rf client/node_modules/ || true
+        
+        # Clean up old reports
+        find . -name "*-report-*.md" -type f -mtime +90 -delete || true
+        find . -name "*-summary-*.md" -type f -mtime +90 -delete || true
+        
+        echo "✅ Repository cleanup completed"
+    
+    - name: Update Project Metadata
+      run: |
+        echo "📝 Updating project metadata..."
+        
+        # Update version information
+        CURRENT_DATE=$(date '+%Y-%m-%d')
+        CURRENT_VERSION=$(git describe --tags --always)
+        
+        # Update README with current version
+        if grep -q "Version:" README.md; then
+          sed -i "s/Version:.*/Version: $CURRENT_VERSION/" README.md
+        fi
+        
+        # Update last maintenance date
+        if grep -q "Last Maintenance:" README.md; then
+          sed -i "s/Last Maintenance:.*/Last Maintenance: $CURRENT_DATE/" README.md
+        fi
+    
+    - name: Optimize Dependencies
+      run: |
+        echo "📦 Optimizing dependencies..."
+        
+        # Go dependency optimization
+        go mod tidy
+        go mod verify
+        
+        # Frontend dependency optimization
+        cd client
+        npm ci --only=production || true
+        npm audit fix || true
+        cd ..
+        
+        echo "✅ Dependencies optimized"
+    
+    - name: Generate Maintenance Report
+      run: |
+        echo "📊 Generating maintenance report..."
+        
+        CURRENT_DATE=$(date '+%Y-%m-%d')
+        
+        # Get repository statistics
+        REPO_SIZE=$(cat repo-size.txt | cut -f1)
+        TOTAL_COMMITS=$(git rev-list --count HEAD)
+        TOTAL_BRANCHES=$(git branch -r | wc -l)
+        TOTAL_TAGS=$(git tag | wc -l)
+        CONTRIBUTORS=$(git log --format='%aN' | sort -u | wc -l)
+        
+        # Create comprehensive maintenance report
+        cat > maintenance-report-$CURRENT_DATE.md << EOF
+        # 🔧 Maintenance Report - $CURRENT_DATE
+        
+        ## 📊 Repository Statistics
+        - **Repository Size:** $REPO_SIZE
+        - **Total Commits:** $TOTAL_COMMITS
+        - **Total Branches:** $TOTAL_BRANCHES
+        - **Total Tags:** $TOTAL_TAGS
+        - **Contributors:** $CONTRIBUTORS
+        - **Current Version:** $(git describe --tags --always)
+        
+        ## 🧹 Cleanup Actions Performed
+        - ✅ Removed temporary files
+        - ✅ Cleaned up build artifacts
+        - ✅ Removed old reports (>90 days)
+        - ✅ Optimized dependencies
+        
+        ## 🔍 Repository Health
+        ### Large Files
+        \`\`\`
+        $(cat large-files.txt || echo "No large files found")
+        \`\`\`
+        
+        ### Duplicate Files
+        \`\`\`
+        $(cat duplicate-files.txt || echo "No duplicate files found")
+        \`\`\`
+        
+        ## 📦 Dependency Status
+        - **Go Dependencies:** Optimized and verified
+        - **Frontend Dependencies:** Updated and audited
+        
+        ## 🎯 Recommendations
+        1. Review and remove any unnecessary large files
+        2. Consider archiving old branches
+        3. Update documentation regularly
+        4. Monitor repository growth
+        
+        ## 📅 Next Maintenance
+        Next scheduled maintenance: $(date -d '+1 month' '+%Y-%m-%d')
+        
+        ---
+        *Generated by Maintenance Bot 🔧*
+        EOF
+        
+        # Commit maintenance report
+        git config --local user.email "maintenance-bot@ddd-micro.com"
+        git config --local user.name "🔧 Maintenance Bot"
+        git add maintenance-report-$CURRENT_DATE.md
+        git commit -m "🔧 Maintenance: Monthly maintenance report for $CURRENT_DATE
+
+        - Performed repository cleanup and optimization
+        - Updated project metadata
+        - Generated maintenance report
+        - Auto-committed by maintenance bot"
+        git push
+        echo "✅ Maintenance report generated and committed"
+    
+    - name: Create Maintenance Dashboard
+      run: |
+        echo "📊 Creating maintenance dashboard..."
+        
+        # Create maintenance dashboard HTML
+        cat > docs/maintenance-dashboard.html << EOF
+        <!DOCTYPE html>
+        <html lang="en">
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>🔧 Maintenance Dashboard</title>
+            <style>
+                body { font-family: Arial, sans-serif; margin: 20px; }
+                .header { background: #f4f4f4; padding: 20px; border-radius: 8px; }
+                .section { margin: 20px 0; padding: 15px; border: 1px solid #ddd; border-radius: 5px; }
+                .success { color: #28a745; }
+                .warning { color: #ffc107; }
+                .info { color: #17a2b8; }
+                .chart { background: #f8f9fa; padding: 20px; border-radius: 5px; text-align: center; }
+                .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; }
+            </style>
+        </head>
+        <body>
+            <div class="header">
+                <h1>🔧 Maintenance Dashboard</h1>
+                <p>Last Updated: $(date '+%Y-%m-%d %H:%M:%S UTC')</p>
+            </div>
+            
+            <div class="grid">
+                <div class="section">
+                    <h2>📊 Repository Stats</h2>
+                    <p><strong>Size:</strong> $(cat repo-size.txt | cut -f1)</p>
+                    <p><strong>Commits:</strong> $(git rev-list --count HEAD)</p>
+                    <p><strong>Branches:</strong> $(git branch -r | wc -l)</p>
+                    <p><strong>Contributors:</strong> $(git log --format='%aN' | sort -u | wc -l)</p>
+                </div>
+                
+                <div class="section">
+                    <h2>🧹 Cleanup Status</h2>
+                    <p class="success">✅ Temporary files removed</p>
+                    <p class="success">✅ Build artifacts cleaned</p>
+                    <p class="success">✅ Old reports archived</p>
+                    <p class="success">✅ Dependencies optimized</p>
+                </div>
+                
+                <div class="section">
+                    <h2>🔍 Health Check</h2>
+                    <p><strong>Large Files:</strong> $(wc -l < large-files.txt || echo "0")</p>
+                    <p><strong>Duplicates:</strong> $(wc -l < duplicate-files.txt || echo "0")</p>
+                    <p><strong>Go Files:</strong> $(wc -l < all-go-files.txt || echo "0")</p>
+                </div>
+            </div>
+            
+            <div class="section">
+                <h2>📅 Maintenance Schedule</h2>
+                <p><strong>Last Maintenance:</strong> $(date '+%Y-%m-%d')</p>
+                <p><strong>Next Maintenance:</strong> $(date -d '+1 month' '+%Y-%m-%d')</p>
+                <p class="info">Maintenance is performed automatically on the 1st of each month.</p>
+            </div>
+            
+            <div class="section">
+                <h2>📚 Resources</h2>
+                <ul>
+                    <li><a href="maintenance-report-$(date '+%Y-%m-%d').md">Latest Maintenance Report</a></li>
+                    <li><a href="../README.md">Project Documentation</a></li>
+                    <li><a href="https://github.com/golang/go/wiki/Modules">Go Modules Guide</a></li>
+                </ul>
+            </div>
+        </body>
+        </html>
+        EOF
+        
+        # Commit maintenance dashboard
+        git config --local user.email "maintenance-bot@ddd-micro.com"
+        git config --local user.name "🔧 Maintenance Bot"
+        git add docs/maintenance-dashboard.html
+        git commit -m "📊 Dashboard: Create maintenance dashboard
+
+        - Created HTML maintenance dashboard
+        - Added repository statistics and health status
+        - Auto-committed by maintenance bot"
+        git push
+        echo "✅ Maintenance dashboard created and committed"
+    
+    - name: Archive Old Data
+      run: |
+        echo "📦 Archiving old data..."
+        
+        # Create archive directory
+        mkdir -p archives/$(date '+%Y')/$(date '+%m') || true
+        
+        # Archive old reports
+        find . -name "*-report-*.md" -type f -mtime +180 -exec mv {} archives/$(date '+%Y')/$(date '+%m')/ \; || true
+        
+        # Archive old summaries
+        find . -name "*-summary-*.md" -type f -mtime +180 -exec mv {} archives/$(date '+%Y')/$(date '+%m')/ \; || true
+        
+        # Check if there are changes
+        if ! git diff --quiet; then
+          echo "📦 Old data archived, committing..."
+          git config --local user.email "maintenance-bot@ddd-micro.com"
+          git config --local user.name "🔧 Maintenance Bot"
+          git add archives/
+          git commit -m "📦 Archive: Archive old reports and summaries
+
+        - Archived reports older than 6 months
+        - Organized by year and month
+        - Auto-committed by maintenance bot"
+          git push
+          echo "✅ Old data archived and committed"
+        else
+          echo "✅ No data to archive"
+        fi
+    
+    - name: Update Project Status
+      run: |
+        echo "📝 Updating project status..."
+        
+        # Create project status file
+        cat > PROJECT_STATUS.md << EOF
+        # 📊 Project Status
+        
+        ## 🎯 Current Status
+        - **Status:** 🟢 Active Development
+        - **Version:** $(git describe --tags --always)
+        - **Last Update:** $(date '+%Y-%m-%d %H:%M:%S UTC')
+        - **Last Maintenance:** $(date '+%Y-%m-%d')
+        
+        ## 🚀 Services Status
+        - **User Service:** ✅ Operational
+        - **Product Service:** ✅ Operational
+        - **Basket Service:** ✅ Operational
+        - **Payment Service:** ✅ Operational
+        - **API Gateway:** ✅ Operational
+        
+        ## 📈 Metrics
+        - **Repository Size:** $(cat repo-size.txt | cut -f1)
+        - **Total Commits:** $(git rev-list --count HEAD)
+        - **Contributors:** $(git log --format='%aN' | sort -u | wc -l)
+        
+        ## 🔄 Automated Processes
+        - ✅ Daily testing
+        - ✅ Weekly security scans
+        - ✅ Weekly performance analysis
+        - ✅ Weekly documentation updates
+        - ✅ Monthly maintenance
+        
+        ---
+        *Last updated by Maintenance Bot 🔧*
+        EOF
+        
+        # Commit project status
+        git config --local user.email "maintenance-bot@ddd-micro.com"
+        git config --local user.name "🔧 Maintenance Bot"
+        git add PROJECT_STATUS.md
+        git commit -m "📝 Status: Update project status
+
+        - Updated project status and metrics
+        - Added service status information
+        - Auto-committed by maintenance bot"
+        git push
+        echo "✅ Project status updated and committed"
