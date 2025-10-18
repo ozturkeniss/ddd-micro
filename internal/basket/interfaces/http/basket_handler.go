@@ -3,21 +3,25 @@ package http
 import (
 	"net/http"
 	"strconv"
+	"time"
 
 	"github.com/ddd-micro/internal/basket/application"
 	"github.com/ddd-micro/internal/basket/application/dto"
+	"github.com/ddd-micro/internal/basket/infrastructure/monitoring"
 	"github.com/gin-gonic/gin"
 )
 
 // BasketHandler handles HTTP requests for basket operations
 type BasketHandler struct {
 	basketService *application.BasketServiceCQRS
+	metrics       *monitoring.PrometheusMetrics
 }
 
 // NewBasketHandler creates a new basket handler
-func NewBasketHandler(basketService *application.BasketServiceCQRS) *BasketHandler {
+func NewBasketHandler(basketService *application.BasketServiceCQRS, metrics *monitoring.PrometheusMetrics) *BasketHandler {
 	return &BasketHandler{
 		basketService: basketService,
+		metrics:       metrics,
 	}
 }
 
