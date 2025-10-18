@@ -163,8 +163,13 @@ func (h *BasketHandler) GetBasket(c *gin.Context) {
 // @Failure 500 {object} dto.ErrorResponse
 // @Router /users/basket/items [post]
 func (h *BasketHandler) AddItem(c *gin.Context) {
+	// Start tracing span
+	span, _ := monitoring.StartSpanFromGinContext(c, "basket.add_item")
+	defer span.Finish()
+
 	var req dto.AddItemRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
+		monitoring.LogSpanError(span, err)
 		c.JSON(http.StatusBadRequest, dto.ErrorResponse{
 			Error:   "Bad Request",
 			Message: err.Error(),
@@ -175,6 +180,7 @@ func (h *BasketHandler) AddItem(c *gin.Context) {
 	// Get user ID from context (set by auth middleware)
 	userID, exists := c.Get("userID")
 	if !exists {
+		monitoring.LogSpanError(span, err)
 		c.JSON(http.StatusUnauthorized, dto.ErrorResponse{
 			Error:   "Unauthorized",
 			Message: "User ID not found in context",
@@ -184,14 +190,32 @@ func (h *BasketHandler) AddItem(c *gin.Context) {
 
 	req.UserID = userID.(uint)
 
+	start := time.Now()
 	basket, err := h.basketService.AddItemHTTP(c.Request.Context(), req.UserID, req)
+	duration := time.Since(start)
+
+	// Record Redis operation duration
+	h.metrics.RecordRedisOperationDuration("add_item", duration)
+
 	if err != nil {
+		monitoring.LogSpanError(span, err)
 		c.JSON(http.StatusInternalServerError, dto.ErrorResponse{
 			Error:   "Internal Server Error",
 			Message: err.Error(),
 		})
 		return
 	}
+
+	// Record successful item addition
+	h.metrics.RecordItemAddition()
+	monitoring.SetSpanTags(span, map[string]interface{}{
+		"user.id":      userID.(uint),
+		"basket.id":    basket.ID,
+		"product.id":   req.ProductID,
+		"quantity":     req.Quantity,
+		"operation":    "add_item",
+		"success":      true,
+	})
 
 	c.JSON(http.StatusOK, basket)
 }

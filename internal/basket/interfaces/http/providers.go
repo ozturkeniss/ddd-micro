@@ -3,6 +3,7 @@ package http
 import (
 	"github.com/ddd-micro/internal/basket/application"
 	"github.com/ddd-micro/internal/basket/infrastructure/client"
+	"github.com/ddd-micro/internal/basket/infrastructure/monitoring"
 	"github.com/gin-gonic/gin"
 	"github.com/google/wire"
 )
@@ -19,17 +20,19 @@ var ProviderSet = wire.NewSet(
 func NewHTTPRouter(
 	basketService *application.BasketServiceCQRS,
 	userClient client.UserClient,
+	metrics *monitoring.PrometheusMetrics,
+	tracer *monitoring.JaegerTracer,
 ) *gin.Engine {
 	// Create router
 	router := gin.Default()
 
 	// Create handlers
-	basketHandler := NewBasketHandler(basketService)
+	basketHandler := NewBasketHandler(basketService, metrics)
 	userHandler := NewUserHandler(userClient)
 	authMiddleware := NewAuthMiddleware(userClient)
 
 	// Setup routes
-	SetupRoutes(router, basketHandler, userHandler, authMiddleware)
+	SetupRoutes(router, basketHandler, userHandler, authMiddleware, metrics, tracer)
 
 	return router
 }

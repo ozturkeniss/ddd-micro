@@ -1,13 +1,21 @@
 package http
 
 import (
+	"github.com/ddd-micro/internal/basket/infrastructure/monitoring"
 	"github.com/gin-gonic/gin"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
 )
 
 // SetupRoutes configures all HTTP routes for the basket service
-func SetupRoutes(router *gin.Engine, basketHandler *BasketHandler, userHandler *UserHandler, authMiddleware *AuthMiddleware) {
+func SetupRoutes(router *gin.Engine, basketHandler *BasketHandler, userHandler *UserHandler, authMiddleware *AuthMiddleware, metrics *monitoring.PrometheusMetrics, tracer *monitoring.JaegerTracer) {
+	// Add monitoring middlewares
+	router.Use(monitoring.PrometheusMiddleware(metrics))
+	router.Use(monitoring.JaegerMiddleware(tracer))
+
+	// Prometheus metrics endpoint
+	router.GET("/metrics", gin.WrapH(promhttp.Handler()))
 	// Health check endpoint (public)
 	router.GET("/health", func(c *gin.Context) {
 		c.JSON(200, gin.H{
