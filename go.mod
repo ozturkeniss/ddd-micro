@@ -9,10 +9,13 @@ require (
 	github.com/golang-jwt/jwt/v5 v5.2.0
 	github.com/google/uuid v1.6.0
 	github.com/google/wire v0.7.0
+	github.com/opentracing/opentracing-go v1.2.0
+	github.com/prometheus/client_golang v1.20.5
 	github.com/redis/go-redis/v9 v9.14.0
 	github.com/swaggo/files v1.0.1
 	github.com/swaggo/gin-swagger v1.6.1
 	github.com/swaggo/swag v1.16.6
+	github.com/uber/jaeger-client-go v2.30.0+incompatible
 	golang.org/x/crypto v0.43.0
 	google.golang.org/grpc v1.65.0
 	google.golang.org/protobuf v1.34.1
