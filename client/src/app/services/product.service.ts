@@ -79,8 +79,8 @@ export class ProductService {
   static async searchProducts(
     searchParams: SearchProductsRequest
   ): Promise<ApiResponse<SearchProductsResponse>> {
-    const response = await apiClient.get('/products/search', { 
-      params: searchParams 
+    const response = await apiClient.get('/products/search', {
+      params: searchParams,
     });
     return response.data;
   }
@@ -97,8 +97,8 @@ export class ProductService {
       sort_order?: 'asc' | 'desc';
     }
   ): Promise<ApiResponse<ListProductsResponse>> {
-    const response = await apiClient.get(`/products/category/${category}`, { 
-      params 
+    const response = await apiClient.get(`/products/category/${category}`, {
+      params,
     });
     return response.data;
   }
@@ -106,7 +106,9 @@ export class ProductService {
   /**
    * Get product by ID
    */
-  static async getProductById(id: number): Promise<ApiResponse<ProductResponse>> {
+  static async getProductById(
+    id: number
+  ): Promise<ApiResponse<ProductResponse>> {
     const response = await apiClient.get(`/products/${id}`);
     return response.data;
   }
@@ -239,10 +241,10 @@ export class ProductService {
       sort_order?: 'asc' | 'desc';
     }
   ): Promise<ApiResponse<ListProductsResponse>> {
-    return this.getProducts({ 
-      ...params, 
-      min_price: minPrice, 
-      max_price: maxPrice 
+    return this.getProducts({
+      ...params,
+      min_price: minPrice,
+      max_price: maxPrice,
     });
   }
 
@@ -278,15 +280,17 @@ export class ProductService {
   /**
    * Get product statistics (Admin only)
    */
-  static async getProductStats(): Promise<ApiResponse<{
-    total_products: number;
-    active_products: number;
-    inactive_products: number;
-    featured_products: number;
-    low_stock_products: number;
-    total_categories: number;
-    total_brands: number;
-  }>> {
+  static async getProductStats(): Promise<
+    ApiResponse<{
+      total_products: number;
+      active_products: number;
+      inactive_products: number;
+      featured_products: number;
+      low_stock_products: number;
+      total_categories: number;
+      total_brands: number;
+    }>
+  > {
     // This would need to be implemented in the backend
     // For now, return a mock response
     return {

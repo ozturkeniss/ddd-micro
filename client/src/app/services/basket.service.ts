@@ -167,7 +167,9 @@ export class BasketService {
   /**
    * Delete user's basket by user ID (Admin only)
    */
-  static async deleteUserBasket(userId: number): Promise<ApiResponse<DeleteBasketResponse>> {
+  static async deleteUserBasket(
+    userId: number
+  ): Promise<ApiResponse<DeleteBasketResponse>> {
     const response = await apiClient.delete(`/admin/baskets/${userId}`);
     return response.data;
   }
@@ -175,7 +177,9 @@ export class BasketService {
   /**
    * Cleanup expired baskets (Admin only)
    */
-  static async cleanupExpiredBaskets(): Promise<ApiResponse<CleanupExpiredBasketsResponse>> {
+  static async cleanupExpiredBaskets(): Promise<
+    ApiResponse<CleanupExpiredBasketsResponse>
+  > {
     const response = await apiClient.post('/admin/baskets/cleanup');
     return response.data;
   }
@@ -209,8 +213,10 @@ export class BasketService {
    */
   static isAdmin(): boolean {
     const user = this.getCurrentUser();
-    if (!user) return false;
-    
+    if (!user) {
+      return false;
+    }
+
     const userStr = localStorage.getItem('user');
     if (userStr) {
       try {
@@ -285,7 +291,7 @@ export class BasketService {
 
     // Add items one by one
     let lastResponse: ApiResponse<Basket> | null = null;
-    
+
     for (const item of items) {
       const data: AddItemRequest = {
         user_id: user.id,
@@ -317,7 +323,7 @@ export class BasketService {
 
     // Update items one by one
     let lastResponse: ApiResponse<Basket> | null = null;
-    
+
     for (const item of items) {
       const data: UpdateItemRequest = {
         user_id: user.id,
@@ -330,13 +336,17 @@ export class BasketService {
       lastResponse = response.data;
     }
 
-    return lastResponse || { success: false, message: 'Failed to update items' };
+    return (
+      lastResponse || { success: false, message: 'Failed to update items' }
+    );
   }
 
   /**
    * Remove multiple items from basket
    */
-  static async removeMultipleItems(productIds: number[]): Promise<ApiResponse<Basket>> {
+  static async removeMultipleItems(
+    productIds: number[]
+  ): Promise<ApiResponse<Basket>> {
     const user = this.getCurrentUser();
     if (!user) {
       throw new Error('User not authenticated');
@@ -344,13 +354,15 @@ export class BasketService {
 
     // Remove items one by one
     let lastResponse: ApiResponse<Basket> | null = null;
-    
+
     for (const productId of productIds) {
       const response = await apiClient.delete(`/basket/items/${productId}`);
       lastResponse = response.data;
     }
 
-    return lastResponse || { success: false, message: 'Failed to remove items' };
+    return (
+      lastResponse || { success: false, message: 'Failed to remove items' }
+    );
   }
 }
 

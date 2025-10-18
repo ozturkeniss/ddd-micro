@@ -49,7 +49,10 @@ export interface CreateProductRequest {
   stock_quantity: number;
   images?: string[];
   specifications?: Record<string, any>;
-  variants?: Omit<ProductVariant, 'id' | 'product_id' | 'created_at' | 'updated_at'>[];
+  variants?: Omit<
+    ProductVariant,
+    'id' | 'product_id' | 'created_at' | 'updated_at'
+  >[];
 }
 
 export interface UpdateProductRequest {

@@ -5,8 +5,19 @@ export interface Payment {
   order_id: string;
   amount: number;
   currency: string;
-  status: 'pending' | 'processing' | 'completed' | 'failed' | 'cancelled' | 'refunded';
-  payment_method: 'credit_card' | 'debit_card' | 'bank_transfer' | 'paypal' | 'stripe';
+  status:
+    | 'pending'
+    | 'processing'
+    | 'completed'
+    | 'failed'
+    | 'cancelled'
+    | 'refunded';
+  payment_method:
+    | 'credit_card'
+    | 'debit_card'
+    | 'bank_transfer'
+    | 'paypal'
+    | 'stripe';
   payment_provider: string;
   transaction_id?: string;
   gateway_response?: Record<string, any>;

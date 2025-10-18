@@ -151,7 +151,9 @@ export class PaymentService {
   /**
    * Get user's payment methods
    */
-  static async getPaymentMethods(): Promise<ApiResponse<ListPaymentMethodsResponse>> {
+  static async getPaymentMethods(): Promise<
+    ApiResponse<ListPaymentMethodsResponse>
+  > {
     const response = await apiClient.get('/payment-methods');
     return response.data;
   }
@@ -178,7 +180,9 @@ export class PaymentService {
   /**
    * Set default payment method
    */
-  static async setDefaultPaymentMethod(id: string): Promise<ApiResponse<PaymentMethodResponse>> {
+  static async setDefaultPaymentMethod(
+    id: string
+  ): Promise<ApiResponse<PaymentMethodResponse>> {
     const response = await apiClient.post(`/payment-methods/${id}/set-default`);
     return response.data;
   }
@@ -264,8 +268,10 @@ export class PaymentService {
    */
   static isAdmin(): boolean {
     const user = this.getCurrentUser();
-    if (!user) return false;
-    
+    if (!user) {
+      return false;
+    }
+
     const userStr = localStorage.getItem('user');
     if (userStr) {
       try {
