@@ -7,6 +7,7 @@ import (
 	"github.com/ddd-micro/internal/basket/infrastructure/client"
 	"github.com/ddd-micro/internal/basket/infrastructure/config"
 	"github.com/ddd-micro/internal/basket/infrastructure/database"
+	"github.com/ddd-micro/internal/basket/infrastructure/monitoring"
 	"github.com/ddd-micro/internal/basket/infrastructure/persistence"
 	"github.com/google/wire"
 )
@@ -24,6 +25,7 @@ var ProviderSet = wire.NewSet(
 	NewUserClient,
 	NewProductClient,
 	NewBasketRepository,
+	monitoring.ProviderSet,
 )
 
 // ProvideConfig provides application configuration
