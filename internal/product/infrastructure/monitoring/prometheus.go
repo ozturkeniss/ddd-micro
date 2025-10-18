@@ -10,23 +10,23 @@ import (
 
 // PrometheusMetrics holds all the prometheus metrics for product service
 type PrometheusMetrics struct {
-	HTTPRequestsTotal       *prometheus.CounterVec
-	HTTPRequestDuration     *prometheus.HistogramVec
-	HTTPRequestsInFlight    *prometheus.GaugeVec
-	ProductViews            prometheus.Counter
-	ProductCreations        prometheus.Counter
-	ProductUpdates          prometheus.Counter
-	ProductDeletions        prometheus.Counter
-	StockUpdates            prometheus.Counter
-	StockReductions         prometheus.Counter
-	StockIncreases          prometheus.Counter
-	ProductSearches         prometheus.Counter
-	DatabaseConnections     prometheus.Gauge
-	DatabaseQueryDuration   *prometheus.HistogramVec
-	CacheHits               prometheus.Counter
-	CacheMisses             prometheus.Counter
-	ExternalAPICalls        *prometheus.CounterVec
-	ExternalAPIDuration     *prometheus.HistogramVec
+	HTTPRequestsTotal     *prometheus.CounterVec
+	HTTPRequestDuration   *prometheus.HistogramVec
+	HTTPRequestsInFlight  *prometheus.GaugeVec
+	ProductViews          prometheus.Counter
+	ProductCreations      prometheus.Counter
+	ProductUpdates        prometheus.Counter
+	ProductDeletions      prometheus.Counter
+	StockUpdates          prometheus.Counter
+	StockReductions       prometheus.Counter
+	StockIncreases        prometheus.Counter
+	ProductSearches       prometheus.Counter
+	DatabaseConnections   prometheus.Gauge
+	DatabaseQueryDuration *prometheus.HistogramVec
+	CacheHits             prometheus.Counter
+	CacheMisses           prometheus.Counter
+	ExternalAPICalls      *prometheus.CounterVec
+	ExternalAPIDuration   *prometheus.HistogramVec
 }
 
 // NewPrometheusMetrics creates a new instance of PrometheusMetrics
@@ -150,7 +150,7 @@ func NewPrometheusMetrics() *PrometheusMetrics {
 func PrometheusMiddleware(metrics *PrometheusMetrics) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		start := time.Now()
-		
+
 		// Increment requests in flight
 		metrics.HTTPRequestsInFlight.WithLabelValues(c.Request.Method, c.FullPath()).Inc()
 		defer metrics.HTTPRequestsInFlight.WithLabelValues(c.Request.Method, c.FullPath()).Dec()
@@ -161,13 +161,13 @@ func PrometheusMiddleware(metrics *PrometheusMetrics) gin.HandlerFunc {
 		// Record metrics
 		duration := time.Since(start).Seconds()
 		status := c.Writer.Status()
-		
+
 		metrics.HTTPRequestsTotal.WithLabelValues(
 			c.Request.Method,
 			c.FullPath(),
 			string(rune(status)),
 		).Inc()
-		
+
 		metrics.HTTPRequestDuration.WithLabelValues(
 			c.Request.Method,
 			c.FullPath(),
