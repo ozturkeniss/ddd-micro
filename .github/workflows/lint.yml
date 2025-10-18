@@ -1,10 +1,14 @@
-name: Lint Code
+name: 🔍 Lint & Format Bot
 
 on:
   push:
     branches: [ main, develop ]
   pull_request:
     branches: [ main, develop ]
+  schedule:
+    # Haftalık lint kontrolü (Perşembe 09:00 UTC)
+    - cron: '0 9 * * 4'
+  workflow_dispatch:
 
 jobs:
   lint-go:
