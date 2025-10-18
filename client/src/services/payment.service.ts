@@ -17,7 +17,7 @@ import {
   ApiResponse,
 } from '@/types/payment.types';
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_PAYMENT_API_URL || 'http://localhost:8084/api/v1';
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080';
 
 class PaymentService {
   private async request<T>(

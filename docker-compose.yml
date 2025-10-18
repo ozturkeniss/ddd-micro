@@ -200,6 +200,40 @@ services:
     networks:
     - ddd-micro-network
     restart: unless-stopped
+  payment-service:
+    build:
+      context: .
+      dockerfile: dockerfiles/payment.dockerfile
+    container_name: payment-service
+    environment:
+      HTTP_PORT: 8084
+      GIN_MODE: release
+      DB_HOST: payment-db
+      DB_PORT: 5432
+      DB_USER: postgres
+      DB_PASSWORD: postgres
+      DB_NAME: payment_service_db
+      DB_SSLMODE: disable
+      USER_SERVICE_URL: user-service:9090
+      PRODUCT_SERVICE_URL: product-service:9091
+      BASKET_SERVICE_URL: basket-service:9093
+      KAFKA_BROKERS: kafka:29092
+    ports:
+    - 8084:8084
+    depends_on:
+      payment-db:
+        condition: service_healthy
+      user-service:
+        condition: service_started
+      product-service:
+        condition: service_started
+      basket-service:
+        condition: service_started
+      kafka:
+        condition: service_started
+    networks:
+    - ddd-micro-network
+    restart: unless-stopped
   krakend:
     image: devopsfaith/krakend:latest
     container_name: krakend-gateway
@@ -211,6 +245,7 @@ services:
     - user-service
     - product-service
     - basket-service
+    - payment-service
     networks:
     - ddd-micro-network
 networks:
