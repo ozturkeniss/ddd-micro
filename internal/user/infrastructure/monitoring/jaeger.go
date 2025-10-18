@@ -122,8 +122,7 @@ func SetSpanTags(span opentracing.Span, tags map[string]interface{}) {
 }
 
 // LogSpanEvent logs an event to the span
-func LogSpanEvent(span opentracing.Span, event string, fields ...opentracing.LogField) {
-	span.LogFields(fields...)
+func LogSpanEvent(span opentracing.Span, event string) {
 	span.LogEvent(event)
 }
 
@@ -131,8 +130,5 @@ func LogSpanEvent(span opentracing.Span, event string, fields ...opentracing.Log
 func LogSpanError(span opentracing.Span, err error) {
 	ext.Error.Set(span, true)
 	span.SetTag("error", true)
-	span.LogFields(opentracing.LogField{
-		Key:   "error",
-		Value: err.Error(),
-	})
+	span.LogEvent(err.Error())
 }
