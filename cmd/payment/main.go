@@ -28,8 +28,6 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/ddd-micro/internal/payment/infrastructure/database"
-	"github.com/ddd-micro/internal/payment/interfaces/http"
 	"github.com/gin-gonic/gin"
 	ginSwagger "github.com/swaggo/gin-swagger"
 	swaggerFiles "github.com/swaggo/files"

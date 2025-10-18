@@ -58,6 +58,7 @@ swagger:
 	swag init -g cmd/user/main.go -o cmd/user/docs
 	swag init -g cmd/product/main.go -o cmd/product/docs
 	swag init -g cmd/basket/main.go -o cmd/basket/docs
+	swag init -g cmd/payment/main.go -o cmd/payment/docs
 	@echo "Swagger documentation generated successfully!"
 
 # Build services
@@ -66,6 +67,7 @@ build:
 	go build -o bin/user-service ./cmd/user
 	go build -o bin/product-service ./cmd/product
 	go build -o bin/basket-service ./cmd/basket
+	go build -o bin/payment-service ./cmd/payment
 	@echo "Build completed!"
 
 # Run services
@@ -80,6 +82,10 @@ run-product:
 run-basket:
 	@echo "Running basket service..."
 	go run ./cmd/basket/main.go
+
+run-payment:
+	@echo "Running payment service..."
+	go run ./cmd/payment/main.go
 
 # Run API Gateway
 run-gateway:
