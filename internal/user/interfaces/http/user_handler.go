@@ -3,20 +3,25 @@ package http
 import (
 	"net/http"
 	"strconv"
+	"time"
 
 	"github.com/ddd-micro/internal/user/application"
+	"github.com/ddd-micro/internal/user/infrastructure/monitoring"
 	"github.com/gin-gonic/gin"
+	"github.com/opentracing/opentracing-go"
 )
 
 // UserHandler handles user-related HTTP requests
 type UserHandler struct {
 	userService *application.UserServiceCQRS
+	metrics     *monitoring.PrometheusMetrics
 }
 
 // NewUserHandler creates a new user handler
-func NewUserHandler(userService *application.UserServiceCQRS) *UserHandler {
+func NewUserHandler(userService *application.UserServiceCQRS, metrics *monitoring.PrometheusMetrics) *UserHandler {
 	return &UserHandler{
 		userService: userService,
+		metrics:     metrics,
 	}
 }
 
@@ -31,17 +36,37 @@ func NewUserHandler(userService *application.UserServiceCQRS) *UserHandler {
 // @Failure 500 {object} Response
 // @Router /users/register [post]
 func (h *UserHandler) Register(c *gin.Context) {
+	// Start tracing span
+	span, ctx := monitoring.StartSpanFromGinContext(c, "user.register")
+	defer span.Finish()
+
 	var req application.CreateUserRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
+		monitoring.LogSpanError(span, err)
 		ValidationErrorResponse(c, err)
 		return
 	}
 
-	user, err := h.userService.CreateUser(c.Request.Context(), req)
+	start := time.Now()
+	user, err := h.userService.CreateUser(ctx, req)
+	duration := time.Since(start)
+
+	// Record database query duration
+	h.metrics.RecordDatabaseQuery("create_user", "users", duration)
+
 	if err != nil {
+		monitoring.LogSpanError(span, err)
 		ErrorResponse(c, http.StatusInternalServerError, "Failed to create user", err)
 		return
 	}
+
+	// Record successful registration
+	h.metrics.RecordUserRegistration()
+	monitoring.SetSpanTags(span, map[string]interface{}{
+		"user.id":    user.ID,
+		"user.email": user.Email,
+		"success":    true,
+	})
 
 	SuccessResponse(c, http.StatusCreated, "User created successfully", user)
 }
@@ -57,21 +82,42 @@ func (h *UserHandler) Register(c *gin.Context) {
 // @Failure 401 {object} Response
 // @Router /users/login [post]
 func (h *UserHandler) Login(c *gin.Context) {
+	// Start tracing span
+	span, ctx := monitoring.StartSpanFromGinContext(c, "user.login")
+	defer span.Finish()
+
 	var req application.LoginRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
+		monitoring.LogSpanError(span, err)
 		ValidationErrorResponse(c, err)
 		return
 	}
 
-	loginResp, err := h.userService.Login(c.Request.Context(), req)
+	start := time.Now()
+	loginResp, err := h.userService.Login(ctx, req)
+	duration := time.Since(start)
+
+	// Record database query duration
+	h.metrics.RecordDatabaseQuery("user_login", "users", duration)
+
 	if err != nil {
+		monitoring.LogSpanError(span, err)
 		if err == application.ErrInvalidCredentials || err == application.ErrUserInactive {
+			h.metrics.RecordUserLoginFailure()
 			UnauthorizedResponse(c, err.Error())
 			return
 		}
 		ErrorResponse(c, http.StatusInternalServerError, "Login failed", err)
 		return
 	}
+
+	// Record successful login
+	h.metrics.RecordUserLogin()
+	monitoring.SetSpanTags(span, map[string]interface{}{
+		"user.id":    loginResp.User.ID,
+		"user.email": loginResp.User.Email,
+		"success":    true,
+	})
 
 	SuccessResponse(c, http.StatusOK, "Login successful", loginResp)
 }
