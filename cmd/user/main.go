@@ -11,6 +11,7 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/ddd-micro/internal/user/infrastructure/monitoring"
 	"github.com/gin-gonic/gin"
 )
 
@@ -21,6 +22,7 @@ func main() {
 		log.Fatalf("Failed to initialize application: %v", err)
 	}
 	defer app.Database.Close()
+	defer app.JaegerTracer.Close()
 
 	// Health check endpoint
 	app.HTTPRouter.GET("/health", func(c *gin.Context) {
