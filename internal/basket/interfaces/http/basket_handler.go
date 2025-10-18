@@ -38,11 +38,16 @@ func NewBasketHandler(basketService *application.BasketServiceCQRS, metrics *mon
 // @Failure 500 {object} dto.ErrorResponse
 // @Router /users/basket [post]
 func (h *BasketHandler) CreateBasket(c *gin.Context) {
+	// Start tracing span
+	span, _ := monitoring.StartSpanFromGinContext(c, "basket.create")
+	defer span.Finish()
+
 	var req dto.CreateBasketRequest
 
 	// Get user ID from context (set by auth middleware)
 	userID, exists := c.Get("userID")
 	if !exists {
+		monitoring.LogSpanError(span, err)
 		c.JSON(http.StatusUnauthorized, dto.ErrorResponse{
 			Error:   "Unauthorized",
 			Message: "User ID not found in context",
@@ -52,14 +57,30 @@ func (h *BasketHandler) CreateBasket(c *gin.Context) {
 
 	req.UserID = userID.(uint)
 
+	start := time.Now()
 	basket, err := h.basketService.CreateBasket(c.Request.Context(), req)
+	duration := time.Since(start)
+
+	// Record Redis operation duration
+	h.metrics.RecordRedisOperationDuration("create_basket", duration)
+
 	if err != nil {
+		monitoring.LogSpanError(span, err)
 		c.JSON(http.StatusInternalServerError, dto.ErrorResponse{
 			Error:   "Internal Server Error",
 			Message: err.Error(),
 		})
 		return
 	}
+
+	// Record successful basket creation
+	h.metrics.RecordBasketCreation()
+	monitoring.SetSpanTags(span, map[string]interface{}{
+		"user.id":      userID.(uint),
+		"basket.id":    basket.ID,
+		"operation":    "create_basket",
+		"success":      true,
+	})
 
 	c.JSON(http.StatusCreated, basket)
 }
@@ -77,9 +98,14 @@ func (h *BasketHandler) CreateBasket(c *gin.Context) {
 // @Failure 500 {object} dto.ErrorResponse
 // @Router /users/basket [get]
 func (h *BasketHandler) GetBasket(c *gin.Context) {
+	// Start tracing span
+	span, _ := monitoring.StartSpanFromGinContext(c, "basket.get")
+	defer span.Finish()
+
 	// Get user ID from context (set by auth middleware)
 	userID, exists := c.Get("userID")
 	if !exists {
+		monitoring.LogSpanError(span, err)
 		c.JSON(http.StatusUnauthorized, dto.ErrorResponse{
 			Error:   "Unauthorized",
 			Message: "User ID not found in context",
@@ -87,8 +113,15 @@ func (h *BasketHandler) GetBasket(c *gin.Context) {
 		return
 	}
 
+	start := time.Now()
 	basket, err := h.basketService.GetBasketHTTP(c.Request.Context(), userID.(uint))
+	duration := time.Since(start)
+
+	// Record Redis operation duration
+	h.metrics.RecordRedisOperationDuration("get_basket", duration)
+
 	if err != nil {
+		monitoring.LogSpanError(span, err)
 		if err.Error() == "basket not found" {
 			c.JSON(http.StatusNotFound, dto.ErrorResponse{
 				Error:   "Not Found",
@@ -103,6 +136,15 @@ func (h *BasketHandler) GetBasket(c *gin.Context) {
 		})
 		return
 	}
+
+	// Record successful basket retrieval
+	h.metrics.RecordBasketRetrieval()
+	monitoring.SetSpanTags(span, map[string]interface{}{
+		"user.id":      userID.(uint),
+		"basket.id":    basket.ID,
+		"operation":    "get_basket",
+		"success":      true,
+	})
 
 	c.JSON(http.StatusOK, basket)
 }
