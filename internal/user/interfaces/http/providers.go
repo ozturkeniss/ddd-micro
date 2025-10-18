@@ -2,6 +2,7 @@ package http
 
 import (
 	"github.com/ddd-micro/internal/user/application"
+	"github.com/ddd-micro/internal/user/infrastructure/monitoring"
 	"github.com/gin-gonic/gin"
 	"github.com/google/wire"
 )
