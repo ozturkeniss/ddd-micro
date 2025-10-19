@@ -86,23 +86,34 @@ func (c *productClient) ValidateProducts(ctx context.Context, productIDs []uint)
 		ids[i] = uint32(id)
 	}
 
-	req := &productpb.ValidateProductsRequest{
-		Ids: ids,
+	// Since there's no ValidateProducts method, we'll use individual GetProduct calls
+	var products []*productpb.Product
+	for _, id := range productIDs {
+		req := &productpb.GetProductRequest{
+			ProductId: uint32(id),
+		}
+		
+		resp, err := c.client.GetProduct(ctx, req)
+		if err != nil {
+			return nil, fmt.Errorf("failed to validate product %d: %w", id, err)
+		}
+		
+		// Check if product is available
+		if !resp.IsActive {
+			return nil, fmt.Errorf("product %d is not active", id)
+		}
+		
+		products = append(products, resp)
 	}
 
-	resp, err := c.client.ValidateProducts(ctx, req)
-	if err != nil {
-		return nil, fmt.Errorf("failed to validate products: %w", err)
-	}
-
-	return resp.Products, nil
+	return products, nil
 }
 
 // UpdateStock updates product stock
 func (c *productClient) UpdateStock(ctx context.Context, productID uint, quantity int) error {
 	req := &productpb.UpdateStockRequest{
-		Id:       uint32(productID),
-		Quantity: int32(quantity),
+		ProductId: uint32(productID),
+		Stock:     int32(quantity),
 	}
 
 	_, err := c.client.UpdateStock(ctx, req)
