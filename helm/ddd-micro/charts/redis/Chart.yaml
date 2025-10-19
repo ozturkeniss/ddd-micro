@@ -1,0 +1,10 @@
+apiVersion: v2
+name: redis
+description: Redis for Basket Service Cache
+type: application
+version: 0.1.0
+appVersion: "7.0.0"
+dependencies:
+  - name: redis
+    version: "17.3.7"
+    repository: "https://charts.bitnami.com/bitnami"
