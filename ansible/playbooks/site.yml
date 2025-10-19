@@ -1,0 +1,118 @@
+---
+# DDD Microservices Complete Deployment Playbook
+# This playbook deploys the entire infrastructure and applications
+
+- name: "DDD Microservices Complete Deployment"
+  hosts: all
+  become: yes
+  gather_facts: yes
+  serial: "{{ serial | default(1) }}"
+  
+  pre_tasks:
+    - name: "Update system packages"
+      apt:
+        update_cache: yes
+        upgrade: dist
+        autoremove: yes
+        autoclean: yes
+      when: ansible_os_family == "Debian"
+    
+    - name: "Install essential packages"
+      package:
+        name: "{{ essential_packages }}"
+        state: present
+      when: install_essential_packages | default(true)
+
+  roles:
+    - role: common
+      tags: [common, system]
+    
+    - role: security
+      tags: [security, hardening]
+      when: security_enabled | default(true)
+    
+    - role: monitoring
+      tags: [monitoring, observability]
+      when: monitoring_enabled | default(true)
+
+- name: "Deploy Kubernetes Cluster"
+  hosts: k8s_masters:k8s_workers
+  become: yes
+  gather_facts: yes
+  
+  roles:
+    - role: k8s-setup
+      tags: [kubernetes, k8s, cluster]
+    
+    - role: helm-deploy
+      tags: [helm, charts, applications]
+      when: deploy_applications | default(true)
+
+- name: "Deploy Database Infrastructure"
+  hosts: databases
+  become: yes
+  gather_facts: yes
+  
+  roles:
+    - role: postgres
+      tags: [postgres, database, rdbms]
+      when: "'postgres' in group_names"
+    
+    - role: redis
+      tags: [redis, cache, nosql]
+      when: "'redis' in group_names"
+    
+    - role: kafka
+      tags: [kafka, messaging, streaming]
+      when: "'kafka' in group_names"
+
+- name: "Deploy Monitoring Stack"
+  hosts: monitoring
+  become: yes
+  gather_facts: yes
+  
+  roles:
+    - role: prometheus
+      tags: [prometheus, metrics, monitoring]
+    
+    - role: grafana
+      tags: [grafana, dashboards, visualization]
+    
+    - role: jaeger
+      tags: [jaeger, tracing, observability]
+
+- name: "Deploy Load Balancer"
+  hosts: load_balancers
+  become: yes
+  gather_facts: yes
+  
+  roles:
+    - role: nginx
+      tags: [nginx, loadbalancer, proxy]
+
+- name: "Configure Backup and Recovery"
+  hosts: all
+  become: yes
+  gather_facts: yes
+  
+  roles:
+    - role: backup
+      tags: [backup, recovery, disaster]
+      when: backup_enabled | default(true)
+
+  post_tasks:
+    - name: "Display deployment summary"
+      debug:
+        msg: |
+          DDD Microservices Deployment Complete!
+          
+          Environment: {{ environment }}
+          Kubernetes Cluster: {{ k8s_cluster_name }}
+          Monitoring: {{ 'Enabled' if monitoring_enabled else 'Disabled' }}
+          Backup: {{ 'Enabled' if backup_enabled else 'Disabled' }}
+          
+          Next steps:
+          1. Verify cluster status: kubectl get nodes
+          2. Check applications: kubectl get pods -A
+          3. Access monitoring: http://{{ prometheus_ip }}:9090
+          4. Access dashboards: http://{{ grafana_ip }}:3000
