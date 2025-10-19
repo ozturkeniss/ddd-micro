@@ -29,6 +29,7 @@ import (
 	"time"
 
 	_ "github.com/ddd-micro/cmd/payment/docs" // This is required for swagger docs
+	"github.com/ddd-micro/internal/payment/infrastructure/monitoring"
 	"github.com/gin-gonic/gin"
 	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
@@ -41,6 +42,7 @@ func main() {
 		log.Fatalf("Failed to initialize app: %v", err)
 	}
 	defer cleanup()
+	defer app.JaegerTracer.Close()
 
 	// Set Gin mode
 	gin.SetMode(gin.ReleaseMode)
@@ -75,7 +77,8 @@ func main() {
 
 // App represents the application dependencies
 type App struct {
-	HTTPRouter *gin.Engine
+	HTTPRouter   *gin.Engine
+	JaegerTracer *monitoring.JaegerTracer
 }
 
 // InitializeApp initializes all application dependencies using Wire
