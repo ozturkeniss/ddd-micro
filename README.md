@@ -450,6 +450,381 @@ erDiagram
     USER ||--o{ PAYMENT_METHOD : owns
 ```
 
+## Terraform Infrastructure Architecture
+
+```mermaid
+%%{init: {'theme':'dark', 'themeVariables': { 'primaryColor': '#ff6b6b', 'primaryTextColor': '#ffffff', 'primaryBorderColor': '#ff6b6b', 'lineColor': '#ffffff', 'secondaryColor': '#4ecdc4', 'tertiaryColor': '#45b7d1', 'background': '#2c3e50', 'mainBkg': '#34495e', 'secondBkg': '#2c3e50', 'tertiaryBkg': '#34495e'}}}%%
+graph TB
+    subgraph "AWS Cloud Infrastructure"
+        subgraph "VPC (10.0.0.0/16)"
+            subgraph "Public Subnets"
+                IGW[Internet Gateway]
+                NAT1[NAT Gateway 1]
+                NAT2[NAT Gateway 2]
+                NAT3[NAT Gateway 3]
+            end
+            
+            subgraph "Private Subnets"
+                EKS[EKS Cluster]
+                RDS1[PostgreSQL User]
+                RDS2[PostgreSQL Product]
+                RDS3[PostgreSQL Basket]
+                RDS4[PostgreSQL Payment]
+                REDIS[ElastiCache Redis]
+                MSK[MSK Kafka Cluster]
+            end
+        end
+        
+        subgraph "Container Registry"
+            ECR1[ECR User Service]
+            ECR2[ECR Product Service]
+            ECR3[ECR Basket Service]
+            ECR4[ECR Payment Service]
+        end
+        
+        subgraph "Load Balancer"
+            ALB[Application Load Balancer]
+            NLB[Network Load Balancer]
+        end
+    end
+    
+    subgraph "Kubernetes Cluster"
+        subgraph "Control Plane"
+            MASTER1[Master Node 1]
+            MASTER2[Master Node 2]
+            MASTER3[Master Node 3]
+        end
+        
+        subgraph "Worker Nodes"
+            WORKER1[Worker Node 1]
+            WORKER2[Worker Node 2]
+            WORKER3[Worker Node 3]
+        end
+        
+        subgraph "Pods"
+            USER_POD[User Service Pod]
+            PRODUCT_POD[Product Service Pod]
+            BASKET_POD[Basket Service Pod]
+            PAYMENT_POD[Payment Service Pod]
+            KRAKEND_POD[KrakenD Gateway Pod]
+        end
+    end
+    
+    IGW --> ALB
+    ALB --> KRAKEND_POD
+    KRAKEND_POD --> USER_POD
+    KRAKEND_POD --> PRODUCT_POD
+    KRAKEND_POD --> BASKET_POD
+    KRAKEND_POD --> PAYMENT_POD
+    
+    USER_POD --> RDS1
+    PRODUCT_POD --> RDS2
+    BASKET_POD --> REDIS
+    PAYMENT_POD --> RDS4
+    PAYMENT_POD --> MSK
+    
+    ECR1 --> USER_POD
+    ECR2 --> PRODUCT_POD
+    ECR3 --> BASKET_POD
+    ECR4 --> PAYMENT_POD
+```
+
+## Ansible Configuration Management
+
+```mermaid
+%%{init: {'theme':'dark', 'themeVariables': { 'primaryColor': '#ff6b6b', 'primaryTextColor': '#ffffff', 'primaryBorderColor': '#ff6b6b', 'lineColor': '#ffffff', 'secondaryColor': '#4ecdc4', 'tertiaryColor': '#45b7d1', 'background': '#2c3e50', 'mainBkg': '#34495e', 'secondBkg': '#2c3e50', 'tertiaryBkg': '#34495e'}}}%%
+graph TB
+    subgraph "Ansible Control Node"
+        ANSIBLE[Ansible Controller]
+        INVENTORY[Inventory Files]
+        PLAYBOOKS[Playbooks]
+        ROLES[Roles]
+    end
+    
+    subgraph "Target Infrastructure"
+        subgraph "Kubernetes Masters"
+            K8S_MASTER1[Master Node 1]
+            K8S_MASTER2[Master Node 2]
+            K8S_MASTER3[Master Node 3]
+        end
+        
+        subgraph "Kubernetes Workers"
+            K8S_WORKER1[Worker Node 1]
+            K8S_WORKER2[Worker Node 2]
+            K8S_WORKER3[Worker Node 3]
+        end
+        
+        subgraph "Database Servers"
+            POSTGRES_DB[PostgreSQL Server]
+            REDIS_DB[Redis Server]
+            KAFKA_DB[Kafka Brokers]
+        end
+        
+        subgraph "Monitoring Servers"
+            PROMETHEUS_SRV[Prometheus Server]
+            GRAFANA_SRV[Grafana Server]
+            JAEGER_SRV[Jaeger Server]
+        end
+        
+        subgraph "Load Balancers"
+            NGINX_LB1[Nginx LB 1]
+            NGINX_LB2[Nginx LB 2]
+        end
+    end
+    
+    subgraph "Ansible Roles"
+        K8S_ROLE[k8s-setup Role]
+        HELM_ROLE[helm-deploy Role]
+        MONITORING_ROLE[monitoring Role]
+        SECURITY_ROLE[security Role]
+        BACKUP_ROLE[backup Role]
+    end
+    
+    ANSIBLE --> INVENTORY
+    ANSIBLE --> PLAYBOOKS
+    ANSIBLE --> ROLES
+    
+    PLAYBOOKS --> K8S_ROLE
+    PLAYBOOKS --> HELM_ROLE
+    PLAYBOOKS --> MONITORING_ROLE
+    PLAYBOOKS --> SECURITY_ROLE
+    PLAYBOOKS --> BACKUP_ROLE
+    
+    K8S_ROLE --> K8S_MASTER1
+    K8S_ROLE --> K8S_MASTER2
+    K8S_ROLE --> K8S_MASTER3
+    K8S_ROLE --> K8S_WORKER1
+    K8S_ROLE --> K8S_WORKER2
+    K8S_ROLE --> K8S_WORKER3
+    
+    HELM_ROLE --> K8S_MASTER1
+    
+    MONITORING_ROLE --> PROMETHEUS_SRV
+    MONITORING_ROLE --> GRAFANA_SRV
+    MONITORING_ROLE --> JAEGER_SRV
+    
+    SECURITY_ROLE --> K8S_MASTER1
+    SECURITY_ROLE --> K8S_MASTER2
+    SECURITY_ROLE --> K8S_MASTER3
+    SECURITY_ROLE --> K8S_WORKER1
+    SECURITY_ROLE --> K8S_WORKER2
+    SECURITY_ROLE --> K8S_WORKER3
+    
+    BACKUP_ROLE --> K8S_MASTER1
+    BACKUP_ROLE --> POSTGRES_DB
+    BACKUP_ROLE --> REDIS_DB
+```
+
+## Kubernetes Cluster Architecture
+
+```mermaid
+%%{init: {'theme':'dark', 'themeVariables': { 'primaryColor': '#ff6b6b', 'primaryTextColor': '#ffffff', 'primaryBorderColor': '#ff6b6b', 'lineColor': '#ffffff', 'secondaryColor': '#4ecdc4', 'tertiaryColor': '#45b7d1', 'background': '#2c3e50', 'mainBkg': '#34495e', 'secondBkg': '#2c3e50', 'tertiaryBkg': '#34495e'}}}%%
+graph TB
+    subgraph "Kubernetes Control Plane"
+        subgraph "Master Node 1"
+            API1[API Server]
+            ETCD1[etcd]
+            CM1[Controller Manager]
+            SCHED1[Scheduler]
+        end
+        
+        subgraph "Master Node 2"
+            API2[API Server]
+            ETCD2[etcd]
+            CM2[Controller Manager]
+            SCHED2[Scheduler]
+        end
+        
+        subgraph "Master Node 3"
+            API3[API Server]
+            ETCD3[etcd]
+            CM3[Controller Manager]
+            SCHED3[Scheduler]
+        end
+    end
+    
+    subgraph "Worker Nodes"
+        subgraph "Worker Node 1"
+            KUBELET1[kubelet]
+            PROXY1[kube-proxy]
+            CONTAINERD1[containerd]
+            CNI1[CNI Plugin]
+        end
+        
+        subgraph "Worker Node 2"
+            KUBELET2[kubelet]
+            PROXY2[kube-proxy]
+            CONTAINERD2[containerd]
+            CNI2[CNI Plugin]
+        end
+        
+        subgraph "Worker Node 3"
+            KUBELET3[kubelet]
+            PROXY3[kube-proxy]
+            CONTAINERD3[containerd]
+            CNI3[CNI Plugin]
+        end
+    end
+    
+    subgraph "Pods and Services"
+        subgraph "ddd-micro Namespace"
+            USER_SVC[User Service]
+            PRODUCT_SVC[Product Service]
+            BASKET_SVC[Basket Service]
+            PAYMENT_SVC[Payment Service]
+            KRAKEND_SVC[KrakenD Gateway]
+        end
+        
+        subgraph "System Pods"
+            DNS[CoreDNS]
+            CNI_POD[CNI Pods]
+            PROXY_POD[Proxy Pods]
+        end
+    end
+    
+    subgraph "Storage"
+        PV1[Persistent Volume 1]
+        PV2[Persistent Volume 2]
+        PV3[Persistent Volume 3]
+        SC[Storage Classes]
+    end
+    
+    subgraph "Network"
+        CNI_NET[CNI Network]
+        SERVICE_NET[Service Network]
+        POD_NET[Pod Network]
+    end
+    
+    API1 --> KUBELET1
+    API1 --> KUBELET2
+    API1 --> KUBELET3
+    
+    API2 --> KUBELET1
+    API2 --> KUBELET2
+    API2 --> KUBELET3
+    
+    API3 --> KUBELET1
+    API3 --> KUBELET2
+    API3 --> KUBELET3
+    
+    KUBELET1 --> CONTAINERD1
+    KUBELET2 --> CONTAINERD2
+    KUBELET3 --> CONTAINERD3
+    
+    CONTAINERD1 --> USER_SVC
+    CONTAINERD1 --> PRODUCT_SVC
+    CONTAINERD2 --> BASKET_SVC
+    CONTAINERD2 --> PAYMENT_SVC
+    CONTAINERD3 --> KRAKEND_SVC
+    
+    CNI1 --> CNI_NET
+    CNI2 --> CNI_NET
+    CNI3 --> CNI_NET
+    
+    USER_SVC --> PV1
+    PRODUCT_SVC --> PV2
+    BASKET_SVC --> PV3
+```
+
+## CI/CD Pipeline Architecture
+
+```mermaid
+%%{init: {'theme':'dark', 'themeVariables': { 'primaryColor': '#ff6b6b', 'primaryTextColor': '#ffffff', 'primaryBorderColor': '#ff6b6b', 'lineColor': '#ffffff', 'secondaryColor': '#4ecdc4', 'tertiaryColor': '#45b7d1', 'background': '#2c3e50', 'mainBkg': '#34495e', 'secondBkg': '#2c3e50', 'tertiaryBkg': '#34495e'}}}%%
+graph TB
+    subgraph "Source Control"
+        GITHUB[GitHub Repository]
+        MAIN[main branch]
+        DEVELOP[develop branch]
+        FEATURE[feature branches]
+    end
+    
+    subgraph "CI/CD Triggers"
+        PUSH[Push Events]
+        PR[Pull Request Events]
+        SCHEDULE[Scheduled Events]
+    end
+    
+    subgraph "CI Pipeline"
+        CHECKOUT[Checkout Code]
+        TEST[Run Tests]
+        BUILD[Build Images]
+        SECURITY[Security Scan]
+        LINT[Code Linting]
+    end
+    
+    subgraph "CD Pipeline"
+        subgraph "Staging Environment"
+            TF_STAGING[Terraform Apply - Staging]
+            ANSIBLE_STAGING[Ansible Deploy - Staging]
+            HELM_STAGING[Helm Deploy - Staging]
+        end
+        
+        subgraph "Production Environment"
+            TF_PROD[Terraform Apply - Prod]
+            ANSIBLE_PROD[Ansible Deploy - Prod]
+            HELM_PROD[Helm Deploy - Prod]
+        end
+    end
+    
+    subgraph "Infrastructure as Code"
+        TERRAFORM[Terraform Modules]
+        ANSIBLE[Ansible Playbooks]
+        HELM[Helm Charts]
+    end
+    
+    subgraph "Container Registry"
+        ECR[Amazon ECR]
+        DOCKERHUB[Docker Hub]
+    end
+    
+    subgraph "Deployment Targets"
+        K8S_STAGING[K8s Staging Cluster]
+        K8S_PROD[K8s Production Cluster]
+    end
+    
+    subgraph "Monitoring & Notifications"
+        SLACK[Slack Notifications]
+        EMAIL[Email Alerts]
+        DASHBOARD[Monitoring Dashboard]
+    end
+    
+    GITHUB --> PUSH
+    GITHUB --> PR
+    GITHUB --> SCHEDULE
+    
+    PUSH --> CHECKOUT
+    PR --> CHECKOUT
+    SCHEDULE --> CHECKOUT
+    
+    CHECKOUT --> TEST
+    CHECKOUT --> LINT
+    TEST --> BUILD
+    LINT --> BUILD
+    BUILD --> SECURITY
+    
+    SECURITY --> TF_STAGING
+    SECURITY --> TF_PROD
+    
+    TF_STAGING --> ANSIBLE_STAGING
+    ANSIBLE_STAGING --> HELM_STAGING
+    HELM_STAGING --> K8S_STAGING
+    
+    TF_PROD --> ANSIBLE_PROD
+    ANSIBLE_PROD --> HELM_PROD
+    HELM_PROD --> K8S_PROD
+    
+    BUILD --> ECR
+    BUILD --> DOCKERHUB
+    
+    K8S_STAGING --> SLACK
+    K8S_PROD --> SLACK
+    K8S_STAGING --> EMAIL
+    K8S_PROD --> EMAIL
+    
+    K8S_STAGING --> DASHBOARD
+    K8S_PROD --> DASHBOARD
+```
+
 ## Deployment Architecture
 
 ```mermaid
