@@ -1,0 +1,90 @@
+---
+# Kubernetes Cluster Setup Playbook
+# This playbook sets up a Kubernetes cluster from scratch
+
+- name: "Prepare Kubernetes Master Nodes"
+  hosts: k8s_masters
+  become: yes
+  gather_facts: yes
+  serial: 1
+  
+  pre_tasks:
+    - name: "Check if this is the first master node"
+      set_fact:
+        is_first_master: "{{ inventory_hostname == groups['k8s_masters'][0] }}"
+    
+    - name: "Set cluster initialization flag"
+      set_fact:
+        init_cluster: "{{ is_first_master }}"
+
+  roles:
+    - role: k8s-setup
+      tags: [kubernetes, k8s, masters]
+
+- name: "Prepare Kubernetes Worker Nodes"
+  hosts: k8s_workers
+  become: yes
+  gather_facts: yes
+  serial: "{{ worker_serial | default(2) }}"
+  
+  roles:
+    - role: k8s-setup
+      tags: [kubernetes, k8s, workers]
+
+- name: "Configure CNI Plugin"
+  hosts: k8s_masters[0]
+  become: yes
+  gather_facts: yes
+  
+  tasks:
+    - name: "Install Calico CNI"
+      kubernetes.core.kubectl:
+        state: present
+        src: "https://raw.githubusercontent.com/projectcalico/calico/v3.26.0/manifests/tigera-operator.yaml"
+        kubeconfig: "/etc/kubernetes/admin.conf"
+      when: k8s_cni == "calico"
+    
+    - name: "Install Flannel CNI"
+      kubernetes.core.kubectl:
+        state: present
+        src: "https://raw.githubusercontent.com/flannel-io/flannel/master/Documentation/kube-flannel.yml"
+        kubeconfig: "/etc/kubernetes/admin.conf"
+      when: k8s_cni == "flannel"
+    
+    - name: "Wait for CNI to be ready"
+      kubernetes.core.kubectl:
+        state: present
+        resource: "daemonset"
+        name: "calico-node"
+        namespace: "calico-system"
+        kubeconfig: "/etc/kubernetes/admin.conf"
+      when: k8s_cni == "calico"
+      register: calico_ds
+      until: calico_ds.resources[0].status.numberReady == calico_ds.resources[0].status.desiredNumberScheduled
+      retries: 30
+      delay: 10
+
+- name: "Verify Cluster Status"
+  hosts: k8s_masters[0]
+  become: yes
+  gather_facts: yes
+  
+  tasks:
+    - name: "Get cluster nodes"
+      kubernetes.core.kubectl:
+        state: present
+        resource: "nodes"
+        kubeconfig: "/etc/kubernetes/admin.conf"
+      register: cluster_nodes
+    
+    - name: "Display cluster status"
+      debug:
+        msg: |
+          Kubernetes Cluster Status:
+          - Total nodes: {{ cluster_nodes.resources | length }}
+          - Ready nodes: {{ cluster_nodes.resources | selectattr('status.conditions', 'defined') | selectattr('status.conditions', 'selectattr', 'type', 'equalto', 'Ready') | selectattr('status.conditions', 'selectattr', 'status', 'equalto', 'True') | list | length }}
+          
+          Node Details:
+          {% for node in cluster_nodes.resources %}
+          - {{ node.metadata.name }}: {{ node.status.conditions | selectattr('type', 'equalto', 'Ready') | first.status }}
+          {% endfor %}
