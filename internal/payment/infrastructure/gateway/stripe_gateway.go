@@ -50,8 +50,8 @@ func (g *stripeGateway) CreatePayment(ctx context.Context, payment *domain.Payme
 			},
 		},
 		Mode:       stripe.String(string(stripe.CheckoutSessionModePayment)),
-		SuccessURL: stripe.String(payment.ReturnURL),
-		CancelURL:  stripe.String(payment.CancelURL),
+		SuccessURL: payment.ReturnURL,
+		CancelURL:  payment.CancelURL,
 		Metadata: map[string]string{
 			"payment_id": payment.ID,
 			"order_id":   payment.OrderID,
@@ -250,6 +250,23 @@ func (g *stripeGateway) CreatePaymentMethod(ctx context.Context, userID uint, pa
 		GatewayResponse: map[string]interface{}{
 			"payment_method_id": attachedPM.ID,
 			"customer_id":       cust.ID,
+		},
+	}, nil
+}
+
+// DeletePaymentMethod deletes a payment method via Stripe
+func (g *stripeGateway) DeletePaymentMethod(ctx context.Context, paymentMethodID string) (*domain.GatewayResponse, error) {
+	// Detach payment method from customer
+	_, err := paymentmethod.Detach(paymentMethodID, nil)
+	if err != nil {
+		return nil, fmt.Errorf("failed to delete payment method: %w", err)
+	}
+
+	return &domain.GatewayResponse{
+		TransactionID: paymentMethodID,
+		GatewayResponse: map[string]interface{}{
+			"payment_method_id": paymentMethodID,
+			"status":           "deleted",
 		},
 	}, nil
 }

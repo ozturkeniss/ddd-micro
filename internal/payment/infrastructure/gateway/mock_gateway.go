@@ -18,14 +18,14 @@ func NewMockGateway() domain.PaymentGateway {
 }
 
 // CreatePayment creates a mock payment
-func (g *mockGateway) CreatePayment(ctx context.Context, payment *domain.Payment) (*domain.GatewayResponse, error) {
+func (g *mockGateway) CreatePayment(ctx context.Context, payment *domain.Payment) (*domain.PaymentPaymentGatewayResponse, error) {
 	// Simulate some processing time
 	time.Sleep(100 * time.Millisecond)
 
 	transactionID := uuid.New().String()
 	paymentURL := fmt.Sprintf("https://mock-payment.com/checkout/%s", transactionID)
 
-	return &domain.GatewayResponse{
+	return &domain.PaymentGatewayResponse{
 		TransactionID: transactionID,
 		PaymentURL:    paymentURL,
 		ClientSecret:  "mock_client_secret_" + transactionID,
@@ -38,7 +38,7 @@ func (g *mockGateway) CreatePayment(ctx context.Context, payment *domain.Payment
 }
 
 // ProcessPayment processes a mock payment
-func (g *mockGateway) ProcessPayment(ctx context.Context, payment *domain.Payment, paymentMethodID string) (*domain.GatewayResponse, error) {
+func (g *mockGateway) ProcessPayment(ctx context.Context, payment *domain.Payment, paymentMethodID string) (*domain.PaymentPaymentGatewayResponse, error) {
 	// Simulate some processing time
 	time.Sleep(200 * time.Millisecond)
 
@@ -57,7 +57,7 @@ func (g *mockGateway) ProcessPayment(ctx context.Context, payment *domain.Paymen
 		transactionID = *payment.TransactionID
 	}
 
-	return &domain.GatewayResponse{
+	return &domain.PaymentGatewayResponse{
 		TransactionID: transactionID,
 		Status:        status,
 		GatewayResponse: map[string]interface{}{
@@ -69,7 +69,7 @@ func (g *mockGateway) ProcessPayment(ctx context.Context, payment *domain.Paymen
 }
 
 // CancelPayment cancels a mock payment
-func (g *mockGateway) CancelPayment(ctx context.Context, payment *domain.Payment) (*domain.GatewayResponse, error) {
+func (g *mockGateway) CancelPayment(ctx context.Context, payment *domain.Payment) (*domain.PaymentGatewayResponse, error) {
 	// Simulate some processing time
 	time.Sleep(100 * time.Millisecond)
 
@@ -78,7 +78,7 @@ func (g *mockGateway) CancelPayment(ctx context.Context, payment *domain.Payment
 		transactionID = *payment.TransactionID
 	}
 
-	return &domain.GatewayResponse{
+	return &domain.PaymentGatewayResponse{
 		TransactionID: transactionID,
 		Status:        domain.PaymentStatusCancelled,
 		GatewayResponse: map[string]interface{}{
@@ -89,7 +89,7 @@ func (g *mockGateway) CancelPayment(ctx context.Context, payment *domain.Payment
 }
 
 // RefundPayment refunds a mock payment
-func (g *mockGateway) RefundPayment(ctx context.Context, payment *domain.Payment, amount float64, reason string) (*domain.GatewayResponse, error) {
+func (g *mockGateway) RefundPayment(ctx context.Context, payment *domain.Payment, amount float64, reason string) (*domain.PaymentGatewayResponse, error) {
 	// Simulate some processing time
 	time.Sleep(300 * time.Millisecond)
 
@@ -105,7 +105,7 @@ func (g *mockGateway) RefundPayment(ctx context.Context, payment *domain.Payment
 
 	refundID := uuid.New().String()
 
-	return &domain.GatewayResponse{
+	return &domain.PaymentGatewayResponse{
 		TransactionID: refundID,
 		Status:        status,
 		GatewayResponse: map[string]interface{}{
@@ -119,7 +119,7 @@ func (g *mockGateway) RefundPayment(ctx context.Context, payment *domain.Payment
 }
 
 // CreatePaymentMethod creates a mock payment method
-func (g *mockGateway) CreatePaymentMethod(ctx context.Context, userID uint, paymentMethod *domain.PaymentMethodInfo) (*domain.GatewayResponse, error) {
+func (g *mockGateway) CreatePaymentMethod(ctx context.Context, userID uint, paymentMethod *domain.PaymentMethodInfo) (*domain.PaymentGatewayResponse, error) {
 	// Simulate some processing time
 	time.Sleep(150 * time.Millisecond)
 
@@ -133,7 +133,7 @@ func (g *mockGateway) CreatePaymentMethod(ctx context.Context, userID uint, paym
 	paymentMethod.ExpiryMonth = intPtr(12)
 	paymentMethod.ExpiryYear = intPtr(2025)
 
-	return &domain.GatewayResponse{
+	return &domain.PaymentGatewayResponse{
 		TransactionID: paymentMethodID,
 		GatewayResponse: map[string]interface{}{
 			"payment_method_id": paymentMethodID,

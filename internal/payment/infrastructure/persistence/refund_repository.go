@@ -146,28 +146,36 @@ func (r *refundRepository) GetRefundStats(ctx context.Context, userID *uint, sta
 	}
 
 	// Get total refunds and amount
-	if err := query.Count(&stats.TotalRefunds).Error; err != nil {
+	var totalRefunds int64
+	if err := query.Count(&totalRefunds).Error; err != nil {
 		return nil, fmt.Errorf("failed to count total refunds: %w", err)
 	}
+	stats.TotalRefunds = int(totalRefunds)
 
 	if err := query.Select("COALESCE(SUM(amount), 0)").Scan(&stats.TotalAmount).Error; err != nil {
 		return nil, fmt.Errorf("failed to get total refund amount: %w", err)
 	}
 
 	// Get completed refunds
-	if err := query.Where("status = ?", "completed").Count(&stats.CompletedRefunds).Error; err != nil {
+	var completedRefunds int64
+	if err := query.Where("status = ?", "completed").Count(&completedRefunds).Error; err != nil {
 		return nil, fmt.Errorf("failed to count completed refunds: %w", err)
 	}
+	stats.CompletedRefunds = int(completedRefunds)
 
 	// Get pending refunds
-	if err := query.Where("status = ?", "pending").Count(&stats.PendingRefunds).Error; err != nil {
+	var pendingRefunds int64
+	if err := query.Where("status = ?", "pending").Count(&pendingRefunds).Error; err != nil {
 		return nil, fmt.Errorf("failed to count pending refunds: %w", err)
 	}
+	stats.PendingRefunds = int(pendingRefunds)
 
 	// Get failed refunds
-	if err := query.Where("status = ?", "failed").Count(&stats.FailedRefunds).Error; err != nil {
+	var failedRefunds int64
+	if err := query.Where("status = ?", "failed").Count(&failedRefunds).Error; err != nil {
 		return nil, fmt.Errorf("failed to count failed refunds: %w", err)
 	}
+	stats.FailedRefunds = int(failedRefunds)
 
 	// Calculate average amount
 	if stats.TotalRefunds > 0 {
