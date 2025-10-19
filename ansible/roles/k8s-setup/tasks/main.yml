@@ -1,0 +1,22 @@
+---
+# Kubernetes Setup Role - Main Tasks
+
+- name: "Include OS-specific tasks"
+  include_tasks: "{{ ansible_os_family }}.yml"
+  when: ansible_os_family in ['Debian', 'RedHat']
+
+- name: "Configure container runtime"
+  include_tasks: container_runtime.yml
+
+- name: "Install Kubernetes packages"
+  include_tasks: install_k8s.yml
+
+- name: "Configure Kubernetes"
+  include_tasks: configure_k8s.yml
+
+- name: "Start and enable services"
+  include_tasks: services.yml
+
+- name: "Configure networking"
+  include_tasks: networking.yml
+  when: node_type == "master"
