@@ -11,12 +11,10 @@ import (
 
 // BasketClient defines the interface for basket service operations
 type BasketClient interface {
-	GetBasket(ctx context.Context, userID uint) (*basketpb.Basket, error)
+	GetBasket(ctx context.Context, userID uint) (*basketpb.BasketResponse, error)
 	GetBasketItems(ctx context.Context, userID uint) ([]*basketpb.BasketItem, error)
-	ValidateBasket(ctx context.Context, userID uint) (*basketpb.Basket, error)
+	ValidateBasket(ctx context.Context, userID uint) (*basketpb.BasketResponse, error)
 	ClearBasket(ctx context.Context, userID uint) error
-	ReserveItems(ctx context.Context, userID uint, items []*basketpb.BasketItem) error
-	ReleaseReservation(ctx context.Context, userID uint) error
 }
 
 // basketClient implements BasketClient interface
@@ -41,7 +39,7 @@ func NewBasketClient(basketServiceURL string) (BasketClient, error) {
 }
 
 // GetBasket gets user's basket
-func (c *basketClient) GetBasket(ctx context.Context, userID uint) (*basketpb.Basket, error) {
+func (c *basketClient) GetBasket(ctx context.Context, userID uint) (*basketpb.BasketResponse, error) {
 	req := &basketpb.GetBasketRequest{
 		UserId: uint32(userID),
 	}
@@ -51,7 +49,7 @@ func (c *basketClient) GetBasket(ctx context.Context, userID uint) (*basketpb.Ba
 		return nil, fmt.Errorf("failed to get basket: %w", err)
 	}
 
-	return resp.Basket, nil
+	return resp, nil
 }
 
 // GetBasketItems gets basket items
@@ -65,7 +63,7 @@ func (c *basketClient) GetBasketItems(ctx context.Context, userID uint) ([]*bask
 }
 
 // ValidateBasket validates basket contents and availability
-func (c *basketClient) ValidateBasket(ctx context.Context, userID uint) (*basketpb.Basket, error) {
+func (c *basketClient) ValidateBasket(ctx context.Context, userID uint) (*basketpb.BasketResponse, error) {
 	req := &basketpb.GetBasketRequest{
 		UserId: uint32(userID),
 	}
@@ -76,12 +74,12 @@ func (c *basketClient) ValidateBasket(ctx context.Context, userID uint) (*basket
 	}
 
 	// Check if basket is empty
-	if len(resp.Basket.Items) == 0 {
+	if len(resp.Items) == 0 {
 		return nil, fmt.Errorf("basket is empty")
 	}
 
 	// Check if basket has valid items
-	for _, item := range resp.Basket.Items {
+	for _, item := range resp.Items {
 		if item.Quantity <= 0 {
 			return nil, fmt.Errorf("invalid quantity for product %d", item.ProductId)
 		}
@@ -90,7 +88,7 @@ func (c *basketClient) ValidateBasket(ctx context.Context, userID uint) (*basket
 		}
 	}
 
-	return resp.Basket, nil
+	return resp, nil
 }
 
 // ClearBasket clears user's basket
@@ -107,34 +105,6 @@ func (c *basketClient) ClearBasket(ctx context.Context, userID uint) error {
 	return nil
 }
 
-// ReserveItems reserves items in the basket
-func (c *basketClient) ReserveItems(ctx context.Context, userID uint, items []*basketpb.BasketItem) error {
-	req := &basketpb.ReserveItemsRequest{
-		UserId: uint32(userID),
-		Items:  items,
-	}
-
-	_, err := c.client.ReserveItems(ctx, req)
-	if err != nil {
-		return fmt.Errorf("failed to reserve items: %w", err)
-	}
-
-	return nil
-}
-
-// ReleaseReservation releases reserved items
-func (c *basketClient) ReleaseReservation(ctx context.Context, userID uint) error {
-	req := &basketpb.ReleaseReservationRequest{
-		UserId: uint32(userID),
-	}
-
-	_, err := c.client.ReleaseReservation(ctx, req)
-	if err != nil {
-		return fmt.Errorf("failed to release reservation: %w", err)
-	}
-
-	return nil
-}
 
 // Close closes the gRPC connection
 func (c *basketClient) Close() error {
