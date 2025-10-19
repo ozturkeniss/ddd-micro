@@ -1,0 +1,18 @@
+postgresql:
+  enabled: true
+  auth:
+    postgresPassword: "postgres"
+    username: "postgres"
+    password: "postgres"
+    database: "product_service_db"
+  primary:
+    persistence:
+      enabled: true
+      size: 10Gi
+    resources:
+      requests:
+        memory: "256Mi"
+        cpu: "250m"
+      limits:
+        memory: "512Mi"
+        cpu: "500m"
