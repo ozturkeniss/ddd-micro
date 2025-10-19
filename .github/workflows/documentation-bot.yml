@@ -2,30 +2,21 @@ name: 📚 Documentation Bot
 
 on:
   schedule:
-    # Haftalık dokümantasyon güncelleme (Cuma 05:00 UTC)
-    - cron: '0 5 * * 5'
+    # Her gün saat 05:00'da çalış
+    - cron: '0 5 * * *'
   push:
-    paths:
-      - 'cmd/**/*.go'
-      - 'internal/**/*.go'
-      - 'api/**/*.proto'
+    branches: [ main, develop ]
   workflow_dispatch:
 
 jobs:
-  documentation-update:
-    name: 📚 Documentation Updater
+  documentation:
+    name: 📚 Documentation Generator
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
-      pull-requests: write
-      issues: write
-      checks: write
     
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
       with:
-        token: ${{ secrets.GITHUB_TOKEN }}
         fetch-depth: 0
     
     - name: Set up Go
@@ -33,383 +24,347 @@ jobs:
       with:
         go-version: '1.21'
     
-    - name: Set up Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: '18'
+    - name: Install documentation tools
+      run: |
+        echo "📚 Installing documentation tools..."
+        go install golang.org/x/tools/cmd/godoc@latest
+        go install github.com/swaggo/swag/cmd/swag@latest
+        go install github.com/golangci/golangci-lint/cmd/golangci-lint@latest
     
-    - name: Generate API Documentation
+    - name: Generate API documentation
       run: |
         echo "📚 Generating API documentation..."
         
-        # Install swag
-        go install github.com/swaggo/swag/cmd/swag@latest
+        # Create docs directory
+        mkdir -p docs/api
         
-        # Generate swagger for all services
-        swag init -g cmd/user/main.go -o cmd/user/docs
-        swag init -g cmd/product/main.go -o cmd/product/docs
-        swag init -g cmd/basket/main.go -o cmd/basket/docs
-        swag init -g cmd/payment/main.go -o cmd/payment/docs
+        # Generate Swagger docs for each service
+        echo "Generating User Service API docs..."
+        cd cmd/user && swag init -g main.go -o ../../docs/api/user && cd ../..
         
-        echo "✅ API documentation generated"
+        echo "Generating Product Service API docs..."
+        cd cmd/product && swag init -g main.go -o ../../docs/api/product && cd ../..
+        
+        echo "Generating Basket Service API docs..."
+        cd cmd/basket && swag init -g main.go -o ../../docs/api/basket && cd ../..
+        
+        echo "Generating Payment Service API docs..."
+        cd cmd/payment && swag init -g main.go -o ../../docs/api/payment && cd ../..
+        
+        echo "📚 API documentation generated"
     
-    - name: Generate Code Documentation
+    - name: Generate code documentation
       run: |
         echo "📚 Generating code documentation..."
         
-        # Generate Go documentation
+        # Create code docs directory
         mkdir -p docs/code
-        godoc -url=/pkg > docs/code/go-docs.html || echo "No Go docs generated"
         
-        # Generate function documentation
-        find . -name "*.go" -not -path "./vendor/*" -not -path "./.git/*" | head -20 | while read file; do
-          echo "## $((basename $file))" >> docs/code/functions.md
-          grep -n "^func " "$file" >> docs/code/functions.md || true
-          echo "" >> docs/code/functions.md
-        done
+        # Generate Go documentation
+        godoc -http=:6060 &
+        GODOC_PID=$!
+        sleep 5
+        
+        # Save documentation
+        curl -s http://localhost:6060/pkg/github.com/ddd-micro/ > docs/code/index.html
+        
+        # Kill godoc server
+        kill $GODOC_PID
+        
+        echo "📚 Code documentation generated"
     
-    - name: Update README with Statistics
+    - name: Generate architecture documentation
       run: |
-        echo "📚 Updating README with project statistics..."
+        echo "📚 Generating architecture documentation..."
         
-        # Get project statistics
-        TOTAL_FILES=$(find . -name "*.go" | wc -l)
-        TOTAL_LINES=$(find . -name "*.go" -exec wc -l {} + | tail -1 | awk '{print $1}')
-        TOTAL_FUNCTIONS=$(grep -r "^func " . --include="*.go" | wc -l)
-        TOTAL_STRUCTS=$(grep -r "^type.*struct" . --include="*.go" | wc -l)
-        TOTAL_INTERFACES=$(grep -r "^type.*interface" . --include="*.go" | wc -l)
+        # Create architecture docs
+        cat > docs/architecture.md << 'EOF'
+        # 🏗️ DDD Microservices Architecture
         
-        # Get commit statistics
-        TOTAL_COMMITS=$(git rev-list --count HEAD)
-        CONTRIBUTORS=$(git log --format='%aN' | sort -u | wc -l)
+        ## 📋 Overview
+        This project implements a Domain-Driven Design (DDD) microservices architecture using Go.
         
-        # Update README if it has a statistics section
-        if grep -q "## 📊 Project Statistics" README.md; then
-          # Create a temporary file with updated statistics
-          cat > temp_stats.md << EOF
+        ## 🎯 Services
         
-        ## 📊 Project Statistics
+        ### User Service
+        - **Port:** 8081
+        - **Responsibility:** User management, authentication, authorization
+        - **Database:** PostgreSQL
+        - **API:** REST + gRPC
         
-        | Metric | Value |
-        |--------|-------|
-        | 📁 Total Go Files | $TOTAL_FILES |
-        | 📝 Total Lines of Code | $TOTAL_LINES |
-        | 🔧 Total Functions | $TOTAL_FUNCTIONS |
-        | 🏗️ Total Structs | $TOTAL_STRUCTS |
-        | 🔌 Total Interfaces | $TOTAL_INTERFACES |
-        | 📈 Total Commits | $TOTAL_COMMITS |
-        | 👥 Contributors | $CONTRIBUTORS |
-        | 📅 Last Updated | $(date '+%Y-%m-%d %H:%M:%S UTC') |
+        ### Product Service
+        - **Port:** 8082
+        - **Responsibility:** Product catalog, inventory management
+        - **Database:** PostgreSQL
+        - **API:** REST + gRPC
         
+        ### Basket Service
+        - **Port:** 8083
+        - **Responsibility:** Shopping cart management
+        - **Database:** Redis
+        - **API:** gRPC
+        
+        ### Payment Service
+        - **Port:** 8084
+        - **Responsibility:** Payment processing, billing
+        - **Database:** PostgreSQL
+        - **API:** REST
+        
+        ## 🔄 Communication Patterns
+        - **Synchronous:** gRPC for internal service communication
+        - **Asynchronous:** Kafka for event-driven communication
+        - **HTTP:** REST APIs for external clients
+        
+        ## 🏗️ Infrastructure
+        - **Containerization:** Docker
+        - **Orchestration:** Docker Compose
+        - **Monitoring:** Prometheus + Grafana
+        - **Tracing:** Jaeger
+        - **Message Queue:** Kafka
+        
+        ## 🔒 Security
+        - **Authentication:** JWT tokens
+        - **Authorization:** Role-based access control
+        - **API Security:** HTTPS, CORS
+        - **Database:** Encrypted connections
+        
+        ---
+        *Generated by Documentation Bot 📚*
         EOF
-          
-          # Replace the statistics section
-          sed -i '/## 📊 Project Statistics/,/^$/c\
-        ' README.md
-          cat temp_stats.md >> README.md
-          rm temp_stats.md
-        fi
+        
+        echo "📚 Architecture documentation generated"
     
-    - name: Generate Service Documentation
-      run: |
-        echo "📚 Generating service-specific documentation..."
-        
-        # Create service documentation
-        mkdir -p docs/services
-        
-        # User Service Documentation
-        cat > docs/services/user-service.md << EOF
-        # 👤 User Service Documentation
-        
-        ## Overview
-        The User Service handles user authentication, registration, and profile management.
-        
-        ## Endpoints
-        - \`POST /api/v1/users/register\` - Register a new user
-        - \`POST /api/v1/users/login\` - User login
-        - \`GET /api/v1/users/profile\` - Get user profile
-        - \`PUT /api/v1/users/profile\` - Update user profile
-        
-        ## Database Schema
-        - Users table with authentication fields
-        - Roles and permissions system
-        
-        ## Dependencies
-        - PostgreSQL database
-        - JWT for authentication
-        
-        ---
-        *Generated by Documentation Bot 📚*
-        EOF
-        
-        # Product Service Documentation
-        cat > docs/services/product-service.md << EOF
-        # 🛍️ Product Service Documentation
-        
-        ## Overview
-        The Product Service manages product catalog, inventory, and search functionality.
-        
-        ## Endpoints
-        - \`GET /api/v1/products\` - List products
-        - \`GET /api/v1/products/{id}\` - Get product details
-        - \`POST /api/v1/admin/products\` - Create product (admin)
-        - \`PUT /api/v1/admin/products/{id}\` - Update product (admin)
-        
-        ## Features
-        - Product search and filtering
-        - Category management
-        - Inventory tracking
-        - Admin product management
-        
-        ## Dependencies
-        - PostgreSQL database
-        - Redis for caching
-        
-        ---
-        *Generated by Documentation Bot 📚*
-        EOF
-        
-        # Basket Service Documentation
-        cat > docs/services/basket-service.md << EOF
-        # 🛒 Basket Service Documentation
-        
-        ## Overview
-        The Basket Service manages user shopping carts and basket operations.
-        
-        ## Endpoints
-        - \`GET /api/v1/users/basket\` - Get user basket
-        - \`POST /api/v1/users/basket/items\` - Add item to basket
-        - \`PUT /api/v1/users/basket/items\` - Update basket item
-        - \`DELETE /api/v1/users/basket/items/{product_id}\` - Remove item
-        
-        ## Features
-        - Session-based basket management
-        - Item quantity management
-        - Basket persistence
-        
-        ## Dependencies
-        - Redis for session storage
-        - User Service for authentication
-        - Product Service for product data
-        
-        ---
-        *Generated by Documentation Bot 📚*
-        EOF
-        
-        # Payment Service Documentation
-        cat > docs/services/payment-service.md << EOF
-        # 💳 Payment Service Documentation
-        
-        ## Overview
-        The Payment Service handles payment processing, payment methods, and refunds.
-        
-        ## Endpoints
-        - \`POST /api/v1/payments\` - Create payment
-        - \`GET /api/v1/payments\` - List payments
-        - \`POST /api/v1/payments/{id}/process\` - Process payment
-        - \`GET /api/v1/payment-methods\` - List payment methods
-        - \`POST /api/v1/payment-methods\` - Add payment method
-        
-        ## Features
-        - Multiple payment methods support
-        - Payment processing workflows
-        - Refund management
-        - Admin payment management
-        
-        ## Dependencies
-        - PostgreSQL database
-        - Payment gateway integration
-        - Kafka for event streaming
-        
-        ---
-        *Generated by Documentation Bot 📚*
-        EOF
-    
-    - name: Generate API Gateway Documentation
-      run: |
-        echo "📚 Generating API Gateway documentation..."
-        
-        cat > docs/api-gateway.md << EOF
-        # 🌐 API Gateway Documentation
-        
-        ## Overview
-        The API Gateway (KrakenD) provides a single entry point for all microservices.
-        
-        ## Configuration
-        - **Port:** 8080
-        - **Configuration File:** \`gateways/krakend/krakend.json\`
-        
-        ## Routes
-        ### User Service Routes
-        - \`POST /users/register\` → User Service
-        - \`POST /users/login\` → User Service
-        - \`GET /users/profile\` → User Service
-        
-        ### Product Service Routes
-        - \`GET /products\` → Product Service
-        - \`GET /products/{id}\` → Product Service
-        - \`POST /admin/products\` → Product Service
-        
-        ### Basket Service Routes
-        - \`GET /basket\` → Basket Service
-        - \`POST /basket/items\` → Basket Service
-        - \`PUT /basket/items\` → Basket Service
-        
-        ### Payment Service Routes
-        - \`POST /payments\` → Payment Service
-        - \`GET /payments\` → Payment Service
-        - \`GET /payment-methods\` → Payment Service
-        
-        ## Features
-        - Request routing and load balancing
-        - Authentication and authorization
-        - Rate limiting and caching
-        - Request/response transformation
-        
-        ---
-        *Generated by Documentation Bot 📚*
-        EOF
-    
-    - name: Generate Deployment Documentation
+    - name: Generate deployment documentation
       run: |
         echo "📚 Generating deployment documentation..."
         
-        cat > docs/deployment.md << EOF
-        # 🚀 Deployment Documentation
+        # Create deployment docs
+        cat > docs/deployment.md << 'EOF'
+        # 🚀 Deployment Guide
         
-        ## Docker Compose Deployment
-        
-        ### Services
-        - **User Service:** Port 8080
-        - **Product Service:** Port 8081
-        - **Basket Service:** Port 8083
-        - **Payment Service:** Port 8084
-        - **API Gateway:** Port 8080 (external)
-        
-        ### Databases
-        - **User DB:** PostgreSQL (Port 5432)
-        - **Product DB:** PostgreSQL (Port 5433)
-        - **Basket DB:** PostgreSQL (Port 5434)
-        - **Payment DB:** PostgreSQL (Port 5435)
-        - **Redis:** Port 6379
-        - **Kafka:** Port 9092
-        
-        ### Commands
-        \`\`\`bash
-        # Start all services
-        make docker-up
-        
-        # Stop all services
-        make docker-down
-        
-        # View logs
-        make docker-logs
-        
-        # Rebuild and start
-        make docker-rebuild
-        \`\`\`
-        
-        ## Development Setup
-        
-        ### Prerequisites
+        ## 📋 Prerequisites
+        - Docker and Docker Compose
         - Go 1.21+
-        - Node.js 18+
-        - Docker & Docker Compose
+        - Git
         
-        ### Local Development
-        \`\`\`bash
+        ## 🏗️ Local Development
+        
+        ### Quick Start
+        ```bash
+        # Clone repository
+        git clone https://github.com/ddd-micro/ddd-micro.git
+        cd ddd-micro
+        
+        # Start all services
+        docker-compose up -d
+        
+        # Check service health
+        curl http://localhost:8081/health  # User Service
+        curl http://localhost:8082/health  # Product Service
+        curl http://localhost:8083/health  # Basket Service
+        curl http://localhost:8084/health  # Payment Service
+        ```
+        
+        ### Development Setup
+        ```bash
         # Install dependencies
-        make install-deps
-        
-        # Generate documentation
-        make swagger
+        go mod download
         
         # Run tests
-        make test
+        go test ./...
         
-        # Start individual services
-        make run-user
-        make run-product
-        make run-basket
-        make run-payment
+        # Build services
+        go build -o bin/user-service ./cmd/user
+        go build -o bin/product-service ./cmd/product
+        go build -o bin/basket-service ./cmd/basket
+        go build -o bin/payment-service ./cmd/payment
+        ```
+        
+        ## 🌐 Production Deployment
+        
+        ### Environment Variables
+        - `DB_HOST`: Database host
+        - `DB_PORT`: Database port
+        - `DB_USER`: Database user
+        - `DB_PASSWORD`: Database password
+        - `REDIS_HOST`: Redis host
+        - `KAFKA_BROKERS`: Kafka broker addresses
+        
+        ### Docker Deployment
+        ```bash
+        # Production deployment
+        docker-compose -f docker-compose-production.yml up -d
+        ```
+        
+        ## 📊 Monitoring
+        - **Prometheus:** http://localhost:9090
+        - **Grafana:** http://localhost:3000
+        - **Jaeger:** http://localhost:16686
+        
+        ---
+        *Generated by Documentation Bot 📚*
+        EOF
+        
+        echo "📚 Deployment documentation generated"
+    
+    - name: Generate API reference
+      run: |
+        echo "📚 Generating API reference..."
+        
+        # Create API reference
+        cat > docs/api-reference.md << 'EOF'
+        # 📚 API Reference
+        
+        ## 🔗 Service Endpoints
+        
+        ### User Service (Port 8081)
+        - `POST /api/v1/users/register` - Register new user
+        - `POST /api/v1/users/login` - User login
+        - `GET /api/v1/users/profile` - Get user profile
+        - `PUT /api/v1/users/profile` - Update user profile
+        
+        ### Product Service (Port 8082)
+        - `GET /api/v1/products` - List products
+        - `POST /api/v1/products` - Create product
+        - `GET /api/v1/products/:id` - Get product
+        - `PUT /api/v1/products/:id` - Update product
+        
+        ### Basket Service (Port 8083)
+        - `POST /api/v1/baskets` - Create basket
+        - `GET /api/v1/baskets` - Get user basket
+        - `POST /api/v1/baskets/items` - Add item to basket
+        - `DELETE /api/v1/baskets/items/:id` - Remove item from basket
+        
+        ### Payment Service (Port 8084)
+        - `POST /api/v1/payments` - Create payment
+        - `GET /api/v1/payments/:id` - Get payment
+        - `POST /api/v1/payments/:id/process` - Process payment
+        - `POST /api/v1/payments/:id/cancel` - Cancel payment
+        
+        ## 🔒 Authentication
+        All API endpoints (except registration and login) require authentication.
+        Include the JWT token in the Authorization header:
+        ```
+        Authorization: Bearer <your-jwt-token>
+        ```
+        
+        ## 📊 Response Format
+        All API responses follow this format:
+        ```json
+        {
+          "status": "success|error",
+          "message": "Response message",
+          "data": { ... },
+          "timestamp": "2024-01-01T00:00:00Z"
+        }
+        ```
+        
+        ---
+        *Generated by Documentation Bot 📚*
+        EOF
+        
+        echo "📚 API reference generated"
+    
+    - name: Update README
+      run: |
+        echo "📚 Updating README..."
+        
+        # Get current date
+        CURRENT_DATE=$(date '+%Y-%m-%d')
+        
+        # Update README if it exists
+        if [ -f README.md ]; then
+          # Add documentation section if not exists
+          if ! grep -q "## 📚 Documentation" README.md; then
+            cat >> README.md << EOF
+        
+        ## 📚 Documentation
+        - [Architecture](docs/architecture.md)
+        - [API Reference](docs/api-reference.md)
+        - [Deployment Guide](docs/deployment.md)
+        - [API Documentation](docs/api/)
+        
+        *Last updated: $CURRENT_DATE*
+        EOF
+          fi
+        else
+          # Create README if it doesn't exist
+          cat > README.md << EOF
+        # 🏗️ DDD Microservices Project
+        
+        A Domain-Driven Design microservices architecture implemented in Go.
+        
+        ## 🎯 Services
+        - **User Service** - User management and authentication
+        - **Product Service** - Product catalog and inventory
+        - **Basket Service** - Shopping cart management
+        - **Payment Service** - Payment processing
+        
+        ## 📚 Documentation
+        - [Architecture](docs/architecture.md)
+        - [API Reference](docs/api-reference.md)
+        - [Deployment Guide](docs/deployment.md)
+        - [API Documentation](docs/api/)
+        
+        ## 🚀 Quick Start
+        \`\`\`bash
+        docker-compose up -d
         \`\`\`
         
-        ---
-        *Generated by Documentation Bot 📚*
+        *Last updated: $CURRENT_DATE*
         EOF
-    
-    - name: Commit Documentation Updates
-      run: |
-        echo "📚 Committing documentation updates..."
-        
-        # Check if there are changes
-        if ! git diff --quiet; then
-          git config --local user.email "docs-bot@ddd-micro.com"
-          git config --local user.name "📚 Documentation Bot"
-          git add .
-          git commit -m "📚 Auto-update: Regenerate documentation
-
-        - Updated API documentation for all services
-        - Generated service-specific documentation
-        - Updated project statistics
-        - Generated deployment documentation
-        - Auto-committed by documentation bot"
-          git push
-          echo "✅ Documentation updated and committed"
-        else
-          echo "✅ No documentation updates needed"
         fi
+        
+        echo "📚 README updated"
     
-    - name: Create Documentation Index
+    - name: Commit documentation
       run: |
-        echo "📚 Creating documentation index..."
+        echo "💾 Committing documentation..."
         
-        cat > docs/README.md << EOF
-        # 📚 DDD Microservices Documentation
+        git config --local user.email "bot@ddd-micro.com"
+        git config --local user.name "📚 Documentation Bot"
         
-        Welcome to the DDD Microservices documentation! This documentation is automatically generated and updated by our Documentation Bot.
+        # Commit documentation
+        git add docs/ README.md
+        git commit -m "📚 Auto-docs: Update project documentation
+
+        - Generated API documentation for all services
+        - Updated architecture documentation
+        - Created deployment guide
+        - Updated README with latest information
+        - Auto-committed by documentation bot" || echo "No changes to commit"
         
-        ## 📖 Documentation Sections
+        git push || echo "Nothing to push"
+        echo "✅ Documentation committed"
+    
+    - name: Create documentation summary
+      run: |
+        echo "📋 Creating documentation summary..."
         
-        ### 🏗️ Architecture
-        - [API Gateway](./api-gateway.md) - API Gateway configuration and routes
-        - [Deployment](./deployment.md) - Deployment and setup instructions
+        # Create summary
+        cat > docs/documentation-summary.md << EOF
+        # 📚 Documentation Summary
         
-        ### 🔧 Services
-        - [User Service](./services/user-service.md) - User management and authentication
-        - [Product Service](./services/product-service.md) - Product catalog and inventory
-        - [Basket Service](./services/basket-service.md) - Shopping cart management
-        - [Payment Service](./services/payment-service.md) - Payment processing and methods
+        ## 📋 Generated Documentation
+        - ✅ API Documentation (Swagger)
+        - ✅ Architecture Documentation
+        - ✅ Deployment Guide
+        - ✅ API Reference
+        - ✅ Code Documentation
         
-        ### 📊 Code Documentation
-        - [Go Documentation](./code/go-docs.html) - Generated Go documentation
-        - [Functions Reference](./code/functions.md) - Function documentation
+        ## 📊 Documentation Statistics
+        - **Total Files:** $(find docs/ -type f | wc -l)
+        - **API Endpoints:** $(find docs/api/ -name "*.json" | wc -l)
+        - **Last Updated:** $(date '+%Y-%m-%d %H:%M:%S UTC')
         
-        ## 🤖 Automated Documentation
-        
-        This documentation is automatically updated by our Documentation Bot every Friday at 05:00 UTC. The bot:
-        
-        - ✅ Regenerates API documentation from Swagger annotations
-        - ✅ Updates project statistics and metrics
-        - ✅ Creates service-specific documentation
-        - ✅ Maintains deployment and setup guides
-        - ✅ Generates code documentation
-        
-        ## 📅 Last Updated
-        $(date '+%Y-%m-%d %H:%M:%S UTC')
+        ## 🔗 Quick Links
+        - [API Documentation](api/)
+        - [Architecture Guide](architecture.md)
+        - [Deployment Guide](deployment.md)
+        - [API Reference](api-reference.md)
         
         ---
         *Generated by Documentation Bot 📚*
         EOF
         
-        # Commit documentation index
-        git config --local user.email "docs-bot@ddd-micro.com"
-        git config --local user.name "📚 Documentation Bot"
-        git add docs/README.md
-        git commit -m "📚 Documentation: Update documentation index
-
-        - Created comprehensive documentation index
-        - Updated navigation and structure
-        - Auto-committed by documentation bot"
-        git push
-        echo "✅ Documentation index created and committed"
+        echo "📋 Documentation summary created"
