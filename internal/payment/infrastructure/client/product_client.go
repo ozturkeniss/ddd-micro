@@ -60,16 +60,22 @@ func (c *productClient) GetProducts(ctx context.Context, productIDs []uint) ([]*
 		ids[i] = uint32(id)
 	}
 
-	req := &productpb.GetProductsRequest{
-		Ids: ids,
+	// Since there's no GetProducts method, we'll use individual GetProduct calls
+	var products []*productpb.Product
+	for _, id := range productIDs {
+		req := &productpb.GetProductRequest{
+			ProductId: uint32(id),
+		}
+		
+		resp, err := c.client.GetProduct(ctx, req)
+		if err != nil {
+			return nil, fmt.Errorf("failed to get product %d: %w", id, err)
+		}
+		
+		products = append(products, resp)
 	}
 
-	resp, err := c.client.GetProducts(ctx, req)
-	if err != nil {
-		return nil, fmt.Errorf("failed to get products: %w", err)
-	}
-
-	return resp.Products, nil
+	return products, nil
 }
 
 // ValidateProducts validates that products exist and are available
