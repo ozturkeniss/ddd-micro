@@ -1,0 +1,10 @@
+apiVersion: v2
+name: kafka
+description: Kafka for Event Streaming
+type: application
+version: 0.1.0
+appVersion: "3.4.0"
+dependencies:
+  - name: kafka
+    version: "22.1.5"
+    repository: "https://charts.bitnami.com/bitnami"
