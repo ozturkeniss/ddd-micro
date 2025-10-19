@@ -1,0 +1,166 @@
+# Global variables for all hosts
+
+# System configuration
+timezone: "UTC"
+ntp_servers:
+  - "0.pool.ntp.org"
+  - "1.pool.ntp.org"
+  - "2.pool.ntp.org"
+
+# Security configuration
+security_updates: true
+firewall_enabled: true
+fail2ban_enabled: true
+
+# Logging configuration
+log_retention_days: 30
+log_rotation: true
+
+# Monitoring configuration
+monitoring_enabled: true
+metrics_retention_days: 30
+
+# Backup configuration
+backup_enabled: true
+backup_retention_days: 7
+backup_schedule: "0 2 * * *"  # Daily at 2 AM
+
+# Network configuration
+dns_servers:
+  - "8.8.8.8"
+  - "8.8.4.4"
+  - "1.1.1.1"
+
+# Package management
+update_packages: true
+install_essential_packages: true
+
+essential_packages:
+  - curl
+  - wget
+  - git
+  - vim
+  - htop
+  - net-tools
+  - dnsutils
+  - jq
+  - unzip
+  - software-properties-common
+  - apt-transport-https
+  - ca-certificates
+  - gnupg
+  - lsb-release
+
+# Docker configuration
+docker_version: "24.0.0"
+docker_compose_version: "2.20.0"
+docker_data_root: "/var/lib/docker"
+
+# Kubernetes configuration
+k8s_cluster_name: "ddd-micro-cluster"
+k8s_api_server_port: 6443
+k8s_dns_domain: "cluster.local"
+
+# Helm configuration
+helm_repositories:
+  - name: "bitnami"
+    url: "https://charts.bitnami.com/bitnami"
+  - name: "prometheus-community"
+    url: "https://prometheus-community.github.io/helm-charts"
+  - name: "grafana"
+    url: "https://grafana.github.io/helm-charts"
+  - name: "jaegertracing"
+    url: "https://jaegertracing.github.io/helm-charts"
+
+# Microservices configuration
+microservices:
+  user_service:
+    name: "user-service"
+    port: 8080
+    grpc_port: 9090
+    replicas: 2
+    resources:
+      requests:
+        memory: "128Mi"
+        cpu: "100m"
+      limits:
+        memory: "256Mi"
+        cpu: "200m"
+  
+  product_service:
+    name: "product-service"
+    http_port: 8081
+    grpc_port: 9091
+    replicas: 2
+    resources:
+      requests:
+        memory: "128Mi"
+        cpu: "100m"
+      limits:
+        memory: "256Mi"
+        cpu: "200m"
+  
+  basket_service:
+    name: "basket-service"
+    http_port: 8083
+    grpc_port: 9093
+    replicas: 2
+    resources:
+      requests:
+        memory: "128Mi"
+        cpu: "100m"
+      limits:
+        memory: "256Mi"
+        cpu: "200m"
+  
+  payment_service:
+    name: "payment-service"
+    port: 8084
+    replicas: 2
+    resources:
+      requests:
+        memory: "128Mi"
+        cpu: "100m"
+      limits:
+        memory: "256Mi"
+        cpu: "200m"
+  
+  krakend:
+    name: "krakend"
+    port: 8080
+    replicas: 2
+    resources:
+      requests:
+        memory: "64Mi"
+        cpu: "50m"
+      limits:
+        memory: "128Mi"
+        cpu: "100m"
+
+# Database configuration
+databases:
+  postgres:
+    version: "15"
+    port: 5432
+    max_connections: 100
+    shared_buffers: "256MB"
+    effective_cache_size: "1GB"
+    maintenance_work_mem: "64MB"
+    checkpoint_completion_target: 0.9
+    wal_buffers: "16MB"
+    default_statistics_target: 100
+  
+  redis:
+    version: "7.0"
+    port: 6379
+    maxmemory: "256mb"
+    maxmemory_policy: "allkeys-lru"
+    save: "900 1 300 10 60 10000"
+  
+  kafka:
+    version: "3.4.0"
+    port: 9092
+    num_partitions: 3
+    replication_factor: 3
+    min_insync_replicas: 2
+    default_replication_factor: 3
