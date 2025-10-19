@@ -12,6 +12,7 @@ import (
 	"github.com/ddd-micro/internal/payment/application/query"
 	"github.com/ddd-micro/internal/payment/infrastructure"
 	"github.com/ddd-micro/internal/payment/infrastructure/kafka"
+	"github.com/ddd-micro/internal/payment/infrastructure/monitoring"
 	"github.com/ddd-micro/internal/payment/interfaces/http"
 )
 
@@ -54,8 +55,13 @@ func InitializeApp() (*App, func(), error) {
 	getPaymentMethodQueryHandler := query.NewGetPaymentMethodQueryHandler(paymentMethodRepository)
 	listPaymentMethodsQueryHandler := query.NewListPaymentMethodsQueryHandler(paymentMethodRepository)
 	paymentServiceCQRS := application.NewPaymentServiceCQRS(createPaymentCommandHandler, processPaymentCommandHandler, cancelPaymentCommandHandler, addPaymentMethodCommandHandler, updatePaymentMethodCommandHandler, deletePaymentMethodCommandHandler, getPaymentQueryHandler, listPaymentsQueryHandler, getPaymentMethodQueryHandler, listPaymentMethodsQueryHandler, paymentRepository, paymentMethodRepository, userClient, productClient, basketClient, paymentEventPublisher)
-	ginEngine := http.NewRouter(paymentServiceCQRS, userClient)
-	app := NewApp(ginEngine)
+	prometheusMetrics := monitoring.NewPrometheusMetrics()
+	jaegerTracer, err := monitoring.ProvideJaegerTracer()
+	if err != nil {
+		return nil, nil, err
+	}
+	ginEngine := http.NewRouter(paymentServiceCQRS, userClient, prometheusMetrics, jaegerTracer)
+	app := NewApp(ginEngine, jaegerTracer)
 	return app, func() {
 	}, nil
 }

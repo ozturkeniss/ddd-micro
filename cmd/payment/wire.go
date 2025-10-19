@@ -4,6 +4,7 @@ import (
 	"github.com/ddd-micro/internal/payment/application"
 	"github.com/ddd-micro/internal/payment/infrastructure"
 	"github.com/ddd-micro/internal/payment/infrastructure/kafka"
+	"github.com/ddd-micro/internal/payment/infrastructure/monitoring"
 	"github.com/ddd-micro/internal/payment/interfaces/http"
 	"github.com/gin-gonic/gin"
 	"github.com/google/wire"
@@ -11,7 +12,8 @@ import (
 
 // App represents the application dependencies
 type App struct {
-	HTTPRouter *gin.Engine
+	HTTPRouter   *gin.Engine
+	JaegerTracer *monitoring.JaegerTracer
 }
 
 // InitializeApp initializes all application dependencies using Wire
@@ -37,8 +39,9 @@ func InitializeApp() (*App, func(), error) {
 }
 
 // NewApp creates a new App instance
-func NewApp(httpRouter *gin.Engine) *App {
+func NewApp(httpRouter *gin.Engine, jaegerTracer *monitoring.JaegerTracer) *App {
 	return &App{
-		HTTPRouter: httpRouter,
+		HTTPRouter:   httpRouter,
+		JaegerTracer: jaegerTracer,
 	}
 }
