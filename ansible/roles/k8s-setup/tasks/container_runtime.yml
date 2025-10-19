@@ -1,0 +1,62 @@
+---
+# Container Runtime Configuration
+
+- name: "Create containerd config directory"
+  file:
+    path: /etc/containerd
+    state: directory
+    mode: '0755'
+
+- name: "Generate containerd config"
+  command: containerd config default
+  register: containerd_config
+  changed_when: false
+
+- name: "Configure containerd"
+  copy:
+    content: "{{ containerd_config.stdout }}"
+    dest: /etc/containerd/config.toml
+    backup: yes
+  notify: restart containerd
+
+- name: "Configure containerd systemd service"
+  systemd:
+    name: containerd
+    enabled: yes
+    state: started
+    daemon_reload: yes
+
+- name: "Create containerd service override directory"
+  file:
+    path: /etc/systemd/system/containerd.service.d
+    state: directory
+    mode: '0755'
+
+- name: "Configure containerd service override"
+  copy:
+    content: |
+      [Service]
+      ExecStart=
+      ExecStart=/usr/bin/containerd
+      KillMode=process
+      Delegate=yes
+      LimitNOFILE=1048576
+      LimitNPROC=infinity
+      LimitCORE=infinity
+      TasksMax=infinity
+    dest: /etc/systemd/system/containerd.service.d/override.conf
+  notify: restart containerd
+
+- name: "Configure containerd cgroup driver"
+  replace:
+    path: /etc/containerd/config.toml
+    regexp: 'SystemdCgroup = false'
+    replace: 'SystemdCgroup = true'
+  notify: restart containerd
+
+- name: "Configure containerd sandbox image"
+  replace:
+    path: /etc/containerd/config.toml
+    regexp: 'sandbox_image = "k8s.gcr.io/pause:3.6"'
+    replace: 'sandbox_image = "registry.k8s.io/pause:3.9"'
+  notify: restart containerd
