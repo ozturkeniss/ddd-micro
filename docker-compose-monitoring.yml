@@ -145,6 +145,27 @@ services:
     networks:
       - monitoring-network
 
+  # API Gateway (Krakend)
+  api-gateway:
+    image: devopsfaith/krakend:2.4
+    container_name: api-gateway
+    ports:
+      - "8080:8080"
+      - "8090:8090"  # Prometheus metrics port
+    volumes:
+      - ./gateways/krakend/krakend.json:/etc/krakend/krakend.json
+    environment:
+      - FC_ENABLE=1
+      - FC_SETTINGS=/etc/krakend
+    depends_on:
+      - user-service
+      - product-service
+      - basket-service
+      - payment-service
+      - jaeger
+    networks:
+      - monitoring-network
+
   # Jaeger
   jaeger:
     image: jaegertracing/all-in-one:1.51
@@ -190,6 +211,7 @@ services:
       - grafana_data:/var/lib/grafana
       - ./grafana/dashboards:/etc/grafana/provisioning/dashboards
       - ./grafana/datasources:/etc/grafana/provisioning/datasources
+      - ./grafana/dashboards/api-gateway-dashboard.json:/etc/grafana/provisioning/dashboards/api-gateway/api-gateway-dashboard.json
     networks:
       - monitoring-network
 

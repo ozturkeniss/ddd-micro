@@ -43,6 +43,14 @@ scrape_configs:
     scrape_interval: 5s
     scrape_timeout: 5s
 
+  # API Gateway (Krakend)
+  - job_name: 'api-gateway'
+    static_configs:
+      - targets: ['api-gateway:8090']
+    metrics_path: '/metrics'
+    scrape_interval: 5s
+    scrape_timeout: 5s
+
   # Grafana
   - job_name: 'grafana'
     static_configs:
