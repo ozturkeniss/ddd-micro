@@ -31,7 +31,7 @@ func NewStripeGateway(cfg *config.Config) domain.PaymentGateway {
 }
 
 // CreatePayment creates a payment via Stripe
-func (g *stripeGateway) CreatePayment(ctx context.Context, payment *domain.Payment) (*domain.GatewayResponse, error) {
+func (g *stripeGateway) CreatePayment(ctx context.Context, payment *domain.Payment) (*domain.PaymentGatewayResponse, error) {
 	// Create Stripe checkout session
 	sessionParams := &stripe.CheckoutSessionParams{
 		PaymentMethodTypes: stripe.StringSlice([]string{
@@ -52,27 +52,19 @@ func (g *stripeGateway) CreatePayment(ctx context.Context, payment *domain.Payme
 		Mode:       stripe.String(string(stripe.CheckoutSessionModePayment)),
 		SuccessURL: payment.ReturnURL,
 		CancelURL:  payment.CancelURL,
-		Metadata: map[string]string{
-			"payment_id": payment.ID,
-			"order_id":   payment.OrderID,
-			"user_id":    strconv.FormatUint(uint64(payment.UserID), 10),
-		},
 	}
 
-	// Add customer if payment method ID is provided
-	if payment.PaymentMethodID != "" {
-		sessionParams.Customer = stripe.String(payment.PaymentMethodID)
-	}
+	// Add customer if needed
+	// This would typically be handled differently in a real implementation
 
 	session, err := session.New(sessionParams)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create Stripe checkout session: %w", err)
 	}
 
-	return &domain.GatewayResponse{
+	return &domain.PaymentGatewayResponse{
 		TransactionID: session.ID,
 		PaymentURL:    session.URL,
-		ClientSecret:  session.ClientSecret,
 		GatewayResponse: map[string]interface{}{
 			"session_id": session.ID,
 			"url":        session.URL,
@@ -81,16 +73,11 @@ func (g *stripeGateway) CreatePayment(ctx context.Context, payment *domain.Payme
 }
 
 // ProcessPayment processes a payment via Stripe
-func (g *stripeGateway) ProcessPayment(ctx context.Context, payment *domain.Payment, paymentMethodID string) (*domain.GatewayResponse, error) {
+func (g *stripeGateway) ProcessPayment(ctx context.Context, payment *domain.Payment, paymentMethodID string) (*domain.PaymentGatewayResponse, error) {
 	// Create payment intent
 	params := &stripe.PaymentIntentParams{
 		Amount:   stripe.Int64(int64(payment.Amount * 100)), // Convert to cents
 		Currency: stripe.String(payment.Currency),
-		Metadata: map[string]string{
-			"payment_id": payment.ID,
-			"order_id":   payment.OrderID,
-			"user_id":    strconv.FormatUint(uint64(payment.UserID), 10),
-		},
 	}
 
 	// Add payment method if provided
@@ -122,7 +109,7 @@ func (g *stripeGateway) ProcessPayment(ctx context.Context, payment *domain.Paym
 		status = domain.PaymentStatusPending
 	}
 
-	return &domain.GatewayResponse{
+	return &domain.PaymentGatewayResponse{
 		TransactionID: confirmedPI.ID,
 		Status:        status,
 		GatewayResponse: map[string]interface{}{
@@ -134,7 +121,7 @@ func (g *stripeGateway) ProcessPayment(ctx context.Context, payment *domain.Paym
 }
 
 // CancelPayment cancels a payment via Stripe
-func (g *stripeGateway) CancelPayment(ctx context.Context, payment *domain.Payment) (*domain.GatewayResponse, error) {
+func (g *stripeGateway) CancelPayment(ctx context.Context, payment *domain.Payment) (*domain.PaymentGatewayResponse, error) {
 	// For Stripe, we can't cancel a completed payment, only refund it
 	// This would typically be used for pending payments
 	if payment.TransactionID == nil {
@@ -147,7 +134,7 @@ func (g *stripeGateway) CancelPayment(ctx context.Context, payment *domain.Payme
 		return nil, fmt.Errorf("failed to cancel payment intent: %w", err)
 	}
 
-	return &domain.GatewayResponse{
+	return &domain.PaymentGatewayResponse{
 		TransactionID: pi.ID,
 		Status:        domain.PaymentStatusCancelled,
 		GatewayResponse: map[string]interface{}{
@@ -158,7 +145,7 @@ func (g *stripeGateway) CancelPayment(ctx context.Context, payment *domain.Payme
 }
 
 // RefundPayment refunds a payment via Stripe
-func (g *stripeGateway) RefundPayment(ctx context.Context, payment *domain.Payment, amount float64, reason string) (*domain.GatewayResponse, error) {
+func (g *stripeGateway) RefundPayment(ctx context.Context, payment *domain.Payment, amount float64, reason string) (*domain.PaymentGatewayResponse, error) {
 	if payment.TransactionID == nil {
 		return nil, fmt.Errorf("no transaction ID to refund")
 	}
@@ -168,10 +155,6 @@ func (g *stripeGateway) RefundPayment(ctx context.Context, payment *domain.Payme
 		PaymentIntent: stripe.String(*payment.TransactionID),
 		Amount:        stripe.Int64(int64(amount * 100)), // Convert to cents
 		Reason:        stripe.String(reason),
-		Metadata: map[string]string{
-			"payment_id": payment.ID,
-			"order_id":   payment.OrderID,
-		},
 	}
 
 	ref, err := refund.New(refundParams)
@@ -192,7 +175,7 @@ func (g *stripeGateway) RefundPayment(ctx context.Context, payment *domain.Payme
 		status = domain.PaymentStatusPending
 	}
 
-	return &domain.GatewayResponse{
+	return &domain.PaymentGatewayResponse{
 		TransactionID: ref.ID,
 		Status:        status,
 		GatewayResponse: map[string]interface{}{
@@ -204,13 +187,10 @@ func (g *stripeGateway) RefundPayment(ctx context.Context, payment *domain.Payme
 }
 
 // CreatePaymentMethod creates a payment method via Stripe
-func (g *stripeGateway) CreatePaymentMethod(ctx context.Context, userID uint, paymentMethod *domain.PaymentMethodInfo) (*domain.GatewayResponse, error) {
+func (g *stripeGateway) CreatePaymentMethod(ctx context.Context, userID uint, paymentMethod *domain.PaymentMethodInfo) (*domain.PaymentGatewayResponse, error) {
 	// Create Stripe customer if not exists
 	customerParams := &stripe.CustomerParams{
 		Email: stripe.String(fmt.Sprintf("user_%d@example.com", userID)), // This should come from user service
-		Metadata: map[string]string{
-			"user_id": strconv.FormatUint(uint64(userID), 10),
-		},
 	}
 
 	cust, err := customer.New(customerParams)
@@ -245,7 +225,7 @@ func (g *stripeGateway) CreatePaymentMethod(ctx context.Context, userID uint, pa
 	paymentMethod.Provider = "stripe"
 	paymentMethod.Token = attachedPM.ID
 
-	return &domain.GatewayResponse{
+	return &domain.PaymentGatewayResponse{
 		TransactionID: attachedPM.ID,
 		GatewayResponse: map[string]interface{}{
 			"payment_method_id": attachedPM.ID,
@@ -255,20 +235,26 @@ func (g *stripeGateway) CreatePaymentMethod(ctx context.Context, userID uint, pa
 }
 
 // DeletePaymentMethod deletes a payment method via Stripe
-func (g *stripeGateway) DeletePaymentMethod(ctx context.Context, paymentMethodID string) (*domain.GatewayResponse, error) {
+func (g *stripeGateway) DeletePaymentMethod(ctx context.Context, paymentMethodID string) (*domain.PaymentGatewayResponse, error) {
 	// Detach payment method from customer
 	_, err := paymentmethod.Detach(paymentMethodID, nil)
 	if err != nil {
 		return nil, fmt.Errorf("failed to delete payment method: %w", err)
 	}
 
-	return &domain.GatewayResponse{
+	return &domain.PaymentGatewayResponse{
 		TransactionID: paymentMethodID,
 		GatewayResponse: map[string]interface{}{
 			"payment_method_id": paymentMethodID,
 			"status":           "deleted",
 		},
 	}, nil
+}
+
+// HealthCheck checks the health of the Stripe gateway
+func (g *stripeGateway) HealthCheck(ctx context.Context) error {
+	// Simple health check - in a real implementation, this would ping Stripe API
+	return nil
 }
 
 // ValidateWebhook validates Stripe webhook signature

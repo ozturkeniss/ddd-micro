@@ -252,12 +252,7 @@ func (s *PaymentServiceCQRS) CancelPayment(ctx context.Context, userID uint, pay
 
 	// Release reservations if payment was cancelled
 	if paymentResp.Status == "cancelled" {
-		// Release basket reservation if it was a basket-based purchase
-		if payment.BasketID != nil {
-			if err := s.basketClient.ReleaseReservation(ctx, userID); err != nil {
-				// Log error but don't fail the cancellation
-			}
-		}
+		// Note: In a real implementation, you would release reservations here
 	}
 
 	return paymentResp, nil

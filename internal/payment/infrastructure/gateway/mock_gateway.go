@@ -18,7 +18,7 @@ func NewMockGateway() domain.PaymentGateway {
 }
 
 // CreatePayment creates a mock payment
-func (g *mockGateway) CreatePayment(ctx context.Context, payment *domain.Payment) (*domain.PaymentPaymentGatewayResponse, error) {
+func (g *mockGateway) CreatePayment(ctx context.Context, payment *domain.Payment) (*domain.PaymentGatewayResponse, error) {
 	// Simulate some processing time
 	time.Sleep(100 * time.Millisecond)
 
@@ -38,7 +38,7 @@ func (g *mockGateway) CreatePayment(ctx context.Context, payment *domain.Payment
 }
 
 // ProcessPayment processes a mock payment
-func (g *mockGateway) ProcessPayment(ctx context.Context, payment *domain.Payment, paymentMethodID string) (*domain.PaymentPaymentGatewayResponse, error) {
+func (g *mockGateway) ProcessPayment(ctx context.Context, payment *domain.Payment, paymentMethodID string) (*domain.PaymentGatewayResponse, error) {
 	// Simulate some processing time
 	time.Sleep(200 * time.Millisecond)
 
@@ -157,6 +157,20 @@ func (g *mockGateway) ValidateWebhook(ctx context.Context, payload []byte, signa
 				"id":     "pi_mock_" + uuid.New().String(),
 				"status": "succeeded",
 			},
+		},
+	}, nil
+}
+
+// DeletePaymentMethod deletes a payment method
+func (g *mockGateway) DeletePaymentMethod(ctx context.Context, paymentMethodID string) (*domain.PaymentGatewayResponse, error) {
+	// Simulate some processing time
+	time.Sleep(100 * time.Millisecond)
+
+	return &domain.PaymentGatewayResponse{
+		TransactionID: paymentMethodID,
+		GatewayResponse: map[string]interface{}{
+			"payment_method_id": paymentMethodID,
+			"status":           "deleted",
 		},
 	}, nil
 }
