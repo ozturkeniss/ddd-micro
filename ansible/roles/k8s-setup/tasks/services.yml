@@ -1,0 +1,60 @@
+---
+# Kubernetes Services Management
+
+- name: "Start and enable containerd"
+  systemd:
+    name: containerd
+    enabled: yes
+    state: started
+    daemon_reload: yes
+
+- name: "Start and enable kubelet"
+  systemd:
+    name: kubelet
+    enabled: yes
+    state: started
+    daemon_reload: yes
+
+- name: "Wait for containerd to be ready"
+  wait_for:
+    port: /var/run/containerd/containerd.sock
+    timeout: 60
+
+- name: "Initialize Kubernetes cluster (master only)"
+  kubernetes.core.kubeadm:
+    state: present
+    config: /tmp/kubeadm-config.yaml
+  when: node_type == "master" and init_cluster | default(false)
+  register: kubeadm_init
+
+- name: "Join worker nodes to cluster"
+  kubernetes.core.kubeadm:
+    state: present
+    config: /tmp/kubeadm-config.yaml
+  when: node_type == "worker"
+  register: kubeadm_join
+
+- name: "Create kubeconfig for root"
+  copy:
+    content: "{{ kubeadm_init.kubeconfig.stdout }}"
+    dest: /root/.kube/config
+    mode: '0600'
+  when: node_type == "master" and init_cluster | default(false)
+
+- name: "Create kubeconfig for ubuntu user"
+  copy:
+    content: "{{ kubeadm_init.kubeconfig.stdout }}"
+    dest: /home/ubuntu/.kube/config
+    owner: ubuntu
+    group: ubuntu
+    mode: '0600'
+  when: node_type == "master" and init_cluster | default(false)
+
+- name: "Create kubeconfig directory for ubuntu user"
+  file:
+    path: /home/ubuntu/.kube
+    state: directory
+    owner: ubuntu
+    group: ubuntu
+    mode: '0755'
+  when: node_type == "master" and init_cluster | default(false)
