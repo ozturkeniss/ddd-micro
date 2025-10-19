@@ -114,6 +114,37 @@ services:
     networks:
       - monitoring-network
 
+  # Payment Service
+  payment-service:
+    build:
+      context: .
+      dockerfile: dockerfiles/payment.dockerfile
+    container_name: payment-service
+    ports:
+      - "8084:8084"
+    environment:
+      - HTTP_PORT=8084
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_USER=postgres
+      - DB_PASSWORD=password
+      - DB_NAME=ddd_micro
+      - USER_SERVICE_URL=http://user-service:8081
+      - PRODUCT_SERVICE_URL=http://product-service:8082
+      - BASKET_SERVICE_URL=http://basket-service:8083
+      - STRIPE_SECRET_KEY=sk_test_your_stripe_secret_key
+      - KAFKA_BROKERS=kafka:9092
+      - JAEGER_AGENT_HOST=jaeger
+      - JAEGER_AGENT_PORT=6831
+      - JAEGER_SAMPLER_TYPE=const
+      - JAEGER_SAMPLER_PARAM=1
+    depends_on:
+      - postgres
+      - kafka
+      - jaeger
+    networks:
+      - monitoring-network
+
   # Jaeger
   jaeger:
     image: jaegertracing/all-in-one:1.51
