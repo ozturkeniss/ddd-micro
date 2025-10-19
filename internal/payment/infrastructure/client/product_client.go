@@ -66,12 +66,12 @@ func (c *productClient) GetProducts(ctx context.Context, productIDs []uint) ([]*
 		req := &productpb.GetProductRequest{
 			ProductId: uint32(id),
 		}
-		
+
 		resp, err := c.client.GetProduct(ctx, req)
 		if err != nil {
 			return nil, fmt.Errorf("failed to get product %d: %w", id, err)
 		}
-		
+
 		products = append(products, resp)
 	}
 
@@ -92,17 +92,17 @@ func (c *productClient) ValidateProducts(ctx context.Context, productIDs []uint)
 		req := &productpb.GetProductRequest{
 			ProductId: uint32(id),
 		}
-		
+
 		resp, err := c.client.GetProduct(ctx, req)
 		if err != nil {
 			return nil, fmt.Errorf("failed to validate product %d: %w", id, err)
 		}
-		
+
 		// Check if product is available
 		if !resp.IsActive {
 			return nil, fmt.Errorf("product %d is not active", id)
 		}
-		
+
 		products = append(products, resp)
 	}
 

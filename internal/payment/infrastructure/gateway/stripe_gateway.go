@@ -266,7 +266,7 @@ func (g *stripeGateway) DeletePaymentMethod(ctx context.Context, paymentMethodID
 		TransactionID: paymentMethodID,
 		GatewayResponse: map[string]interface{}{
 			"payment_method_id": paymentMethodID,
-			"status":           "deleted",
+			"status":            "deleted",
 		},
 	}, nil
 }
