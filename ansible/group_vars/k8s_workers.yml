@@ -1,0 +1,107 @@
+# Kubernetes Worker nodes configuration
+
+# Kubelet configuration
+k8s_kubelet_config:
+  kind: "KubeletConfiguration"
+  apiVersion: "kubelet.config.k8s.io/v1beta1"
+  authentication:
+    anonymous:
+      enabled: false
+    webhook:
+      enabled: true
+    x509:
+      clientCAFile: "/etc/kubernetes/pki/ca.crt"
+  authorization:
+    mode: "Webhook"
+  clusterDomain: "{{ k8s_dns_domain }}"
+  clusterDNS:
+    - "10.96.0.10"
+  cgroupDriver: "systemd"
+  containerRuntimeEndpoint: "unix:///var/run/containerd/containerd.sock"
+  podCIDR: "{{ k8s_pod_cidr }}"
+  resolvConf: "/etc/resolv.conf"
+  rotateCertificates: true
+  serverTLSBootstrap: true
+
+# Kube-proxy configuration
+k8s_kube_proxy_config:
+  kind: "KubeProxyConfiguration"
+  apiVersion: "kubeproxy.config.k8s.io/v1alpha1"
+  mode: "iptables"
+  clusterCIDR: "{{ k8s_pod_cidr }}"
+  iptables:
+    masqueradeAll: true
+    masqueradeBit: 14
+    minSyncPeriod: "0s"
+    syncPeriod: "30s"
+  ipvs:
+    scheduler: "rr"
+    strictARP: true
+  featureGates:
+    "SupportIPVSProxyMode": true
+
+# Container runtime configuration
+containerd_config:
+  version: 2
+  root: "{{ docker_data_root }}"
+  state: "/run/containerd"
+  plugin_dir: "/opt/containerd/plugins"
+  disabled_plugins: []
+  required_plugins: []
+  oom_score: 0
+  imports:
+    - "/etc/containerd/config.toml"
+
+# Node labels
+k8s_node_labels:
+  - "node-role.kubernetes.io/worker="
+  - "kubernetes.io/arch={{ ansible_architecture }}"
+  - "kubernetes.io/os=linux"
+  - "node.kubernetes.io/instance-type={{ ansible_product_name }}"
+
+# Node taints (if any)
+k8s_node_taints: []
+
+# Resource limits
+k8s_node_resource_limits:
+  cpu: "{{ ansible_processor_vcpus }}"
+  memory: "{{ ansible_memtotal_mb }}Mi"
+  pods: "110"
+
+# Storage configuration
+k8s_storage_driver: "overlay2"
+k8s_storage_opts:
+  - "overlay2.override_kernel_check=true"
+
+# Network configuration
+k8s_network_plugin: "{{ k8s_cni }}"
+k8s_network_plugin_cni_conf_dir: "/etc/cni/net.d"
+k8s_network_plugin_cni_bin_dir: "/opt/cni/bin"
+
+# Logging configuration
+k8s_log_level: 2
+k8s_log_file: "/var/log/kubelet.log"
+k8s_log_max_size: 100
+k8s_log_max_age: 30
+k8s_log_max_backups: 3
+
+# Health check configuration
+k8s_health_check_grace_period: "40s"
+k8s_health_check_timeout: "10s"
+k8s_health_check_retries: 3
+
+# Eviction configuration
+k8s_eviction_hard:
+  - "memory.available<100Mi"
+  - "nodefs.available<10%"
+  - "imagefs.available<15%"
+k8s_eviction_soft:
+  - "memory.available<200Mi"
+  - "nodefs.available<15%"
+  - "imagefs.available<20%"
+k8s_eviction_soft_grace_period:
+  - "memory.available=2m"
+  - "nodefs.available=2m"
+  - "imagefs.available=2m"
+k8s_eviction_max_pod_grace_period: 30
+k8s_eviction_pressure_transition_period: "30s"
