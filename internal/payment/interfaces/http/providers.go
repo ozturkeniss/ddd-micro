@@ -3,6 +3,7 @@ package http
 import (
 	"github.com/ddd-micro/internal/payment/application"
 	"github.com/ddd-micro/internal/payment/infrastructure/client"
+	"github.com/ddd-micro/internal/payment/infrastructure/monitoring"
 	"github.com/gin-gonic/gin"
 	"github.com/google/wire"
 )
@@ -29,6 +30,8 @@ func NewProviders(router *gin.Engine) *Providers {
 func NewRouter(
 	paymentService *application.PaymentServiceCQRS,
 	userClient client.UserClient,
+	metrics *monitoring.PrometheusMetrics,
+	tracer *monitoring.JaegerTracer,
 ) *gin.Engine {
 	// Set Gin mode
 	gin.SetMode(gin.ReleaseMode)
@@ -42,7 +45,7 @@ func NewRouter(
 	router.Use(CORSMiddleware())
 
 	// Setup routes
-	SetupRoutes(router, paymentService, userClient)
+	SetupRoutes(router, paymentService, userClient, metrics, tracer)
 
 	return router
 }

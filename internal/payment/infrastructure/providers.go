@@ -5,6 +5,7 @@ import (
 	"github.com/ddd-micro/internal/payment/infrastructure/config"
 	"github.com/ddd-micro/internal/payment/infrastructure/database"
 	"github.com/ddd-micro/internal/payment/infrastructure/gateway"
+	"github.com/ddd-micro/internal/payment/infrastructure/monitoring"
 	"github.com/ddd-micro/internal/payment/infrastructure/persistence"
 	"github.com/ddd-micro/kafka"
 	"github.com/google/wire"
@@ -35,4 +36,7 @@ var ProviderSet = wire.NewSet(
 	// Kafka
 	kafka.LoadConfig,
 	kafka.NewKafkaPublisher,
+
+	// Monitoring
+	monitoring.ProviderSet,
 )
