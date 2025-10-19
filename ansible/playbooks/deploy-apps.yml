@@ -1,0 +1,70 @@
+---
+# Deploy Microservices Applications Playbook
+# This playbook deploys the DDD microservices using Helm
+
+- name: "Deploy Microservices Applications"
+  hosts: k8s_masters[0]
+  become: yes
+  gather_facts: yes
+  
+  pre_tasks:
+    - name: "Check if kubectl is available"
+      command: kubectl version --client
+      register: kubectl_check
+      failed_when: kubectl_check.rc != 0
+    
+    - name: "Check if helm is available"
+      command: helm version
+      register: helm_check
+      failed_when: helm_check.rc != 0
+
+  roles:
+    - role: helm-deploy
+      tags: [helm, applications, microservices]
+
+  tasks:
+    - name: "Wait for all pods to be ready"
+      kubernetes.core.kubectl:
+        state: present
+        resource: "pods"
+        namespace: "ddd-micro"
+        kubeconfig: "/etc/kubernetes/admin.conf"
+      register: pods_status
+      until: >
+        pods_status.resources | selectattr('status.phase', 'equalto', 'Running') | 
+        selectattr('status.conditions', 'defined') |
+        selectattr('status.conditions', 'selectattr', 'type', 'equalto', 'Ready') |
+        selectattr('status.conditions', 'selectattr', 'status', 'equalto', 'True') |
+        list | length == pods_status.resources | length
+      retries: 30
+      delay: 10
+    
+    - name: "Get service endpoints"
+      kubernetes.core.kubectl:
+        state: present
+        resource: "services"
+        namespace: "ddd-micro"
+        kubeconfig: "/etc/kubernetes/admin.conf"
+      register: services
+    
+    - name: "Display application status"
+      debug:
+        msg: |
+          DDD Microservices Deployment Status:
+          
+          Services:
+          {% for service in services.resources %}
+          - {{ service.metadata.name }}: {{ service.spec.type }} ({{ service.spec.ports | map(attribute='port') | join(', ') }})
+          {% endfor %}
+          
+          Pods:
+          {% for pod in pods_status.resources %}
+          - {{ pod.metadata.name }}: {{ pod.status.phase }}
+          {% endfor %}
+          
+          Access URLs:
+          - API Gateway: http://{{ k8s_master_1_ip }}:30080
+          - User Service: http://{{ k8s_master_1_ip }}:30080/api/v1/users
+          - Product Service: http://{{ k8s_master_1_ip }}:30080/api/v1/products
+          - Basket Service: http://{{ k8s_master_1_ip }}:30080/api/v1/basket
+          - Payment Service: http://{{ k8s_master_1_ip }}:30080/api/v1/payments
