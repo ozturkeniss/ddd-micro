@@ -162,28 +162,36 @@ func (r *paymentRepository) GetPaymentStats(ctx context.Context, userID *uint, s
 	}
 
 	// Get total payments and amount
-	if err := query.Count(&stats.TotalPayments).Error; err != nil {
+	var totalPayments int64
+	if err := query.Count(&totalPayments).Error; err != nil {
 		return nil, fmt.Errorf("failed to count total payments: %w", err)
 	}
+	stats.TotalPayments = int(totalPayments)
 
 	if err := query.Select("COALESCE(SUM(amount), 0)").Scan(&stats.TotalAmount).Error; err != nil {
 		return nil, fmt.Errorf("failed to get total amount: %w", err)
 	}
 
 	// Get successful payments
-	if err := query.Where("status = ?", domain.PaymentStatusCompleted).Count(&stats.SuccessfulPayments).Error; err != nil {
+	var successfulPayments int64
+	if err := query.Where("status = ?", domain.PaymentStatusCompleted).Count(&successfulPayments).Error; err != nil {
 		return nil, fmt.Errorf("failed to count successful payments: %w", err)
 	}
+	stats.SuccessfulPayments = int(successfulPayments)
 
 	// Get failed payments
-	if err := query.Where("status = ?", domain.PaymentStatusFailed).Count(&stats.FailedPayments).Error; err != nil {
+	var failedPayments int64
+	if err := query.Where("status = ?", domain.PaymentStatusFailed).Count(&failedPayments).Error; err != nil {
 		return nil, fmt.Errorf("failed to count failed payments: %w", err)
 	}
+	stats.FailedPayments = int(failedPayments)
 
 	// Get pending payments
-	if err := query.Where("status = ?", domain.PaymentStatusPending).Count(&stats.PendingPayments).Error; err != nil {
+	var pendingPayments int64
+	if err := query.Where("status = ?", domain.PaymentStatusPending).Count(&pendingPayments).Error; err != nil {
 		return nil, fmt.Errorf("failed to count pending payments: %w", err)
 	}
+	stats.PendingPayments = int(pendingPayments)
 
 	// Get refunded amount
 	if err := query.Where("status = ?", domain.PaymentStatusRefunded).Select("COALESCE(SUM(amount), 0)").Scan(&stats.RefundedAmount).Error; err != nil {

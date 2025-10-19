@@ -55,7 +55,7 @@ func (h *AddPaymentMethodCommandHandler) Handle(ctx context.Context, cmd AddPaym
 	}
 
 	// Create payment method via gateway
-	gatewayResponse, err := h.paymentGateway.CreatePaymentMethod(ctx, cmd.UserID, paymentMethod)
+	_, err := h.paymentGateway.CreatePaymentMethod(ctx, cmd.UserID, paymentMethod)
 	if err != nil {
 		return nil, err
 	}
