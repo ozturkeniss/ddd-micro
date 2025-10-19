@@ -69,9 +69,9 @@ func (h *PaymentHandler) CreatePayment(c *gin.Context) {
 	// Record successful payment creation
 	h.metrics.RecordPaymentCreation()
 	monitoring.SetSpanTags(span, map[string]interface{}{
-		"payment.id":    payment.ID,
+		"payment.id":     payment.ID,
 		"payment.amount": payment.Amount,
-		"success":       true,
+		"success":        true,
 	})
 
 	c.JSON(http.StatusCreated, payment)
@@ -158,9 +158,9 @@ func (h *PaymentHandler) ProcessPayment(c *gin.Context) {
 	// Record successful payment processing
 	h.metrics.RecordPaymentCompletion()
 	monitoring.SetSpanTags(span, map[string]interface{}{
-		"payment.id":    payment.ID,
+		"payment.id":     payment.ID,
 		"payment.status": payment.Status,
-		"success":       true,
+		"success":        true,
 	})
 
 	c.JSON(http.StatusOK, payment)
