@@ -105,7 +105,6 @@ func (c *basketClient) ClearBasket(ctx context.Context, userID uint) error {
 	return nil
 }
 
-
 // Close closes the gRPC connection
 func (c *basketClient) Close() error {
 	return c.conn.Close()
