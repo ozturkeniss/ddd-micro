@@ -1,0 +1,118 @@
+{{- if .Values.krakend.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: krakend
+  namespace: {{ .Values.global.namespace }}
+  labels:
+    app: krakend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: krakend
+  template:
+    metadata:
+      labels:
+        app: krakend
+    spec:
+      containers:
+      - name: krakend
+        image: "{{ .Values.krakend.image.repository }}:{{ .Values.krakend.image.tag }}"
+        imagePullPolicy: {{ .Values.krakend.image.pullPolicy }}
+        ports:
+        - containerPort: 8080
+        volumeMounts:
+        - name: krakend-config
+          mountPath: /etc/krakend
+        resources:
+          {{- toYaml .Values.krakend.resources | nindent 10 }}
+        livenessProbe:
+          httpGet:
+            path: /__health
+            port: 8080
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /__health
+            port: 8080
+          initialDelaySeconds: 5
+          periodSeconds: 5
+      volumes:
+      - name: krakend-config
+        configMap:
+          name: krakend-config
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: krakend-config
+  namespace: {{ .Values.global.namespace }}
+data:
+  krakend.json: |
+    {
+      "version": 3,
+      "name": "DDD Microservices Gateway",
+      "port": 8080,
+      "endpoints": [
+        {
+          "endpoint": "/api/v1/users/{user}",
+          "method": "GET",
+          "backend": [
+            {
+              "url_pattern": "/api/v1/users/{user}",
+              "host": ["http://user-service:8080"]
+            }
+          ]
+        },
+        {
+          "endpoint": "/api/v1/products",
+          "method": "GET",
+          "backend": [
+            {
+              "url_pattern": "/api/v1/products",
+              "host": ["http://product-service:8081"]
+            }
+          ]
+        },
+        {
+          "endpoint": "/api/v1/basket/{user}",
+          "method": "GET",
+          "backend": [
+            {
+              "url_pattern": "/api/v1/basket/{user}",
+              "host": ["http://basket-service:8083"]
+            }
+          ]
+        },
+        {
+          "endpoint": "/api/v1/payments",
+          "method": "POST",
+          "backend": [
+            {
+              "url_pattern": "/api/v1/payments",
+              "host": ["http://payment-service:8084"]
+            }
+          ]
+        }
+      ]
+    }
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: krakend
+  namespace: {{ .Values.global.namespace }}
+  labels:
+    app: krakend
+spec:
+  type: {{ .Values.krakend.service.type }}
+  ports:
+  - port: {{ .Values.krakend.service.port }}
+    targetPort: 8080
+    protocol: TCP
+    name: http
+  selector:
+    app: krakend
+{{- end }}
