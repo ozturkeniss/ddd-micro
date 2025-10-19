@@ -3,21 +3,25 @@ package http
 import (
 	"net/http"
 	"strconv"
+	"time"
 
 	"github.com/ddd-micro/internal/payment/application"
 	"github.com/ddd-micro/internal/payment/application/dto"
+	"github.com/ddd-micro/internal/payment/infrastructure/monitoring"
 	"github.com/gin-gonic/gin"
 )
 
 // PaymentHandler handles payment-related HTTP requests
 type PaymentHandler struct {
 	paymentService *application.PaymentServiceCQRS
+	metrics        *monitoring.PrometheusMetrics
 }
 
 // NewPaymentHandler creates a new payment handler
-func NewPaymentHandler(paymentService *application.PaymentServiceCQRS) *PaymentHandler {
+func NewPaymentHandler(paymentService *application.PaymentServiceCQRS, metrics *monitoring.PrometheusMetrics) *PaymentHandler {
 	return &PaymentHandler{
 		paymentService: paymentService,
+		metrics:        metrics,
 	}
 }
 
@@ -35,19 +39,40 @@ func NewPaymentHandler(paymentService *application.PaymentServiceCQRS) *PaymentH
 // @Failure 500 {object} map[string]string
 // @Router /payments [post]
 func (h *PaymentHandler) CreatePayment(c *gin.Context) {
+	// Start tracing span
+	span, _ := monitoring.StartSpanFromGinContext(c, "payment.create")
+	defer span.Finish()
+
 	userID := c.GetUint("user_id")
 
 	var req dto.CreatePaymentRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
+		monitoring.LogSpanError(span, err)
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
+	start := time.Now()
 	payment, err := h.paymentService.CreatePayment(c.Request.Context(), userID, req)
+	duration := time.Since(start)
+
+	// Record database query duration
+	h.metrics.RecordDatabaseQueryDuration("create_payment", "payments", duration)
+
 	if err != nil {
+		monitoring.LogSpanError(span, err)
+		h.metrics.RecordPaymentFailure()
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
+
+	// Record successful payment creation
+	h.metrics.RecordPaymentCreation()
+	monitoring.SetSpanTags(span, map[string]interface{}{
+		"payment.id":    payment.ID,
+		"payment.amount": payment.Amount,
+		"success":       true,
+	})
 
 	c.JSON(http.StatusCreated, payment)
 }
@@ -98,17 +123,30 @@ func (h *PaymentHandler) GetPayment(c *gin.Context) {
 // @Failure 500 {object} map[string]string
 // @Router /payments/{id}/process [post]
 func (h *PaymentHandler) ProcessPayment(c *gin.Context) {
+	// Start tracing span
+	span, _ := monitoring.StartSpanFromGinContext(c, "payment.process")
+	defer span.Finish()
+
 	userID := c.GetUint("user_id")
 	paymentID := c.Param("id")
 
 	var req dto.ProcessPaymentRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
+		monitoring.LogSpanError(span, err)
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
+	start := time.Now()
 	payment, err := h.paymentService.ProcessPayment(c.Request.Context(), userID, paymentID, req)
+	duration := time.Since(start)
+
+	// Record payment processing duration
+	h.metrics.RecordPaymentProcessingDuration("credit_card", "processing", duration)
+
 	if err != nil {
+		monitoring.LogSpanError(span, err)
+		h.metrics.RecordPaymentFailure()
 		if err.Error() == "payment not found" {
 			c.JSON(http.StatusNotFound, gin.H{"error": "Payment not found"})
 			return
@@ -116,6 +154,14 @@ func (h *PaymentHandler) ProcessPayment(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
+
+	// Record successful payment processing
+	h.metrics.RecordPaymentCompletion()
+	monitoring.SetSpanTags(span, map[string]interface{}{
+		"payment.id":    payment.ID,
+		"payment.status": payment.Status,
+		"success":       true,
+	})
 
 	c.JSON(http.StatusOK, payment)
 }
@@ -223,19 +269,39 @@ func (h *PaymentHandler) GetPaymentMethods(c *gin.Context) {
 // @Failure 500 {object} map[string]string
 // @Router /payment-methods [post]
 func (h *PaymentHandler) AddPaymentMethod(c *gin.Context) {
+	// Start tracing span
+	span, _ := monitoring.StartSpanFromGinContext(c, "payment_method.add")
+	defer span.Finish()
+
 	userID := c.GetUint("user_id")
 
 	var req dto.AddPaymentMethodRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
+		monitoring.LogSpanError(span, err)
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
+	start := time.Now()
 	paymentMethod, err := h.paymentService.AddPaymentMethod(c.Request.Context(), userID, req)
+	duration := time.Since(start)
+
+	// Record database query duration
+	h.metrics.RecordDatabaseQueryDuration("create_payment_method", "payment_methods", duration)
+
 	if err != nil {
+		monitoring.LogSpanError(span, err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
+
+	// Record successful payment method addition
+	h.metrics.RecordPaymentMethodAddition()
+	monitoring.SetSpanTags(span, map[string]interface{}{
+		"payment_method.id":   paymentMethod.ID,
+		"payment_method.type": paymentMethod.Type,
+		"success":             true,
+	})
 
 	c.JSON(http.StatusCreated, paymentMethod)
 }
