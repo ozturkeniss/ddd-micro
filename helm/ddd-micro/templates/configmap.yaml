@@ -1,0 +1,28 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: ddd-micro-config
+  namespace: {{ .Values.global.namespace }}
+data:
+  # Database configurations
+  POSTGRES_USER: "postgres"
+  POSTGRES_PASSWORD: "postgres"
+  DB_SSLMODE: "disable"
+  
+  # Redis configuration
+  REDIS_PASSWORD: ""
+  REDIS_DB: "0"
+  
+  # JWT Configuration
+  JWT_SECRET: "your-super-secret-jwt-key-change-in-production"
+  
+  # Service URLs
+  USER_SERVICE_URL: "user-service:9090"
+  PRODUCT_SERVICE_URL: "product-service:9091"
+  BASKET_SERVICE_URL: "basket-service:9093"
+  
+  # Kafka Configuration
+  KAFKA_BROKERS: "kafka:29092"
+  
+  # Gin Mode
+  GIN_MODE: "release"
