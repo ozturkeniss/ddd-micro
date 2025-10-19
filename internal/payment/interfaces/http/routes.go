@@ -3,7 +3,9 @@ package http
 import (
 	"github.com/ddd-micro/internal/payment/application"
 	"github.com/ddd-micro/internal/payment/infrastructure/client"
+	"github.com/ddd-micro/internal/payment/infrastructure/monitoring"
 	"github.com/gin-gonic/gin"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
 )
@@ -13,9 +15,21 @@ func SetupRoutes(
 	router *gin.Engine,
 	paymentService *application.PaymentServiceCQRS,
 	userClient client.UserClient,
+	metrics *monitoring.PrometheusMetrics,
+	tracer *monitoring.JaegerTracer,
 ) {
+	// Add monitoring middlewares
+	router.Use(monitoring.PrometheusMiddleware(metrics))
+	router.Use(monitoring.JaegerMiddleware(tracer))
+
+	// Prometheus metrics endpoint
+	router.GET("/metrics", gin.WrapH(promhttp.Handler()))
+
+	// Swagger documentation
+	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
+
 	// Initialize handlers
-	paymentHandler := NewPaymentHandler(paymentService)
+	paymentHandler := NewPaymentHandler(paymentService, metrics)
 	adminHandler := NewAdminHandler(paymentService)
 
 	// Initialize middleware
@@ -86,6 +100,4 @@ func SetupRoutes(
 		}
 	}
 
-	// Swagger documentation
-	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 }
