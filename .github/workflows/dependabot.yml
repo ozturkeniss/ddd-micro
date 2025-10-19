@@ -1,0 +1,80 @@
+name: Dependabot Auto-merge
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+jobs:
+  dependabot:
+    name: Dependabot Auto-merge
+    runs-on: ubuntu-latest
+    if: github.actor == 'dependabot[bot]'
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+        
+    - name: Set up Go
+      uses: actions/setup-go@v4
+      with:
+        go-version: '1.23'
+        
+    - name: Set up Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+        cache-dependency-path: client/package-lock.json
+        
+    - name: Install Go dependencies
+      run: go mod download
+      
+    - name: Install Node.js dependencies
+      run: |
+        cd client
+        npm ci
+        
+    - name: Run Go tests
+      run: go test ./...
+      
+    - name: Run Node.js tests
+      run: |
+        cd client
+        npm test
+        
+    - name: Run Go build
+      run: go build ./...
+      
+    - name: Run Node.js build
+      run: |
+        cd client
+        npm run build
+        
+    - name: Check if PR is ready for merge
+      id: check
+      run: |
+        # Check if all checks are passing
+        gh pr checks ${{ github.event.pull_request.number }} --json status,conclusion | jq -r '.[] | select(.conclusion != "SUCCESS" and .conclusion != "SKIPPED") | .conclusion' > failed_checks.txt
+        if [ -s failed_checks.txt ]; then
+          echo "Some checks are failing, not ready for merge"
+          echo "ready=false" >> $GITHUB_OUTPUT
+        else
+          echo "All checks are passing, ready for merge"
+          echo "ready=true" >> $GITHUB_OUTPUT
+        fi
+        
+    - name: Auto-merge Dependabot PR
+      if: steps.check.outputs.ready == 'true'
+      run: |
+        gh pr merge ${{ github.event.pull_request.number }} --squash --delete-branch
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        
+    - name: Comment on PR
+      if: steps.check.outputs.ready == 'false'
+      run: |
+        gh pr comment ${{ github.event.pull_request.number }} --body "❌ This PR cannot be auto-merged due to failing checks. Please review manually."
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

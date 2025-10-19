@@ -298,6 +298,65 @@ graph TB
     DOCKER --> STRIPE
 ```
 
+## Dependency Management
+
+```mermaid
+%%{init: {'theme':'dark', 'themeVariables': { 'primaryColor': '#ff6b6b', 'primaryTextColor': '#ffffff', 'primaryBorderColor': '#ff6b6b', 'lineColor': '#ffffff', 'secondaryColor': '#4ecdc4', 'tertiaryColor': '#45b7d1', 'background': '#2c3e50', 'mainBkg': '#34495e', 'secondBkg': '#2c3e50', 'tertiaryBkg': '#34495e'}}}%%
+graph TB
+    subgraph "Dependabot Configuration"
+        DEPENDABOT[Dependabot Bot]
+        SCHEDULE[Weekly Schedule]
+        AUTO_MERGE[Auto-merge PRs]
+        LABELS[Auto-labeling]
+    end
+    
+    subgraph "Dependency Ecosystems"
+        GO_DEPS[Go Modules]
+        NPM_DEPS[NPM Packages]
+        DOCKER_DEPS[Docker Images]
+        GITHUB_ACTIONS[GitHub Actions]
+        TERRAFORM_DEPS[Terraform Modules]
+        HELM_DEPS[Helm Charts]
+    end
+    
+    subgraph "Update Process"
+        CHECK[Check for Updates]
+        CREATE_PR[Create Pull Request]
+        RUN_TESTS[Run Tests]
+        AUTO_MERGE_CHECK[Auto-merge Check]
+        MERGE[Merge PR]
+    end
+    
+    subgraph "Security & Quality"
+        SECURITY_SCAN[Security Scanning]
+        VULNERABILITY_CHECK[Vulnerability Check]
+        COMPATIBILITY_TEST[Compatibility Test]
+        BREAKING_CHANGE_CHECK[Breaking Change Check]
+    end
+    
+    DEPENDABOT --> SCHEDULE
+    DEPENDABOT --> AUTO_MERGE
+    DEPENDABOT --> LABELS
+    
+    SCHEDULE --> CHECK
+    CHECK --> CREATE_PR
+    CREATE_PR --> RUN_TESTS
+    RUN_TESTS --> AUTO_MERGE_CHECK
+    AUTO_MERGE_CHECK --> MERGE
+    
+    GO_DEPS --> CHECK
+    NPM_DEPS --> CHECK
+    DOCKER_DEPS --> CHECK
+    GITHUB_ACTIONS --> CHECK
+    TERRAFORM_DEPS --> CHECK
+    HELM_DEPS --> CHECK
+    
+    RUN_TESTS --> SECURITY_SCAN
+    RUN_TESTS --> VULNERABILITY_CHECK
+    RUN_TESTS --> COMPATIBILITY_TEST
+    RUN_TESTS --> BREAKING_CHANGE_CHECK
+```
+
 ## Service Dependencies
 
 ```mermaid
