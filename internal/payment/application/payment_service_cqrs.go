@@ -10,7 +10,6 @@ import (
 	"github.com/ddd-micro/internal/payment/domain"
 	"github.com/ddd-micro/internal/payment/infrastructure/client"
 	"github.com/ddd-micro/internal/payment/infrastructure/kafka"
-	"github.com/ddd-micro/kafka"
 )
 
 // PaymentServiceCQRS represents the main payment service using CQRS pattern
