@@ -1,0 +1,92 @@
+---
+# Kubernetes Installation Tasks
+
+- name: "Create Kubernetes directories"
+  file:
+    path: "{{ item }}"
+    state: directory
+    mode: '0755'
+  loop:
+    - /etc/kubernetes
+    - /etc/kubernetes/manifests
+    - /etc/kubernetes/pki
+    - /etc/kubernetes/pki/etcd
+    - /var/lib/kubelet
+    - /var/lib/kube-proxy
+    - /var/log/kubernetes
+
+- name: "Configure kubelet systemd service"
+  systemd:
+    name: kubelet
+    enabled: yes
+    daemon_reload: yes
+
+- name: "Create kubelet service override directory"
+  file:
+    path: /etc/systemd/system/kubelet.service.d
+    state: directory
+    mode: '0755'
+
+- name: "Configure kubelet service override"
+  copy:
+    content: |
+      [Service]
+      Environment="KUBELET_KUBECONFIG_ARGS=--bootstrap-kubeconfig=/etc/kubernetes/bootstrap-kubelet.conf --kubeconfig=/etc/kubernetes/kubelet.conf"
+      Environment="KUBELET_CONFIG_ARGS=--config=/var/lib/kubelet/config.yaml"
+      Environment="KUBELET_SYSTEM_PODS_ARGS=--pod-manifest-path=/etc/kubernetes/manifests"
+      Environment="KUBELET_NETWORK_ARGS=--network-plugin=cni --cni-conf-dir=/etc/cni/net.d --cni-bin-dir=/opt/cni/bin"
+      Environment="KUBELET_DNS_ARGS=--cluster-dns=10.96.0.10 --cluster-domain=cluster.local"
+      Environment="KUBELET_AUTHZ_ARGS=--authorization-mode=Webhook --client-ca-file=/etc/kubernetes/pki/ca.crt"
+      Environment="KUBELET_CADVISOR_ARGS=--cadvisor-port=0"
+      Environment="KUBELET_CERTIFICATE_ARGS=--rotate-certificates=true --cert-dir=/var/lib/kubelet/pki"
+      Environment="KUBELET_EXTRA_ARGS=--container-runtime=remote --container-runtime-endpoint=unix:///var/run/containerd/containerd.sock"
+      ExecStart=
+      ExecStart=/usr/bin/kubelet $KUBELET_KUBECONFIG_ARGS $KUBELET_CONFIG_ARGS $KUBELET_SYSTEM_PODS_ARGS $KUBELET_NETWORK_ARGS $KUBELET_DNS_ARGS $KUBELET_AUTHZ_ARGS $KUBELET_CADVISOR_ARGS $KUBELET_CERTIFICATE_ARGS $KUBELET_EXTRA_ARGS
+    dest: /etc/systemd/system/kubelet.service.d/10-kubeadm.conf
+  notify: restart kubelet
+
+- name: "Configure kubelet"
+  copy:
+    content: |
+      apiVersion: kubelet.config.k8s.io/v1beta1
+      kind: KubeletConfiguration
+      authentication:
+        anonymous:
+          enabled: false
+        webhook:
+          enabled: true
+        x509:
+          clientCAFile: /etc/kubernetes/pki/ca.crt
+      authorization:
+        mode: Webhook
+      clusterDomain: cluster.local
+      clusterDNS:
+        - 10.96.0.10
+      cgroupDriver: systemd
+      containerRuntimeEndpoint: unix:///var/run/containerd/containerd.sock
+      podCIDR: 10.244.0.0/16
+      resolvConf: /etc/resolv.conf
+      rotateCertificates: true
+      serverTLSBootstrap: true
+    dest: /var/lib/kubelet/config.yaml
+  notify: restart kubelet
+
+- name: "Configure kube-proxy"
+  copy:
+    content: |
+      apiVersion: kubeproxy.config.k8s.io/v1alpha1
+      kind: KubeProxyConfiguration
+      mode: iptables
+      clusterCIDR: 10.244.0.0/16
+      iptables:
+        masqueradeAll: true
+        masqueradeBit: 14
+        minSyncPeriod: 0s
+        syncPeriod: 30s
+      ipvs:
+        scheduler: rr
+        strictARP: true
+      featureGates:
+        SupportIPVSProxyMode: true
+    dest: /var/lib/kube-proxy/config.conf
+  notify: restart kube-proxy
