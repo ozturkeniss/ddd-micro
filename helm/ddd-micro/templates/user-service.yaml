@@ -1,0 +1,94 @@
+{{- if .Values.userService.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: user-service
+  namespace: {{ .Values.global.namespace }}
+  labels:
+    app: user-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: user-service
+  template:
+    metadata:
+      labels:
+        app: user-service
+    spec:
+      {{- with .Values.global.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      containers:
+      - name: user-service
+        image: "{{ .Values.global.imageRegistry }}{{ .Values.userService.image.repository }}:{{ .Values.userService.image.tag }}"
+        imagePullPolicy: {{ .Values.userService.image.pullPolicy }}
+        ports:
+        - containerPort: 8080
+        env:
+        - name: PORT
+          value: "8080"
+        - name: GIN_MODE
+          valueFrom:
+            configMapKeyRef:
+              name: ddd-micro-config
+              key: GIN_MODE
+        - name: DB_HOST
+          value: "postgresql"
+        - name: DB_PORT
+          value: "5432"
+        - name: DB_USER
+          valueFrom:
+            configMapKeyRef:
+              name: ddd-micro-config
+              key: POSTGRES_USER
+        - name: DB_PASSWORD
+          valueFrom:
+            configMapKeyRef:
+              name: ddd-micro-config
+              key: POSTGRES_PASSWORD
+        - name: DB_NAME
+          value: "user_service_db"
+        - name: DB_SSLMODE
+          valueFrom:
+            configMapKeyRef:
+              name: ddd-micro-config
+              key: DB_SSLMODE
+        - name: JWT_SECRET
+          valueFrom:
+            configMapKeyRef:
+              name: ddd-micro-config
+              key: JWT_SECRET
+        resources:
+          {{- toYaml .Values.userService.resources | nindent 10 }}
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8080
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 8080
+          initialDelaySeconds: 5
+          periodSeconds: 5
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: user-service
+  namespace: {{ .Values.global.namespace }}
+  labels:
+    app: user-service
+spec:
+  type: {{ .Values.userService.service.type }}
+  ports:
+  - port: {{ .Values.userService.service.port }}
+    targetPort: 8080
+    protocol: TCP
+    name: http
+  selector:
+    app: user-service
+{{- end }}
