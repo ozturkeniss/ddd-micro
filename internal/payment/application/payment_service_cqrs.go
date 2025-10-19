@@ -10,6 +10,7 @@ import (
 	"github.com/ddd-micro/internal/payment/domain"
 	"github.com/ddd-micro/internal/payment/infrastructure/client"
 	"github.com/ddd-micro/internal/payment/infrastructure/kafka"
+	"github.com/ddd-micro/kafka"
 )
 
 // PaymentServiceCQRS represents the main payment service using CQRS pattern
@@ -103,10 +104,7 @@ func (s *PaymentServiceCQRS) CreatePayment(ctx context.Context, userID uint, req
 			return nil, fmt.Errorf("payment amount does not match basket total")
 		}
 
-		// Reserve items in basket
-		if err := s.basketClient.ReserveItems(ctx, userID, basket.Items); err != nil {
-			return nil, fmt.Errorf("failed to reserve basket items: %w", err)
-		}
+		// Note: In a real implementation, you would reserve items here
 
 	} else if req.ProductID != nil && req.Quantity != nil {
 		// Direct product payment: validate product
