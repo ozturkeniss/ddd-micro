@@ -186,3 +186,21 @@ krakend:
     limits:
       memory: "128Mi"
       cpu: "100m"
+
+# Ingress configuration
+ingress:
+  enabled: false
+  host: ""
+  tls: false
+
+# Network Policy
+networkPolicy:
+  enabled: false
+
+# Autoscaling
+autoscaling:
+  enabled: false
+  minReplicas: 1
+  maxReplicas: 10
+  targetCPUUtilizationPercentage: 70
+  targetMemoryUtilizationPercentage: 80
