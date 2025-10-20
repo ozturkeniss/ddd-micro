@@ -2,7 +2,6 @@
 
 A comprehensive microservices architecture built with Domain-Driven Design principles, featuring user management, product catalog, shopping basket, and payment processing services.
 
-[![All Contributors](https://img.shields.io/badge/all_contributors-1-orange.svg?style=flat-square)](#contributors)
 
 ## Architecture Overview
 
@@ -359,77 +358,6 @@ graph TB
     RUN_TESTS --> BREAKING_CHANGE_CHECK
 ```
 
-## All Contributors Bot
-
-```mermaid
-%%{init: {'theme':'dark', 'themeVariables': { 'primaryColor': '#ff6b6b', 'primaryTextColor': '#ffffff', 'primaryBorderColor': '#ff6b6b', 'lineColor': '#ffffff', 'secondaryColor': '#4ecdc4', 'tertiaryColor': '#45b7d1', 'background': '#2c3e50', 'mainBkg': '#34495e', 'secondBkg': '#2c3e50', 'tertiaryBkg': '#34495e'}}}%%
-graph TB
-    subgraph "All Contributors Bot"
-        BOT[All Contributors Bot]
-        CONFIG[Configuration File]
-        WORKFLOW[GitHub Workflow]
-        CLI[CLI Tool]
-    end
-    
-    subgraph "Contribution Types"
-        CODE[💻 Code]
-        DESIGN[🎨 Design]
-        DOC[📝 Documentation]
-        IDEAS[💡 Ideas]
-        INFRA[🚇 Infrastructure]
-        MAINT[🔧 Maintenance]
-        PROJECT[📋 Project Management]
-        REVIEW[👀 Review]
-        TOOL[🔧 Tools]
-        TEST[⚠️ Tests]
-        BUG[🐛 Bug Reports]
-        FEATURE[✨ Features]
-    end
-    
-    subgraph "Auto-Detection"
-        COMMITS[Git Commits]
-        ISSUES[GitHub Issues]
-        PRS[Pull Requests]
-        COMMENTS[Issue Comments]
-    end
-    
-    subgraph "Output"
-        README[README Update]
-        BADGE[Contributors Badge]
-        TABLE[Contributors Table]
-        AVATARS[Profile Pictures]
-    end
-    
-    BOT --> CONFIG
-    BOT --> WORKFLOW
-    BOT --> CLI
-    
-    CONFIG --> README
-    WORKFLOW --> README
-    CLI --> README
-    
-    COMMITS --> BOT
-    ISSUES --> BOT
-    PRS --> BOT
-    COMMENTS --> BOT
-    
-    README --> BADGE
-    README --> TABLE
-    README --> AVATARS
-    
-    CODE --> README
-    DESIGN --> README
-    DOC --> README
-    IDEAS --> README
-    INFRA --> README
-    MAINT --> README
-    PROJECT --> README
-    REVIEW --> README
-    TOOL --> README
-    TEST --> README
-    BUG --> README
-    FEATURE --> README
-```
 
 ## Service Dependencies
 
@@ -989,33 +917,3 @@ graph TB
     REDIS_CONTAINER --> NETWORK
     POSTGRES_CONTAINER --> NETWORK
 ```
-
-## Contributors
-
-<!-- ALL-CONTRIBUTORS-LIST:START - Do not remove or modify this section -->
-<!-- prettier-ignore-start -->
-<!-- markdownlint-disable -->
-<table>
-  <tbody>
-    <tr>
-      <td align="center" valign="top" width="14.28%"><a href="https://github.com/tair"><img src="https://avatars.githubusercontent.com/u/12345678?v=4" width="100px;" alt=""/><br /><sub><b>Tair</b></sub></a><br /><a href="https://github.com/tair" title="Tair">👤</a></td>
-    </tr>
-  </tbody>
-</table>
-
-<!-- markdownlint-restore -->
-<!-- prettier-ignore-end -->
-
-<!-- ALL-CONTRIBUTORS-LIST:END -->
-
-## License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## Acknowledgments
-
-- Domain-Driven Design principles
-- Microservices architecture patterns
-- Event-driven architecture
-- CQRS and Event Sourcing
-- Clean Architecture principles
