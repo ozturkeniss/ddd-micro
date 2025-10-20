@@ -1,8 +1,15 @@
-# Dependabot configuration for DDD Microservices
+# ==============================================================================
+# DEPENDABOT CONFIGURATION
+# ==============================================================================
+# Purpose: Automatic dependency updates
+# ==============================================================================
 
 version: 2
+
 updates:
-  # Go modules
+  # ============================================================================
+  # Go Dependencies
+  # ============================================================================
   - package-ecosystem: "gomod"
     directory: "/"
     schedule:
@@ -11,133 +18,58 @@ updates:
       time: "09:00"
     open-pull-requests-limit: 10
     reviewers:
-      - "tair"
+      - "devops-team"
     assignees:
-      - "tair"
+      - "tech-lead"
     commit-message:
-      prefix: "deps"
+      prefix: "chore(deps)"
       include: "scope"
     labels:
       - "dependencies"
       - "go"
     ignore:
-      # Ignore major version updates for critical dependencies
-      - dependency-name: "github.com/gin-gonic/gin"
-        update-types: ["version-update:semver-major"]
-      - dependency-name: "github.com/golang-migrate/migrate"
+      # Ignore major version updates
+      - dependency-name: "*"
         update-types: ["version-update:semver-major"]
 
-  # Node.js dependencies
-  - package-ecosystem: "npm"
-    directory: "/client"
-    schedule:
-      interval: "weekly"
-      day: "monday"
-      time: "09:00"
-    open-pull-requests-limit: 5
-    reviewers:
-      - "tair"
-    assignees:
-      - "tair"
-    commit-message:
-      prefix: "deps"
-      include: "scope"
-    labels:
-      - "dependencies"
-      - "javascript"
-      - "client"
-    ignore:
-      # Ignore major version updates for critical dependencies
-      - dependency-name: "react"
-        update-types: ["version-update:semver-major"]
-      - dependency-name: "next"
-        update-types: ["version-update:semver-major"]
-
-  # Docker dependencies
+  # ============================================================================
+  # Docker Images
+  # ============================================================================
   - package-ecosystem: "docker"
-    directory: "/"
+    directory: "/dockerfiles"
     schedule:
       interval: "weekly"
-      day: "monday"
-      time: "09:00"
     open-pull-requests-limit: 5
-    reviewers:
-      - "tair"
-    assignees:
-      - "tair"
     commit-message:
-      prefix: "deps"
-      include: "scope"
+      prefix: "chore(docker)"
     labels:
       - "dependencies"
       - "docker"
-    ignore:
-      # Ignore major version updates for base images
-      - dependency-name: "golang"
-        update-types: ["version-update:semver-major"]
-      - dependency-name: "node"
-        update-types: ["version-update:semver-major"]
-      - dependency-name: "postgres"
-        update-types: ["version-update:semver-major"]
-      - dependency-name: "redis"
-        update-types: ["version-update:semver-major"]
 
+  # ============================================================================
   # GitHub Actions
+  # ============================================================================
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
       interval: "weekly"
-      day: "monday"
-      time: "09:00"
     open-pull-requests-limit: 5
-    reviewers:
-      - "tair"
-    assignees:
-      - "tair"
     commit-message:
-      prefix: "ci"
-      include: "scope"
+      prefix: "chore(ci)"
     labels:
       - "dependencies"
       - "github-actions"
-      - "ci"
 
-  # Terraform modules
+  # ============================================================================
+  # Terraform
+  # ============================================================================
   - package-ecosystem: "terraform"
     directory: "/terraform"
     schedule:
       interval: "weekly"
-      day: "monday"
-      time: "09:00"
     open-pull-requests-limit: 5
-    reviewers:
-      - "tair"
-    assignees:
-      - "tair"
     commit-message:
-      prefix: "deps"
-      include: "scope"
+      prefix: "chore(terraform)"
     labels:
       - "dependencies"
       - "terraform"
-      - "infrastructure"
-
-  # Helm charts
-  - package-ecosystem: "docker"
-    directory: "/helm"
-    schedule:
-      interval: "weekly"
-      day: "monday"
-      time: "09:00"
-    open-pull-requests-limit: 3
-    reviewers:
-      - "tair"
-    assignees:
-      - "tair"
-    commit-message:
-      prefix: "deps"
-      include: "scope"
-    labels:
-      - "dependencies"
-      - "helm"
-      - "kubernetes"
