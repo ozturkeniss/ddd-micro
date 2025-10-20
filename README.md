@@ -1,6 +1,6 @@
 # DDD Microservices Architecture
 
-A comprehensive microservices architecture built with Domain-Driven Design principles, featuring user management, product catalog, shopping basket, and payment processing services.
+A fully featured microservices architecture designed with Domain-Driven Design principles — including services for user management, product catalog, shopping basket, and payment processing.
 
 
 ## Architecture Overview
