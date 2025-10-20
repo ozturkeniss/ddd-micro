@@ -10,6 +10,13 @@ on:
   issue_comment:
     types: [created]
 
+permissions:
+  contents: write
+  pull-requests: write
+  checks: write
+  statuses: write
+  issues: write
+
 jobs:
   all-contributors:
     name: All Contributors

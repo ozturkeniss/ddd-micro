@@ -10,6 +10,12 @@ on:
       - 'terraform/**'
       - '.github/workflows/terraform.yml'
 
+permissions:
+  contents: read
+  pull-requests: write
+  checks: write
+  statuses: write
+
 env:
   TF_VERSION: '1.6.0'
   TF_WORKING_DIR: './terraform'
