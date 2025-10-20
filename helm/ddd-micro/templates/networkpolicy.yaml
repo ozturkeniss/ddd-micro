@@ -1,0 +1,45 @@
+{{- if .Values.networkPolicy.enabled }}
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: ddd-micro-network-policy
+  namespace: {{ .Values.global.namespace }}
+  labels:
+    app: ddd-micro
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/part-of: ddd-micro
+  policyTypes:
+  - Ingress
+  - Egress
+  ingress:
+  - from:
+    - namespaceSelector:
+        matchLabels:
+          name: {{ .Values.global.namespace }}
+    - namespaceSelector:
+        matchLabels:
+          name: ingress-nginx
+  - from:
+    - podSelector:
+        matchLabels:
+          app: krakend
+  egress:
+  - to:
+    - namespaceSelector:
+        matchLabels:
+          name: {{ .Values.global.namespace }}
+  - to: []
+    ports:
+    - protocol: TCP
+      port: 53
+    - protocol: UDP
+      port: 53
+  - to: []
+    ports:
+    - protocol: TCP
+      port: 443
+    - protocol: TCP
+      port: 80
+{{- end }}
